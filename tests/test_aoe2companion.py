@@ -17,11 +17,11 @@ def test_parse_profile(load_fixture):
 
     assert profile.profile_id == VIPER
     assert profile.name == "TheViper"
-    rm = profile.rating_for(Leaderboard.RM_1V1)
-    assert rm is not None
-    assert (rm.rating, rm.rank, rm.wins, rm.losses) == (2771, 23, 1827, 1010)
-    assert rm.highest_rating == 2911
-    assert rm.last_match == datetime(2026, 10, 19, 14, 35, 23, tzinfo=UTC)
+    rm_1v1 = profile.rating_for(Leaderboard.RM_1V1)
+    assert rm_1v1 is not None
+    assert (rm_1v1.rating, rm_1v1.rank, rm_1v1.wins, rm_1v1.losses) == (2771, 23, 1827, 1010)
+    assert rm_1v1.highest_rating == 2911
+    assert rm_1v1.last_match == datetime(2026, 10, 19, 14, 35, 23, tzinfo=UTC)
     assert profile.rating_for(Leaderboard.RM_TEAM).rating == 1903
 
 

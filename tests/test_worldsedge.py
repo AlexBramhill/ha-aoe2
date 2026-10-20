@@ -20,8 +20,8 @@ def test_parse_profile(load_fixture):
     profile = parse_profile(load_fixture("worldsedge_stat.json"), VIPER)
 
     assert profile.name == "Oni.TheViper"
-    rm = profile.rating_for(Leaderboard.RM_1V1)
-    assert (rm.rating, rm.rank, rm.wins, rm.losses) == (2771, 23, 1827, 1010)
+    rm_1v1 = profile.rating_for(Leaderboard.RM_1V1)
+    assert (rm_1v1.rating, rm_1v1.rank, rm_1v1.wins, rm_1v1.losses) == (2771, 23, 1827, 1010)
     assert profile.rating_for(Leaderboard.RM_TEAM).rating == 1903
 
 
@@ -33,7 +33,8 @@ def test_parse_profile_unknown_id(load_fixture):
 def test_parse_matches_sorted_newest_first(load_fixture):
     matches = parse_matches(load_fixture("worldsedge_matches.json"))
 
-    assert [m.started for m in matches] == sorted((m.started for m in matches), reverse=True)
+    start_times = [match.started for match in matches]
+    assert start_times == sorted(start_times, reverse=True)
     newest = matches[0]
     assert newest.match_id == 492055484
     assert newest.leaderboard is Leaderboard.RM_TEAM
