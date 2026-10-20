@@ -1,5 +1,3 @@
-# Undocumented API. Civs come back as numeric IDs only, so MatchPlayer.civ is None here.
-
 import json
 import re
 from collections.abc import Iterator
@@ -175,6 +173,7 @@ def _match_player(member: dict[str, Any], names: dict[int, str]) -> MatchPlayer:
         profile_id=member["profile_id"],
         name=names.get(member["profile_id"]),
         team=member.get("teamid"),
+        # Undocumented API. Civs come back as numeric IDs only, so we set civ to none for the time being.
         civ=None,
         rating=member.get("newrating"),
         rating_change=_rating_change(member),
