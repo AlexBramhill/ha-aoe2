@@ -1,7 +1,7 @@
 # ha-aoe2
 
 [![CI](https://github.com/AlexBramhill/ha-aoe2/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/AlexBramhill/ha-aoe2/actions/workflows/ci.yml)
-[![Python 3.13+](https://img.shields.io/badge/python-3.13%2B-blue.svg)](https://www.python.org/downloads/)
+[![Python 3.14+](https://img.shields.io/badge/python-3.14%2B-blue.svg)](https://www.python.org/downloads/)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
 Home Assistant integration for Age of Empires II: Definitive Edition. Tracks player ratings and recent matches.
@@ -10,7 +10,7 @@ Home Assistant integration for Age of Empires II: Definitive Edition. Tracks pla
 
 ## Requirements
 
-- Python 3.13 or later
+- Python 3.14.2 or later (required by Home Assistant 2026.10)
 - [uv](https://docs.astral.sh/uv/)
 
 ## Setup
