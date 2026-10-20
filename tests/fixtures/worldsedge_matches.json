@@ -1,0 +1,716 @@
+{
+  "result": {
+    "code": 0,
+    "message": "SUCCESS"
+  },
+  "matchHistoryStats": [
+    {
+      "id": 492055484,
+      "creator_profile_id": 19657014,
+      "mapname": "CoastalForest.rms",
+      "maxplayers": 8,
+      "matchtype_id": 9,
+      "description": "AUTOMATCH",
+      "startgametime": 1783947680,
+      "completiontime": 1783948606,
+      "observertotal": 4,
+      "matchhistoryreportresults": [
+        {
+          "matchhistory_id": 492055484,
+          "profile_id": 19657014,
+          "resulttype": 0,
+          "teamid": 0,
+          "civilization_id": 16,
+          "xpgained": 1,
+          "counters": "{}",
+          "matchstartdate": 1783947680
+        },
+        {
+          "matchhistory_id": 492055484,
+          "profile_id": 2858362,
+          "resulttype": 1,
+          "teamid": 1,
+          "civilization_id": 31,
+          "xpgained": 1,
+          "counters": "{}",
+          "matchstartdate": 1783947680
+        },
+        {
+          "matchhistory_id": 492055484,
+          "profile_id": 5879701,
+          "resulttype": 0,
+          "teamid": 0,
+          "civilization_id": 19,
+          "xpgained": 1,
+          "counters": "{}",
+          "matchstartdate": 1783947680
+        },
+        {
+          "matchhistory_id": 492055484,
+          "profile_id": 4607460,
+          "resulttype": 1,
+          "teamid": 1,
+          "civilization_id": 17,
+          "xpgained": 1,
+          "counters": "{}",
+          "matchstartdate": 1783947680
+        },
+        {
+          "matchhistory_id": 492055484,
+          "profile_id": 15214143,
+          "resulttype": 0,
+          "teamid": 0,
+          "civilization_id": 32,
+          "xpgained": 1,
+          "counters": "{}",
+          "matchstartdate": 1783947680
+        },
+        {
+          "matchhistory_id": 492055484,
+          "profile_id": 1531083,
+          "resulttype": 1,
+          "teamid": 1,
+          "civilization_id": 32,
+          "xpgained": 1,
+          "counters": "{}",
+          "matchstartdate": 1783947680
+        },
+        {
+          "matchhistory_id": 492055484,
+          "profile_id": 299982,
+          "resulttype": 0,
+          "teamid": 0,
+          "civilization_id": 40,
+          "xpgained": 1,
+          "counters": "{}",
+          "matchstartdate": 1783947680
+        },
+        {
+          "matchhistory_id": 492055484,
+          "profile_id": 196240,
+          "resulttype": 1,
+          "teamid": 1,
+          "civilization_id": 59,
+          "xpgained": 1,
+          "counters": "{}",
+          "matchstartdate": 1783947680
+        }
+      ],
+      "matchhistoryitems": [],
+      "matchurls": [
+        {
+          "profile_id": 19657014,
+          "url": "https://rl0aoelivemk2blob.blob.core.windows.net/cloudfiles/41075691/aoelive_/age2/replay/windows/4.0.0/0/M_492055484_7dbf6a81d782715090ea3fd8c4a1eb24fba0dc133fa9ff4bd296302b40b9a0e2.gz",
+          "size": 1755283,
+          "datatype": 0
+        },
+        {
+          "profile_id": 5879701,
+          "url": "https://rl0aoelivemk2blob.blob.core.windows.net/cloudfiles/1079785/aoelive_/age2/replay/windows/4.0.0/0/M_492055484_d7d904f19f90cf1f893f31e347205ea83db2fdcb8cb6a62f80e9c66941ac2a9d.gz",
+          "size": 1770506,
+          "datatype": 0
+        },
+        {
+          "profile_id": 299982,
+          "url": "https://rl0aoelivemk2blob.blob.core.windows.net/cloudfiles/289992/aoelive_/age2/replay/windows/4.0.0/0/M_492055484_f2327166ccc262ee94a668829757e6d9dd4e4df32520678731687d022c00def.gz",
+          "size": 1748249,
+          "datatype": 0
+        }
+      ],
+      "matchhistorymember": [
+        {
+          "matchhistory_id": 492055484,
+          "profile_id": 19657014,
+          "civilization_id": 16,
+          "statgroup_id": 11085272,
+          "teamid": 0,
+          "wins": 208,
+          "losses": 106,
+          "streak": -1,
+          "arbitration": 1,
+          "outcome": 0,
+          "oldrating": 1945,
+          "newrating": 1927,
+          "reporttype": 1
+        },
+        {
+          "matchhistory_id": 492055484,
+          "profile_id": 5879701,
+          "civilization_id": 19,
+          "statgroup_id": 4614773,
+          "teamid": 0,
+          "wins": 1961,
+          "losses": 1356,
+          "streak": -1,
+          "arbitration": 1,
+          "outcome": 0,
+          "oldrating": 1959,
+          "newrating": 1940,
+          "reporttype": 1
+        },
+        {
+          "matchhistory_id": 492055484,
+          "profile_id": 299982,
+          "civilization_id": 40,
+          "statgroup_id": 116363,
+          "teamid": 0,
+          "wins": 1415,
+          "losses": 1040,
+          "streak": -1,
+          "arbitration": 1,
+          "outcome": 0,
+          "oldrating": 1629,
+          "newrating": 1623,
+          "reporttype": 1
+        },
+        {
+          "matchhistory_id": 492055484,
+          "profile_id": 15214143,
+          "civilization_id": 32,
+          "statgroup_id": 9272472,
+          "teamid": 0,
+          "wins": 501,
+          "losses": 247,
+          "streak": -1,
+          "arbitration": 1,
+          "outcome": 0,
+          "oldrating": 2023,
+          "newrating": 2001,
+          "reporttype": 1
+        },
+        {
+          "matchhistory_id": 492055484,
+          "profile_id": 1531083,
+          "civilization_id": 32,
+          "statgroup_id": 1315230,
+          "teamid": 1,
+          "wins": 1538,
+          "losses": 609,
+          "streak": 2,
+          "arbitration": 1,
+          "outcome": 1,
+          "oldrating": 2004,
+          "newrating": 2015,
+          "reporttype": 1
+        },
+        {
+          "matchhistory_id": 492055484,
+          "profile_id": 196240,
+          "civilization_id": 59,
+          "statgroup_id": 200,
+          "teamid": 1,
+          "wins": 153,
+          "losses": 47,
+          "streak": 2,
+          "arbitration": 1,
+          "outcome": 1,
+          "oldrating": 1850,
+          "newrating": 1868,
+          "reporttype": 1
+        },
+        {
+          "matchhistory_id": 492055484,
+          "profile_id": 2858362,
+          "civilization_id": 31,
+          "statgroup_id": 2584050,
+          "teamid": 1,
+          "wins": 267,
+          "losses": 96,
+          "streak": 2,
+          "arbitration": 1,
+          "outcome": 1,
+          "oldrating": 1882,
+          "newrating": 1898,
+          "reporttype": 1
+        },
+        {
+          "matchhistory_id": 492055484,
+          "profile_id": 4607460,
+          "civilization_id": 17,
+          "statgroup_id": 3776853,
+          "teamid": 1,
+          "wins": 721,
+          "losses": 505,
+          "streak": 1,
+          "arbitration": 1,
+          "outcome": 1,
+          "oldrating": 1834,
+          "newrating": 1853,
+          "reporttype": 1
+        }
+      ],
+      "gamemod_id": 1800
+    },
+    {
+      "id": 85506328,
+      "creator_profile_id": 196240,
+      "mapname": "FourLakes.rms",
+      "maxplayers": 2,
+      "matchtype_id": 2,
+      "description": "AUTOMATCH",
+      "startgametime": 1618868684,
+      "completiontime": 1618869103,
+      "observertotal": 0,
+      "matchhistoryreportresults": [
+        {
+          "matchhistory_id": 85506328,
+          "profile_id": 283384,
+          "resulttype": 0,
+          "teamid": 0,
+          "civilization_id": 12,
+          "xpgained": 1,
+          "counters": "{}",
+          "matchstartdate": 1618868684
+        },
+        {
+          "matchhistory_id": 85506328,
+          "profile_id": 196240,
+          "resulttype": 1,
+          "teamid": 1,
+          "civilization_id": 12,
+          "xpgained": 1,
+          "counters": "{}",
+          "matchstartdate": 1618868684
+        }
+      ],
+      "matchhistoryitems": [],
+      "matchurls": [],
+      "matchhistorymember": [
+        {
+          "matchhistory_id": 85506328,
+          "profile_id": 196240,
+          "civilization_id": 12,
+          "statgroup_id": 200,
+          "teamid": 1,
+          "wins": 40,
+          "losses": 12,
+          "streak": 2,
+          "arbitration": 1,
+          "outcome": 1,
+          "oldrating": 2039,
+          "newrating": 2042,
+          "reporttype": 1
+        },
+        {
+          "matchhistory_id": 85506328,
+          "profile_id": 283384,
+          "civilization_id": 12,
+          "statgroup_id": 95496,
+          "teamid": 0,
+          "wins": 440,
+          "losses": 318,
+          "streak": -1,
+          "arbitration": 2,
+          "outcome": 0,
+          "oldrating": 1688,
+          "newrating": 1685,
+          "reporttype": 3
+        }
+      ],
+      "gamemod_id": 536
+    },
+    {
+      "id": 233969756,
+      "creator_profile_id": 196240,
+      "mapname": "my map",
+      "maxplayers": 8,
+      "matchtype_id": 120,
+      "description": "1v1 Random Civ",
+      "startgametime": 1684258025,
+      "completiontime": 1684258593,
+      "observertotal": 5,
+      "matchhistoryreportresults": [
+        {
+          "matchhistory_id": 233969756,
+          "profile_id": 196240,
+          "resulttype": 1,
+          "teamid": 0,
+          "civilization_id": 5,
+          "xpgained": 1,
+          "counters": "{}",
+          "matchstartdate": 1684258025
+        },
+        {
+          "matchhistory_id": 233969756,
+          "profile_id": 1881396,
+          "resulttype": 0,
+          "teamid": 1,
+          "civilization_id": 12,
+          "xpgained": 1,
+          "counters": "{}",
+          "matchstartdate": 1684258025
+        }
+      ],
+      "matchhistoryitems": [],
+      "matchurls": [],
+      "matchhistorymember": [
+        {
+          "matchhistory_id": 233969756,
+          "profile_id": 196240,
+          "civilization_id": 5,
+          "statgroup_id": 200,
+          "teamid": 0,
+          "wins": 2,
+          "losses": 0,
+          "streak": 2,
+          "arbitration": 1,
+          "outcome": 1,
+          "oldrating": 1048,
+          "newrating": 1089,
+          "reporttype": 1
+        },
+        {
+          "matchhistory_id": 233969756,
+          "profile_id": 1881396,
+          "civilization_id": 12,
+          "statgroup_id": 1708972,
+          "teamid": 1,
+          "wins": 0,
+          "losses": 1,
+          "streak": -1,
+          "arbitration": 1,
+          "outcome": 0,
+          "oldrating": 1000,
+          "newrating": 958,
+          "reporttype": 1
+        }
+      ],
+      "gamemod_id": 1304
+    },
+    {
+      "id": 475150075,
+      "creator_profile_id": 698101,
+      "mapname": "my map",
+      "maxplayers": 8,
+      "matchtype_id": 61,
+      "description": "DM Germany A vs India A",
+      "startgametime": 1777833058,
+      "completiontime": 1777833397,
+      "observertotal": 5,
+      "matchhistoryreportresults": [
+        {
+          "matchhistory_id": 475150075,
+          "profile_id": 698101,
+          "resulttype": 1,
+          "teamid": 1,
+          "civilization_id": 9,
+          "xpgained": 1,
+          "counters": "{}",
+          "matchstartdate": 1777833058
+        },
+        {
+          "matchhistory_id": 475150075,
+          "profile_id": 573282,
+          "resulttype": 1,
+          "teamid": 1,
+          "civilization_id": 26,
+          "xpgained": 1,
+          "counters": "{}",
+          "matchstartdate": 1777833058
+        },
+        {
+          "matchhistory_id": 475150075,
+          "profile_id": 1888089,
+          "resulttype": 0,
+          "teamid": 2,
+          "civilization_id": 13,
+          "xpgained": 1,
+          "counters": "{}",
+          "matchstartdate": 1777833058
+        },
+        {
+          "matchhistory_id": 475150075,
+          "profile_id": 733435,
+          "resulttype": 0,
+          "teamid": 2,
+          "civilization_id": 19,
+          "xpgained": 1,
+          "counters": "{}",
+          "matchstartdate": 1777833058
+        },
+        {
+          "matchhistory_id": 475150075,
+          "profile_id": 664715,
+          "resulttype": 0,
+          "teamid": 2,
+          "civilization_id": 34,
+          "xpgained": 1,
+          "counters": "{}",
+          "matchstartdate": 1777833058
+        },
+        {
+          "matchhistory_id": 475150075,
+          "profile_id": 196240,
+          "resulttype": 1,
+          "teamid": 1,
+          "civilization_id": 58,
+          "xpgained": 1,
+          "counters": "{}",
+          "matchstartdate": 1777833058
+        }
+      ],
+      "matchhistoryitems": [],
+      "matchurls": [],
+      "matchhistorymember": [
+        {
+          "matchhistory_id": 475150075,
+          "profile_id": 698101,
+          "civilization_id": 9,
+          "statgroup_id": 560561,
+          "teamid": 1,
+          "wins": 925,
+          "losses": 794,
+          "streak": 2,
+          "arbitration": 1,
+          "outcome": 1,
+          "oldrating": 1702,
+          "newrating": 1704,
+          "reporttype": 1
+        },
+        {
+          "matchhistory_id": 475150075,
+          "profile_id": 1888089,
+          "civilization_id": 13,
+          "statgroup_id": 1659899,
+          "teamid": 2,
+          "wins": 2,
+          "losses": 2,
+          "streak": -1,
+          "arbitration": 1,
+          "outcome": 0,
+          "oldrating": 1276,
+          "newrating": 1270,
+          "reporttype": 1
+        },
+        {
+          "matchhistory_id": 475150075,
+          "profile_id": 664715,
+          "civilization_id": 34,
+          "statgroup_id": 525410,
+          "teamid": 2,
+          "wins": 1,
+          "losses": 1,
+          "streak": -1,
+          "arbitration": 1,
+          "outcome": 0,
+          "oldrating": 1158,
+          "newrating": 1154,
+          "reporttype": 1
+        },
+        {
+          "matchhistory_id": 475150075,
+          "profile_id": 196240,
+          "civilization_id": 58,
+          "statgroup_id": 200,
+          "teamid": 1,
+          "wins": 11,
+          "losses": 3,
+          "streak": 2,
+          "arbitration": 1,
+          "outcome": 1,
+          "oldrating": 2059,
+          "newrating": 2060,
+          "reporttype": 1
+        },
+        {
+          "matchhistory_id": 475150075,
+          "profile_id": 573282,
+          "civilization_id": 26,
+          "statgroup_id": 427697,
+          "teamid": 1,
+          "wins": 29,
+          "losses": 26,
+          "streak": 2,
+          "arbitration": 1,
+          "outcome": 1,
+          "oldrating": 1677,
+          "newrating": 1679,
+          "reporttype": 1
+        },
+        {
+          "matchhistory_id": 475150075,
+          "profile_id": 733435,
+          "civilization_id": 19,
+          "statgroup_id": 597404,
+          "teamid": 2,
+          "wins": 1,
+          "losses": 1,
+          "streak": -1,
+          "arbitration": 1,
+          "outcome": 0,
+          "oldrating": 1158,
+          "newrating": 1154,
+          "reporttype": 1
+        }
+      ],
+      "gamemod_id": 1792
+    }
+  ],
+  "profiles": [
+    {
+      "profile_id": 1531083,
+      "name": "/steam/76561198056609593",
+      "alias": "Oni.FreakinAndy",
+      "personal_statgroup_id": 1315230,
+      "xp": 14662,
+      "level": 4,
+      "leaderboardregion_id": 0,
+      "country": "at",
+      "clanlist_name": ""
+    },
+    {
+      "profile_id": 299982,
+      "name": "/steam/76561198801481864",
+      "alias": "\u4e01\u5b88\u4e2d",
+      "personal_statgroup_id": 116363,
+      "xp": 4379,
+      "level": 2,
+      "leaderboardregion_id": 2,
+      "country": "tw",
+      "clanlist_name": "TWBF"
+    },
+    {
+      "profile_id": 15214143,
+      "name": "/steam/76561199509475227",
+      "alias": "Rayz",
+      "personal_statgroup_id": 9272472,
+      "xp": 3752,
+      "level": 2,
+      "leaderboardregion_id": 2,
+      "country": "tw",
+      "clanlist_name": "GHUNT"
+    },
+    {
+      "profile_id": 664715,
+      "name": "/steam/76561198446948941",
+      "alias": "Laming Yamal",
+      "personal_statgroup_id": 525410,
+      "xp": 5749,
+      "level": 3,
+      "leaderboardregion_id": 2,
+      "country": "in",
+      "clanlist_name": "Stack"
+    },
+    {
+      "profile_id": 698101,
+      "name": "/steam/76561198023211463",
+      "alias": "Zayu",
+      "personal_statgroup_id": 560561,
+      "xp": 4261,
+      "level": 2,
+      "leaderboardregion_id": 0,
+      "country": "de",
+      "clanlist_name": ""
+    },
+    {
+      "profile_id": 733435,
+      "name": "/steam/76561198818450120",
+      "alias": "Legion64",
+      "personal_statgroup_id": 597404,
+      "xp": 9957,
+      "level": 3,
+      "leaderboardregion_id": 2,
+      "country": "in",
+      "clanlist_name": "CMI"
+    },
+    {
+      "profile_id": 19657014,
+      "name": "/steam/76561199680710552",
+      "alias": "\u6d1b\u5b50\u5546",
+      "personal_statgroup_id": 11085272,
+      "xp": 2142,
+      "level": 2,
+      "leaderboardregion_id": 2,
+      "country": "tw",
+      "clanlist_name": "GHUNT"
+    },
+    {
+      "profile_id": 2858362,
+      "name": "/steam/76561198400058723",
+      "alias": "Oni.JorDan_AoE",
+      "personal_statgroup_id": 2584050,
+      "xp": 7914,
+      "level": 3,
+      "leaderboardregion_id": 0,
+      "country": "de",
+      "clanlist_name": "Onima"
+    },
+    {
+      "profile_id": 573282,
+      "name": "/steam/76561198411901312",
+      "alias": "NOC | Terz",
+      "personal_statgroup_id": 427697,
+      "xp": 11723,
+      "level": 4,
+      "leaderboardregion_id": 0,
+      "country": "de",
+      "clanlist_name": "NOCeS"
+    },
+    {
+      "profile_id": 196240,
+      "name": "/steam/76561197984749679",
+      "alias": "Oni.TheViper",
+      "personal_statgroup_id": 200,
+      "xp": 9559,
+      "level": 3,
+      "leaderboardregion_id": 0,
+      "country": "de",
+      "clanlist_name": ""
+    },
+    {
+      "profile_id": 1888089,
+      "name": "/steam/76561199023445114",
+      "alias": "AgentP_97",
+      "personal_statgroup_id": 1659899,
+      "xp": 8342,
+      "level": 3,
+      "leaderboardregion_id": 2,
+      "country": "in",
+      "clanlist_name": "L4N"
+    },
+    {
+      "profile_id": 5879701,
+      "name": "/steam/76561199179165978",
+      "alias": "\u767d\u9f8d",
+      "personal_statgroup_id": 4614773,
+      "xp": 4442,
+      "level": 2,
+      "leaderboardregion_id": 2,
+      "country": "tw",
+      "clanlist_name": "GHUNT"
+    },
+    {
+      "profile_id": 283384,
+      "name": "/steam/76561198034407393",
+      "alias": "[Valhalla] The Otter One",
+      "personal_statgroup_id": 95496,
+      "xp": 10200,
+      "level": 3,
+      "leaderboardregion_id": 0,
+      "country": "de",
+      "clanlist_name": "VLHLL"
+    },
+    {
+      "profile_id": 4607460,
+      "name": "/steam/76561198100753073",
+      "alias": "LM | MaisterNippon",
+      "personal_statgroup_id": 3776853,
+      "xp": 4943,
+      "level": 2,
+      "leaderboardregion_id": 0,
+      "country": "de",
+      "clanlist_name": "LoMo"
+    },
+    {
+      "profile_id": 1881396,
+      "name": "/xboxlive/1EC7A5AD9777CF3082FB2F9C4C11C87D5F6476EC",
+      "alias": "Popeeeeeeeye",
+      "personal_statgroup_id": 1708972,
+      "xp": 4269,
+      "level": 2,
+      "leaderboardregion_id": 0,
+      "country": "es",
+      "clanlist_name": "AoEAI"
+    }
+  ]
+}
