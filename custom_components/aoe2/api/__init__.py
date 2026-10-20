@@ -5,7 +5,8 @@ from typing import Literal
 
 import aiohttp
 
-from .aoe2companion import Aoe2CompanionClient
+from ._aoe2companion import Aoe2CompanionClient
+from ._worldsedge import WorldsEdgeClient
 from .client import AoeClient
 from .errors import (
     AoeClientConnectionError,
@@ -15,7 +16,6 @@ from .errors import (
     AoeClientResponseError,
 )
 from .models import Leaderboard, Match, MatchPlayer, PlayerSummary, Profile, Rating
-from .worldsedge import WorldsEdgeClient
 
 ClientName = Literal["aoe2companion", "worldsedge"]
 

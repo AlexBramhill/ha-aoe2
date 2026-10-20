@@ -53,8 +53,8 @@ There are two, and both use the same profile IDs:
 ```
 custom_components/aoe2/api/   # API clients, no Home Assistant imports
   client.py                   # AoeClient protocol both clients follow
-  aoe2companion.py            # aoe2companion client + parsers
-  worldsedge.py               # World's Edge client + parsers
+  _aoe2companion.py           # aoe2companion client + parsers
+  _worldsedge.py              # World's Edge client + parsers
   models.py                   # Profile, Rating, Match, ...
   errors.py                   # AoeClient*Error types
 tests/                        # parser tests against saved real responses

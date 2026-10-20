@@ -3,7 +3,7 @@ from datetime import UTC, datetime
 import pytest
 
 from custom_components.aoe2.api import AoeClientResponseError, Leaderboard
-from custom_components.aoe2.api.aoe2companion import (
+from custom_components.aoe2.api._aoe2companion import (
     parse_matches,
     parse_profile,
     parse_search,

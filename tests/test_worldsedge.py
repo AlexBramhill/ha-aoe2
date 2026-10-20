@@ -5,7 +5,7 @@ from custom_components.aoe2.api import (
     AoeClientResponseError,
     Leaderboard,
 )
-from custom_components.aoe2.api.worldsedge import (
+from custom_components.aoe2.api._worldsedge import (
     _raise_for_result,
     parse_matches,
     parse_profile,
