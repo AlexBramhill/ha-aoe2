@@ -9,10 +9,10 @@ from custom_components.aoe2.api import (
     _aoe2companion,
     _worldsedge,
 )
-from tests.api.builders import ProfileBuilder
+from tests.api.api_json import Body
+from tests.api.builders import BuiltProfile
 from tests.api.helpers import VIPER_PROFILE_ID, read_fixture
 
-type Body = dict[str, Any]
 type Params = dict[str, Any]
 type ServerBehaviour = Callable[[Body, Params], Body]
 
@@ -33,13 +33,13 @@ class FakeApi:
     module: ModuleType
     responses_by_path: dict[str, Body]
     profile_path: Callable[[int], str]
-    render_profile: Callable[[ProfileBuilder], Body]
+    profile_response: Callable[[BuiltProfile], Body]
     server_behaviour: ServerBehaviour = serve_unchanged
 
-    def serving_profile(self, builder: ProfileBuilder) -> Self:
-        path = self.profile_path(builder.profile_id)
+    def serving_profile(self, built: BuiltProfile) -> Self:
+        path = self.profile_path(built.expected.profile_id)
         return replace(
-            self, responses_by_path={**self.responses_by_path, path: self.render_profile(builder)}
+            self, responses_by_path={**self.responses_by_path, path: self.profile_response(built)}
         )
 
     async def get_json(self, _session: Any, url: str, params: Params | None = None) -> Body:
@@ -58,7 +58,7 @@ FAKE_APIS = [
             "matches": read_fixture("aoe2companion_matches.json"),
         },
         profile_path=lambda profile_id: f"profiles/{profile_id}",
-        render_profile=ProfileBuilder.aoe2companion_response,
+        profile_response=lambda built: built.aoe2companion_response,
         server_behaviour=limit_matches_to_per_page,
     ),
     FakeApi(
@@ -69,6 +69,6 @@ FAKE_APIS = [
             "getRecentMatchHistory": read_fixture("worldsedge_matches.json"),
         },
         profile_path=lambda _profile_id: "GetPersonalStat",
-        render_profile=ProfileBuilder.worldsedge_response,
+        profile_response=lambda built: built.worldsedge_response,
     ),
 ]

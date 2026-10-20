@@ -1,5 +1,4 @@
 from collections.abc import Callable
-from datetime import UTC, datetime
 
 import pytest
 
@@ -10,7 +9,7 @@ from custom_components.aoe2.api import (
     Match,
     create_client,
 )
-from tests.api.builders import ProfileBuilder, build_rating
+from tests.api.builders import BuiltProfile, ProfileBuilder, build_rating
 from tests.api.fake_apis import FAKE_APIS, FakeApi
 from tests.api.helpers import VIPER_PROFILE_ID
 
@@ -21,22 +20,16 @@ LOST_UNRANKED_MATCH_ID = 515058973
 WON_RANKED_MATCH_ID = 514828647
 
 
-RANKED_PLAYER = ProfileBuilder(profile_id=42, name="Ranked", country="gb").with_rating(
-    build_rating(
-        Leaderboard.RM_1V1,
-        1500,
-        rank=120,
-        wins=30,
-        losses=20,
-        streak=-2,
-        highest_rating=1620,
-        last_match=datetime(2026, 1, 2, 3, 4, 5, tzinfo=UTC),
-    )
+RANKED_PLAYER = ProfileBuilder().with_profile_id(42).with_name("Ranked").build()
+UNRANKED_PLAYER = (
+    ProfileBuilder()
+    .with_profile_id(43)
+    .with_name("Unranked")
+    .without_ratings()
+    .with_rating(build_rating(Leaderboard.EW_1V1, 1000))
+    .build()
 )
-UNRANKED_PLAYER = ProfileBuilder(profile_id=43, name="Unranked").with_rating(
-    build_rating(Leaderboard.EW_1V1, 1000)
-)
-NEW_PLAYER = ProfileBuilder(profile_id=44, name="New")
+NEW_PLAYER = ProfileBuilder().with_profile_id(44).with_name("New").without_ratings().build()
 
 
 def match_with_id(matches: list[Match], match_id: int) -> Match:
@@ -66,21 +59,21 @@ def client(fake_api: FakeApi, connect: Connect) -> AoeClient:
 
 
 @pytest.mark.parametrize(
-    "builder",
+    "player",
     [RANKED_PLAYER, UNRANKED_PLAYER, NEW_PLAYER],
     ids=["ranked", "unranked", "new"],
 )
 async def test_built_profile_is_parsed_as_expected(
-    fake_api: FakeApi, connect: Connect, builder: ProfileBuilder
+    fake_api: FakeApi, connect: Connect, player: BuiltProfile
 ):
     # Given
-    client = connect(fake_api.serving_profile(builder))
+    client = connect(fake_api.serving_profile(player))
 
     # When
-    profile = await client.get_profile(builder.profile_id)
+    profile = await client.get_profile(player.expected.profile_id)
 
     # Then
-    assert profile == builder.expected_profile()
+    assert profile == player.expected
 
 
 async def test_unknown_profile_raises_not_found(client: AoeClient):
