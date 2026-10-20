@@ -12,27 +12,29 @@ Home Assistant integration for Age of Empires II: Definitive Edition. Tracks pla
 ## Requirements
 
 - Python 3.13 or later
+- [uv](https://docs.astral.sh/uv/)
 
 ## Setup
 
 ```sh
-python3 -m venv .venv
-source .venv/bin/activate
-pip install --group dev
+uv sync
 ```
+
+This creates `.venv` and installs the locked dev dependencies from `uv.lock`.
 
 ## Development
 
 Run the test suite:
 
 ```sh
-pytest
+uv run pytest
 ```
 
-Run the linter:
+Run the linter and formatter checks:
 
 ```sh
-ruff check
+uv run ruff check
+uv run ruff format --check
 ```
 
 ## Querying the APIs
@@ -42,8 +44,8 @@ ruff check
 Fetch a player's ratings and recent matches by profile ID:
 
 ```sh
-python scripts/try_api.py aoe2companion <profile_id>
-python scripts/try_api.py worldsedge <profile_id> --count 10
+uv run python scripts/try_api.py aoe2companion <profile_id>
+uv run python scripts/try_api.py worldsedge <profile_id> --count 10
 ```
 
 ## Data sources
