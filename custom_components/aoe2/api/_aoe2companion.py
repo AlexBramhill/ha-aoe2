@@ -83,10 +83,18 @@ def _match_player(raw: dict[str, Any]) -> MatchPlayer:
         name=raw.get("name"),
         team=raw.get("team"),
         civ=raw.get("civName"),
-        rating=raw.get("rating"),
+        rating_after_match=_rating_after_match(raw),
         rating_change=raw.get("ratingDiff"),
         won=raw.get("won"),
     )
+
+
+def _rating_after_match(raw: dict[str, Any]) -> int | None:
+    """aoe2companion reports the rating going into the match."""
+    rating_before, change = raw.get("rating"), raw.get("ratingDiff")
+    if rating_before is None or change is None:
+        return rating_before
+    return rating_before + change
 
 
 def _leaderboard_or_none(value: str | None) -> Leaderboard | None:

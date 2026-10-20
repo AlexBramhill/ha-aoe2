@@ -154,7 +154,7 @@ def _match_player(member: dict[str, Any], names: dict[int, str]) -> MatchPlayer:
         # Undocumented API. Civs come back as numeric IDs only,
         # so we set civ to none for the time being.
         civ=None,
-        rating=member.get("newrating"),
+        rating_after_match=member.get("newrating"),
         rating_change=_rating_change(member),
         won=_won(member),
     )

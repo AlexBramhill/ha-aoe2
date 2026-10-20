@@ -25,7 +25,7 @@
     {
       "leaderboardId": "rm_1v1",
       "name": "Oni.TheViper",
-      "rank": 23,
+      "rank": 22,
       "rating": 2771,
       "maxRank": 1,
       "maxRating": 2911,
@@ -50,7 +50,7 @@
     {
       "leaderboardId": "rm_team",
       "name": "Oni.TheViper",
-      "rank": 207,
+      "rank": 208,
       "rating": 1903,
       "maxRank": 195,
       "maxRating": 1903,
@@ -70,7 +70,7 @@
       "rankLevelImageUrl": null,
       "leaderboardName": "Team Random Map",
       "abbreviation": "RM Team",
-      "total": 71405
+      "total": 71402
     },
     {
       "leaderboardId": "ew_1v1",
@@ -95,12 +95,12 @@
       "rankLevelImageUrl": null,
       "leaderboardName": "1v1 Empire Wars",
       "abbreviation": "EW 1v1",
-      "total": 2422
+      "total": 2423
     },
     {
       "leaderboardId": "unranked",
       "name": "Oni.TheViper",
-      "rank": 574,
+      "rank": 573,
       "rating": 1695,
       "maxRank": null,
       "maxRating": 1822,
@@ -120,7 +120,7 @@
       "rankLevelImageUrl": null,
       "leaderboardName": "Unranked",
       "abbreviation": "UNR",
-      "total": 194875
+      "total": 194842
     }
   ]
 }

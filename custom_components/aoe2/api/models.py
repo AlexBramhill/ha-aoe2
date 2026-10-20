@@ -48,7 +48,7 @@ class MatchPlayer:
     name: str | None
     team: int | None
     civ: str | None
-    rating: int | None
+    rating_after_match: int | None
     rating_change: int | None
     won: bool | None
 
