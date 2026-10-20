@@ -7,7 +7,7 @@ from typing import Any
 import aiohttp
 
 from ._http import get_json
-from ._parsing import response_parser
+from ._parsing import number_teams_from_one, response_parser
 from .errors import AoeClientNotFoundError, AoeClientResponseError
 from .models import Leaderboard, Match, MatchPlayer, Profile, Rating
 
@@ -16,6 +16,9 @@ TITLE = "age2"
 
 RESULT_OK = 0
 RESULT_UNKNOWN_PROFILE = 6
+
+OUTCOME_LOSS = 0
+OUTCOME_WIN = 1
 
 LEADERBOARD_IDS: dict[int, Leaderboard] = {
     3: Leaderboard.RM_1V1,
@@ -49,8 +52,8 @@ class WorldsEdgeClient:
         body = await self._get("getRecentMatchHistory", profile_ids=_json_list(profile_id))
         return parse_matches(body)[:count]
 
-    async def _get(self, endpoint: str, **params: Any) -> dict[str, Any]:
-        url = f"{BASE_URL}/{endpoint}"
+    async def _get(self, path: str, **params: Any) -> dict[str, Any]:
+        url = f"{BASE_URL}/{path}"
         body = await get_json(self._session, url, {"title": TITLE, **params})
         _raise_for_result(body)
         return body
@@ -89,7 +92,7 @@ def parse_matches(body: dict[str, Any]) -> list[Match]:
     return _newest_first(matches)
 
 
-def pretty_map_name(filename: str | None) -> str | None:
+def _readable_map_name(filename: str | None) -> str | None:
     """'CoastalForest.rms' -> 'Coastal Forest'; custom names pass through."""
     if not filename:
         return None
@@ -141,8 +144,10 @@ def _match(raw: dict[str, Any], names: dict[int, str]) -> Match:
         started=datetime.fromtimestamp(raw["startgametime"], UTC),
         finished=_datetime_or_none(raw.get("completiontime")),
         leaderboard=MATCH_TYPES.get(raw.get("matchtype_id")),
-        map_name=pretty_map_name(raw.get("mapname")),
-        players=tuple(_match_player(member, names) for member in members),
+        # Undocumented API. The map name is unreliable:
+        # it lists the script.
+        map_name=_readable_map_name(raw.get("mapname")),
+        players=number_teams_from_one(_match_player(member, names) for member in members),
     )
 
 
@@ -166,7 +171,7 @@ def _rating_change(member: dict[str, Any]) -> int | None:
 
 
 def _won(member: dict[str, Any]) -> bool | None:
-    return {1: True, 0: False}.get(member.get("outcome"))
+    return {OUTCOME_WIN: True, OUTCOME_LOSS: False}.get(member.get("outcome"))
 
 
 def _newest_first(matches: list[Match]) -> list[Match]:

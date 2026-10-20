@@ -1,0 +1,281 @@
+{
+  "page": 1,
+  "perPage": 5,
+  "matches": [
+    {
+      "matchId": 9300001,
+      "started": "2026-06-03T19:26:01.000Z",
+      "finished": "2026-06-03T19:55:47.000Z",
+      "leaderboardId": "rm_team",
+      "mapName": "Nomad",
+      "teams": [
+        {
+          "teamId": 1,
+          "players": [
+            {
+              "profileId": 9100001,
+              "name": "Team Player",
+              "team": 1,
+              "civName": "Huns",
+              "rating": 1156,
+              "ratingDiff": 17,
+              "won": true
+            },
+            {
+              "profileId": 9100002,
+              "name": "Player 2",
+              "team": 1,
+              "civName": "Gurjaras",
+              "rating": 1146,
+              "ratingDiff": 17,
+              "won": true
+            }
+          ]
+        },
+        {
+          "teamId": 2,
+          "players": [
+            {
+              "profileId": 9100003,
+              "name": "Player 3",
+              "team": 2,
+              "civName": "Persians",
+              "rating": 1183,
+              "ratingDiff": -17,
+              "won": false
+            },
+            {
+              "profileId": 9100004,
+              "name": "Player 4",
+              "team": 2,
+              "civName": "Inca",
+              "rating": 1172,
+              "ratingDiff": -17,
+              "won": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "matchId": 9300002,
+      "started": "2026-06-03T18:54:12.000Z",
+      "finished": "2026-06-03T19:20:20.000Z",
+      "leaderboardId": "rm_team",
+      "mapName": "Arabia",
+      "teams": [
+        {
+          "teamId": 1,
+          "players": [
+            {
+              "profileId": 9100005,
+              "name": "Player 5",
+              "team": 1,
+              "civName": "Magyars",
+              "rating": 1161,
+              "ratingDiff": 16,
+              "won": true
+            },
+            {
+              "profileId": 9100006,
+              "name": "Player 6",
+              "team": 1,
+              "civName": "Sicilians",
+              "rating": 1161,
+              "ratingDiff": 16,
+              "won": true
+            }
+          ]
+        },
+        {
+          "teamId": 2,
+          "players": [
+            {
+              "profileId": 9100001,
+              "name": "Team Player",
+              "team": 2,
+              "civName": "Poles",
+              "rating": 1172,
+              "ratingDiff": -16,
+              "won": false
+            },
+            {
+              "profileId": 9100002,
+              "name": "Player 2",
+              "team": 2,
+              "civName": "Mongols",
+              "rating": 1162,
+              "ratingDiff": -16,
+              "won": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "matchId": 9300003,
+      "started": "2026-06-03T18:12:29.000Z",
+      "finished": "2026-06-03T18:41:04.000Z",
+      "leaderboardId": "rm_team",
+      "mapName": "Arena",
+      "teams": [
+        {
+          "teamId": 1,
+          "players": [
+            {
+              "profileId": 9100001,
+              "name": "Team Player",
+              "team": 1,
+              "civName": "Danes",
+              "rating": 1156,
+              "ratingDiff": 16,
+              "won": true
+            },
+            {
+              "profileId": 9100002,
+              "name": "Player 2",
+              "team": 1,
+              "civName": "Spanish",
+              "rating": 1145,
+              "ratingDiff": 17,
+              "won": true
+            }
+          ]
+        },
+        {
+          "teamId": 2,
+          "players": [
+            {
+              "profileId": 9100007,
+              "name": "Player 7",
+              "team": 2,
+              "civName": "Ethiopians",
+              "rating": 1157,
+              "ratingDiff": -16,
+              "won": false
+            },
+            {
+              "profileId": 9100008,
+              "name": "Player 8",
+              "team": 2,
+              "civName": "Byzantines",
+              "rating": 1182,
+              "ratingDiff": -17,
+              "won": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "matchId": 9300004,
+      "started": "2026-06-03T17:15:45.000Z",
+      "finished": "2026-06-03T18:00:25.000Z",
+      "leaderboardId": "rm_team",
+      "mapName": "MegaRandom",
+      "teams": [
+        {
+          "teamId": 1,
+          "players": [
+            {
+              "profileId": 9100001,
+              "name": "Team Player",
+              "team": 1,
+              "civName": "Gurjaras",
+              "rating": 1170,
+              "ratingDiff": -14,
+              "won": false
+            },
+            {
+              "profileId": 9100002,
+              "name": "Player 2",
+              "team": 1,
+              "civName": "Mapuche",
+              "rating": 1159,
+              "ratingDiff": -14,
+              "won": false
+            }
+          ]
+        },
+        {
+          "teamId": 2,
+          "players": [
+            {
+              "profileId": 9100009,
+              "name": "Player 9",
+              "team": 2,
+              "civName": "Britons",
+              "rating": 1201,
+              "ratingDiff": 14,
+              "won": true
+            },
+            {
+              "profileId": 9100010,
+              "name": "Player 10",
+              "team": 2,
+              "civName": "Khmer",
+              "rating": 1207,
+              "ratingDiff": 14,
+              "won": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "matchId": 9300005,
+      "started": "2026-06-03T15:49:41.000Z",
+      "finished": "2026-06-03T16:17:29.000Z",
+      "leaderboardId": "rm_team",
+      "mapName": "Nomad",
+      "teams": [
+        {
+          "teamId": 1,
+          "players": [
+            {
+              "profileId": 9100001,
+              "name": "Team Player",
+              "team": 1,
+              "civName": "Varangians",
+              "rating": 1186,
+              "ratingDiff": -16,
+              "won": false
+            },
+            {
+              "profileId": 9100002,
+              "name": "Player 2",
+              "team": 1,
+              "civName": "Mapuche",
+              "rating": 1175,
+              "ratingDiff": -16,
+              "won": false
+            }
+          ]
+        },
+        {
+          "teamId": 2,
+          "players": [
+            {
+              "profileId": 9100011,
+              "name": "Player 11",
+              "team": 2,
+              "civName": "Japanese",
+              "rating": 1241,
+              "ratingDiff": 13,
+              "won": true
+            },
+            {
+              "profileId": 9100012,
+              "name": "Player 12",
+              "team": 2,
+              "civName": "Franks",
+              "rating": 1131,
+              "ratingDiff": 19,
+              "won": true
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

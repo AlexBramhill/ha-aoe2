@@ -6,7 +6,9 @@ from custom_components.aoe2.api._worldsedge import LEADERBOARD_IDS
 
 type Body = dict[str, Any]
 
-WORLDSEDGE_IDS_BY_LEADERBOARD = {leaderboard: id_ for id_, leaderboard in LEADERBOARD_IDS.items()}
+WORLDSEDGE_IDS_BY_LEADERBOARD = {
+    leaderboard: leaderboard_id for leaderboard_id, leaderboard in LEADERBOARD_IDS.items()
+}
 WORLDSEDGE_NO_RANK = -1
 WORLDSEDGE_NO_HIGHEST_RATING = 0
 WORLDSEDGE_NO_DATE = 0

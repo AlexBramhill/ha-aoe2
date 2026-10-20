@@ -1,0 +1,263 @@
+{
+  "result": {
+    "code": 0,
+    "message": "SUCCESS"
+  },
+  "matchHistoryStats": [
+    {
+      "id": 9300003,
+      "mapname": "goldenpit.rms2",
+      "matchtype_id": 7,
+      "startgametime": 1780510349,
+      "completiontime": 1780512064,
+      "matchhistorymember": [
+        {
+          "profile_id": 9100002,
+          "teamid": 0,
+          "oldrating": 1145,
+          "newrating": 1162,
+          "outcome": 1,
+          "civilization_id": 39
+        },
+        {
+          "profile_id": 9100001,
+          "teamid": 0,
+          "oldrating": 1156,
+          "newrating": 1172,
+          "outcome": 1,
+          "civilization_id": 63
+        },
+        {
+          "profile_id": 9100007,
+          "teamid": 1,
+          "oldrating": 1157,
+          "newrating": 1141,
+          "outcome": 0,
+          "civilization_id": 14
+        },
+        {
+          "profile_id": 9100008,
+          "teamid": 1,
+          "oldrating": 1182,
+          "newrating": 1165,
+          "outcome": 0,
+          "civilization_id": 9
+        }
+      ]
+    },
+    {
+      "id": 9300001,
+      "mapname": "nomad.rms",
+      "matchtype_id": 7,
+      "startgametime": 1780514761,
+      "completiontime": 1780516547,
+      "matchhistorymember": [
+        {
+          "profile_id": 9100002,
+          "teamid": 0,
+          "oldrating": 1146,
+          "newrating": 1163,
+          "outcome": 1,
+          "civilization_id": 18
+        },
+        {
+          "profile_id": 9100001,
+          "teamid": 0,
+          "oldrating": 1156,
+          "newrating": 1173,
+          "outcome": 1,
+          "civilization_id": 19
+        },
+        {
+          "profile_id": 9100003,
+          "teamid": 1,
+          "oldrating": 1183,
+          "newrating": 1166,
+          "outcome": 0,
+          "civilization_id": 32
+        },
+        {
+          "profile_id": 9100004,
+          "teamid": 1,
+          "oldrating": 1172,
+          "newrating": 1155,
+          "outcome": 0,
+          "civilization_id": 20
+        }
+      ]
+    },
+    {
+      "id": 9300002,
+      "mapname": "Oasis.rms",
+      "matchtype_id": 7,
+      "startgametime": 1780512852,
+      "completiontime": 1780514420,
+      "matchhistorymember": [
+        {
+          "profile_id": 9100005,
+          "teamid": 0,
+          "oldrating": 1161,
+          "newrating": 1177,
+          "outcome": 1,
+          "civilization_id": 27
+        },
+        {
+          "profile_id": 9100006,
+          "teamid": 0,
+          "oldrating": 1161,
+          "newrating": 1177,
+          "outcome": 1,
+          "civilization_id": 37
+        },
+        {
+          "profile_id": 9100002,
+          "teamid": 1,
+          "oldrating": 1162,
+          "newrating": 1146,
+          "outcome": 0,
+          "civilization_id": 31
+        },
+        {
+          "profile_id": 9100001,
+          "teamid": 1,
+          "oldrating": 1172,
+          "newrating": 1156,
+          "outcome": 0,
+          "civilization_id": 33
+        }
+      ]
+    },
+    {
+      "id": 9300004,
+      "mapname": "megarandom.rms2",
+      "matchtype_id": 7,
+      "startgametime": 1780506945,
+      "completiontime": 1780509625,
+      "matchhistorymember": [
+        {
+          "profile_id": 9100002,
+          "teamid": 0,
+          "oldrating": 1159,
+          "newrating": 1145,
+          "outcome": 0,
+          "civilization_id": 59
+        },
+        {
+          "profile_id": 9100001,
+          "teamid": 0,
+          "oldrating": 1170,
+          "newrating": 1156,
+          "outcome": 0,
+          "civilization_id": 18
+        },
+        {
+          "profile_id": 9100009,
+          "teamid": 1,
+          "oldrating": 1201,
+          "newrating": 1215,
+          "outcome": 1,
+          "civilization_id": 5
+        },
+        {
+          "profile_id": 9100010,
+          "teamid": 1,
+          "oldrating": 1207,
+          "newrating": 1221,
+          "outcome": 1,
+          "civilization_id": 24
+        }
+      ]
+    },
+    {
+      "id": 9300005,
+      "mapname": "goldenpit.rms2",
+      "matchtype_id": 7,
+      "startgametime": 1780501781,
+      "completiontime": 1780503449,
+      "matchhistorymember": [
+        {
+          "profile_id": 9100002,
+          "teamid": 0,
+          "oldrating": 1175,
+          "newrating": 1159,
+          "outcome": 0,
+          "civilization_id": 59
+        },
+        {
+          "profile_id": 9100001,
+          "teamid": 0,
+          "oldrating": 1186,
+          "newrating": 1170,
+          "outcome": 0,
+          "civilization_id": 62
+        },
+        {
+          "profile_id": 9100011,
+          "teamid": 1,
+          "oldrating": 1241,
+          "newrating": 1254,
+          "outcome": 1,
+          "civilization_id": 23
+        },
+        {
+          "profile_id": 9100012,
+          "teamid": 1,
+          "oldrating": 1131,
+          "newrating": 1150,
+          "outcome": 1,
+          "civilization_id": 15
+        }
+      ]
+    }
+  ],
+  "profiles": [
+    {
+      "profile_id": 9100001,
+      "alias": "Team Player"
+    },
+    {
+      "profile_id": 9100010,
+      "alias": "Player 10"
+    },
+    {
+      "profile_id": 9100002,
+      "alias": "Player 2"
+    },
+    {
+      "profile_id": 9100009,
+      "alias": "Player 9"
+    },
+    {
+      "profile_id": 9100008,
+      "alias": "Player 8"
+    },
+    {
+      "profile_id": 9100003,
+      "alias": "Player 3"
+    },
+    {
+      "profile_id": 9100007,
+      "alias": "Player 7"
+    },
+    {
+      "profile_id": 9100005,
+      "alias": "Player 5"
+    },
+    {
+      "profile_id": 9100004,
+      "alias": "Player 4"
+    },
+    {
+      "profile_id": 9100006,
+      "alias": "Player 6"
+    },
+    {
+      "profile_id": 9100012,
+      "alias": "Player 12"
+    },
+    {
+      "profile_id": 9100011,
+      "alias": "Player 11"
+    }
+  ]
+}

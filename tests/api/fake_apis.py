@@ -11,7 +11,7 @@ from custom_components.aoe2.api import (
 )
 from tests.api.api_json import Body
 from tests.api.builders import BuiltProfile
-from tests.api.helpers import VIPER_PROFILE_ID, read_fixture
+from tests.api.helpers import RecordedPlayer
 
 type Params = dict[str, Any]
 type ServerBehaviour = Callable[[Body, Params], Body]
@@ -49,26 +49,34 @@ class FakeApi:
         return self.server_behaviour(self.responses_by_path[path], params or {})
 
 
-FAKE_APIS = [
-    FakeApi(
+def aoe2companion_fake(player: RecordedPlayer) -> FakeApi:
+    return FakeApi(
         name="aoe2companion",
         module=_aoe2companion,
         responses_by_path={
-            f"profiles/{VIPER_PROFILE_ID}": read_fixture("aoe2companion_profile.json"),
-            "matches": read_fixture("aoe2companion_matches.json"),
+            f"profiles/{player.profile_id}": player.read_fixture("aoe2companion_profile.json"),
+            "matches": player.read_fixture("aoe2companion_matches.json"),
         },
         profile_path=lambda profile_id: f"profiles/{profile_id}",
         profile_response=lambda built: built.aoe2companion_response,
         server_behaviour=limit_matches_to_per_page,
-    ),
-    FakeApi(
+    )
+
+
+def worldsedge_fake(player: RecordedPlayer) -> FakeApi:
+    return FakeApi(
         name="worldsedge",
         module=_worldsedge,
         responses_by_path={
-            "GetPersonalStat": read_fixture("worldsedge_stat.json"),
-            "getRecentMatchHistory": read_fixture("worldsedge_matches.json"),
+            "GetPersonalStat": player.read_fixture("worldsedge_stat.json"),
+            "getRecentMatchHistory": player.read_fixture("worldsedge_matches.json"),
         },
         profile_path=lambda _profile_id: "GetPersonalStat",
         profile_response=lambda built: built.worldsedge_response,
-    ),
-]
+    )
+
+
+FAKE_API_FOR_CLIENT: dict[ClientName, Callable[[RecordedPlayer], FakeApi]] = {
+    "aoe2companion": aoe2companion_fake,
+    "worldsedge": worldsedge_fake,
+}

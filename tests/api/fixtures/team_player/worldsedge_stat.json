@@ -1,0 +1,32 @@
+{
+  "result": {
+    "code": 0,
+    "message": "SUCCESS"
+  },
+  "statGroups": [
+    {
+      "id": 9200001,
+      "members": [
+        {
+          "profile_id": 9100001,
+          "alias": "Team Player",
+          "personal_statgroup_id": 9200001,
+          "country": "gb"
+        }
+      ]
+    }
+  ],
+  "leaderboardStats": [
+    {
+      "statgroup_id": 9200001,
+      "leaderboard_id": 4,
+      "rating": 1173,
+      "rank": 39644,
+      "wins": 63,
+      "losses": 58,
+      "streak": 1,
+      "highestrating": 1267,
+      "lastmatchdate": 1780516546
+    }
+  ]
+}

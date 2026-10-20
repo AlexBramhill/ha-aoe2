@@ -1,0 +1,37 @@
+{
+  "profileId": 9100001,
+  "name": "Team Player",
+  "country": "gb",
+  "leaderboards": [
+    {
+      "leaderboardId": "rm_team",
+      "rating": 1173,
+      "rank": 39589,
+      "wins": 63,
+      "losses": 58,
+      "streak": 1,
+      "maxRating": 1267,
+      "lastMatchTime": "2026-06-03T19:55:46.000Z"
+    },
+    {
+      "leaderboardId": "qp_rm_team",
+      "rating": 1250,
+      "rank": 6570,
+      "wins": 105,
+      "losses": 92,
+      "streak": 1,
+      "maxRating": 1415,
+      "lastMatchTime": "2026-05-20T20:20:31.000Z"
+    },
+    {
+      "leaderboardId": "unranked",
+      "rating": 1361,
+      "rank": 34386,
+      "wins": 235,
+      "losses": 131,
+      "streak": 5,
+      "maxRating": 1361,
+      "lastMatchTime": "2026-06-03T15:03:51.000Z"
+    }
+  ]
+}

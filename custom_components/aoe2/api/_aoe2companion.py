@@ -5,7 +5,7 @@ from typing import Any
 import aiohttp
 
 from ._http import get_json
-from ._parsing import response_parser
+from ._parsing import number_teams_from_one, response_parser
 from .models import Leaderboard, Match, MatchPlayer, Profile, Rating
 
 BASE_URL = "https://data.aoe2companion.com/api"
@@ -42,8 +42,8 @@ def parse_matches(body: dict[str, Any]) -> list[Match]:
     return [_match(match) for match in body.get("matches", [])]
 
 
-def _known_ratings(profile: dict[str, Any]) -> Iterator[Rating]:
-    for raw in profile.get("leaderboards", []):
+def _known_ratings(body: dict[str, Any]) -> Iterator[Rating]:
+    for raw in body.get("leaderboards", []):
         if (leaderboard := _leaderboard_or_none(raw.get("leaderboardId"))) is not None:
             yield _rating(leaderboard, raw)
 
@@ -68,7 +68,7 @@ def _match(raw: dict[str, Any]) -> Match:
         finished=_datetime_or_none(raw.get("finished")),
         leaderboard=_leaderboard_or_none(raw.get("leaderboardId")),
         map_name=raw.get("mapName"),
-        players=tuple(_match_player(player) for player in _all_players(raw)),
+        players=number_teams_from_one(_match_player(player) for player in _all_players(raw)),
     )
 
 

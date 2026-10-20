@@ -73,7 +73,9 @@ def format_result(player: MatchPlayer | None) -> str:
 
 
 def format_civ(player: MatchPlayer | None) -> str:
-    return (player.civ if player else None) or ""
+    if player is None or player.civ is None:
+        return ""
+    return player.civ
 
 
 def format_rating_change(player: MatchPlayer | None) -> str:

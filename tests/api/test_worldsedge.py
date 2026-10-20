@@ -1,5 +1,3 @@
-from typing import Any
-
 import pytest
 
 from custom_components.aoe2.api import (
@@ -9,25 +7,26 @@ from custom_components.aoe2.api import (
 )
 from custom_components.aoe2.api._worldsedge import (
     _raise_for_result,
+    _readable_map_name,
     parse_matches,
     parse_profile,
-    pretty_map_name,
 )
-from tests.api.helpers import VIPER_PROFILE_ID, read_fixture
+from tests.api.api_json import Body
+from tests.api.helpers import VIPER
 
 
-def result_body(code: int, message: str) -> dict[str, Any]:
+def result_body(code: int, message: str) -> Body:
     return {"result": {"code": code, "message": message}}
 
 
 @pytest.fixture
-def stat_response() -> dict[str, Any]:
-    return read_fixture("worldsedge_stat.json")
+def stat_response() -> Body:
+    return VIPER.read_fixture("worldsedge_stat.json")
 
 
-def test_leaderboard_ids_map_to_leaderboards(stat_response: dict[str, Any]):
+def test_leaderboard_ids_map_to_leaderboards(stat_response: Body):
     # When
-    profile = parse_profile(stat_response, VIPER_PROFILE_ID)
+    profile = parse_profile(stat_response, VIPER.profile_id)
 
     # Then
     assert {rating.leaderboard for rating in profile.ratings} == {
@@ -48,9 +47,9 @@ def test_leaderboard_ids_map_to_leaderboards(stat_response: dict[str, Any]):
         (None, None),
     ],
 )
-def test_pretty_map_name(filename: str | None, readable_name: str | None):
+def test_readable_map_name(filename: str | None, readable_name: str | None):
     # When
-    result = pretty_map_name(filename)
+    result = _readable_map_name(filename)
 
     # Then
     assert result == readable_name

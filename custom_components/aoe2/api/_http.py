@@ -31,8 +31,8 @@ async def get_json(
 async def _connection_error_handler(url: str) -> AsyncIterator[None]:
     try:
         yield
-    except (aiohttp.ClientError, TimeoutError) as err:
-        raise AoeClientConnectionError(f"Error fetching {url}: {err}") from err
+    except (aiohttp.ClientError, TimeoutError) as error:
+        raise AoeClientConnectionError(f"Error fetching {url}: {error}") from error
 
 
 def _raise_for_status(response: aiohttp.ClientResponse) -> None:
@@ -54,8 +54,8 @@ def _raise_for_status(response: aiohttp.ClientResponse) -> None:
 async def _read_json(response: aiohttp.ClientResponse) -> Any:
     try:
         return await response.json(content_type=None)
-    except ValueError as err:
-        raise AoeClientResponseError(f"{response.url} returned invalid JSON") from err
+    except ValueError as error:
+        raise AoeClientResponseError(f"{response.url} returned invalid JSON") from error
 
 
 def _ensure_object(url: str, body: Any) -> dict[str, Any]:
