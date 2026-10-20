@@ -1,7 +1,7 @@
 """Query a data source from the command line.
 
-    python scripts/try_api.py aoe2companion <profile_id>
-    python scripts/try_api.py worldsedge <profile_id> --count 10
+python scripts/try_api.py aoe2companion <profile_id>
+python scripts/try_api.py worldsedge <profile_id> --count 10
 """
 
 import argparse

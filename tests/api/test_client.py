@@ -109,9 +109,7 @@ async def test_matches_are_newest_first(client: AoeClient, recorded_player: Reco
     assert start_times == sorted(start_times, reverse=True)
 
 
-async def test_matches_include_requested_player(
-    client: AoeClient, recorded_player: RecordedPlayer
-):
+async def test_matches_include_requested_player(client: AoeClient, recorded_player: RecordedPlayer):
     # When
     matches = await client.get_recent_matches(recorded_player.profile_id)
 
