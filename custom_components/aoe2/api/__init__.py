@@ -15,7 +15,7 @@ from .errors import (
     AoeClientRateLimitError,
     AoeClientResponseError,
 )
-from .models import Leaderboard, Match, MatchPlayer, PlayerSummary, Profile, Rating
+from .models import Leaderboard, Match, MatchPlayer, Profile, Rating
 
 ClientName = Literal["aoe2companion", "worldsedge"]
 
@@ -41,7 +41,6 @@ __all__ = [
     "Leaderboard",
     "Match",
     "MatchPlayer",
-    "PlayerSummary",
     "Profile",
     "Rating",
     "create_client",

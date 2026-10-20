@@ -1,6 +1,5 @@
 """Query a data source from the command line.
 
-    python scripts/try_api.py aoe2companion --search <name>
     python scripts/try_api.py aoe2companion <profile_id>
     python scripts/try_api.py worldsedge <profile_id> --count 10
 """
@@ -20,7 +19,6 @@ from custom_components.aoe2.api import (
     ClientName,
     Match,
     MatchPlayer,
-    PlayerSummary,
     Profile,
     Rating,
     create_client,
@@ -30,15 +28,7 @@ from custom_components.aoe2.api import (
 async def main(args: argparse.Namespace) -> None:
     async with aiohttp.ClientSession() as session:
         client = create_client(args.client, session)
-        if args.search:
-            await print_search_results(client, args.search)
-        else:
-            await print_player(client, args.profile_id, args.count)
-
-
-async def print_search_results(client: AoeClient, name: str) -> None:
-    for player in await client.search_players(name):
-        print(format_player_summary(player))
+        await print_player(client, args.profile_id, args.count)
 
 
 async def print_player(client: AoeClient, profile_id: int, match_count: int) -> None:
@@ -52,10 +42,6 @@ async def print_player(client: AoeClient, profile_id: int, match_count: int) -> 
     print("Recent matches:")
     for match in matches:
         print(format_match(match, profile_id))
-
-
-def format_player_summary(player: PlayerSummary) -> str:
-    return f"{player.profile_id:>10}  {player.name}  ({player.country or '?'})"
 
 
 def format_profile_heading(profile: Profile) -> str:
@@ -99,15 +85,11 @@ def format_rating_change(player: MatchPlayer | None) -> str:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Query an AoE2 data source.")
     parser.add_argument("client", choices=get_args(ClientName), help="data source to query")
-    parser.add_argument("profile_id", type=int, nargs="?", help="player to show")
-    parser.add_argument("--search", metavar="NAME", help="search for players by name instead")
+    parser.add_argument("profile_id", type=int, help="player to show")
     parser.add_argument(
         "--count", type=int, default=5, help="maximum number of recent matches to show"
     )
-    args = parser.parse_args()
-    if args.search is None and args.profile_id is None:
-        parser.error("either profile_id or --search is required")
-    return args
+    return parser.parse_args()
 
 
 if __name__ == "__main__":

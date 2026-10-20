@@ -9,7 +9,6 @@ from custom_components.aoe2.api._worldsedge import (
     _raise_for_result,
     parse_matches,
     parse_profile,
-    parse_search,
     pretty_map_name,
 )
 
@@ -44,12 +43,6 @@ def test_parse_matches_sorted_newest_first(load_fixture):
     assert viper.civ is None
 
 
-def test_parse_search(load_fixture):
-    results = parse_search(load_fixture("worldsedge_stat.json"))
-
-    assert results[0].profile_id == VIPER
-
-
 @pytest.mark.parametrize(
     ("raw", "expected"),
     [
@@ -68,7 +61,6 @@ def test_pretty_map_name(raw, expected):
     ("code", "message", "expected"),
     [
         (6, "UNKNOWN_PROFILE_IDS", AoeClientNotFoundError),
-        (9, "UNKNOWN_ALIASES", AoeClientNotFoundError),
         (1, "SOMETHING_ELSE", AoeClientResponseError),
     ],
 )

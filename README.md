@@ -34,12 +34,6 @@ ruff check
 
 `scripts/try_api.py` queries a data source directly from the command line.
 
-Search for a player by name:
-
-```sh
-python scripts/try_api.py aoe2companion --search <name>
-```
-
 Fetch a player's ratings and recent matches by profile ID:
 
 ```sh

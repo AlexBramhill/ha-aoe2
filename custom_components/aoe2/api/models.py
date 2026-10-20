@@ -12,14 +12,6 @@ class Leaderboard(StrEnum):
 
 
 @dataclass(frozen=True, slots=True)
-class PlayerSummary:
-    profile_id: int
-    name: str
-    country: str | None = None
-    games: int | None = None
-
-
-@dataclass(frozen=True, slots=True)
 class Rating:
     leaderboard: Leaderboard
     rating: int

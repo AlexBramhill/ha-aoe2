@@ -9,14 +9,13 @@ import aiohttp
 from ._http import get_json
 from ._parsing import response_parser
 from .errors import AoeClientNotFoundError, AoeClientResponseError
-from .models import Leaderboard, Match, MatchPlayer, PlayerSummary, Profile, Rating
+from .models import Leaderboard, Match, MatchPlayer, Profile, Rating
 
 BASE_URL = "https://aoe-api.worldsedgelink.com/community/leaderboard"
 TITLE = "age2"
 
 RESULT_OK = 0
 RESULT_UNKNOWN_PROFILE = 6
-RESULT_UNKNOWN_ALIAS = 9
 
 LEADERBOARD_IDS: dict[int, Leaderboard] = {
     3: Leaderboard.RM_1V1,
@@ -41,14 +40,6 @@ MATCH_TYPES: dict[int, Leaderboard] = {
 class WorldsEdgeClient:
     def __init__(self, session: aiohttp.ClientSession) -> None:
         self._session = session
-
-    async def search_players(self, name: str) -> list[PlayerSummary]:
-        """Matches on in-game alias; far less fuzzy than aoe2companion."""
-        try:
-            body = await self._get("GetPersonalStat", aliases=_json_list(name))
-        except AoeClientNotFoundError:
-            return []
-        return parse_search(body)
 
     async def get_profile(self, profile_id: int) -> Profile:
         body = await self._get("GetPersonalStat", profile_ids=_json_list(profile_id))
@@ -75,14 +66,9 @@ def _raise_for_result(body: dict[str, Any]) -> None:
     code = result.get("code")
     if code == RESULT_OK:
         return
-    if code in (RESULT_UNKNOWN_PROFILE, RESULT_UNKNOWN_ALIAS):
+    if code == RESULT_UNKNOWN_PROFILE:
         raise AoeClientNotFoundError(result.get("message"))
     raise AoeClientResponseError(f"World's Edge error: {result}")
-
-
-@response_parser
-def parse_search(body: dict[str, Any]) -> list[PlayerSummary]:
-    return [_player_summary(member) for member in _all_members(body)]
 
 
 @response_parser
@@ -121,14 +107,6 @@ def _find_member(body: dict[str, Any], profile_id: int) -> dict[str, Any]:
         if member["profile_id"] == profile_id:
             return member
     raise AoeClientNotFoundError(profile_id)
-
-
-def _player_summary(member: dict[str, Any]) -> PlayerSummary:
-    return PlayerSummary(
-        profile_id=member["profile_id"],
-        name=member["alias"],
-        country=member.get("country"),
-    )
 
 
 def _known_ratings(body: dict[str, Any], statgroup_id: int) -> Iterator[Rating]:

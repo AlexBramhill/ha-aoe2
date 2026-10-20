@@ -6,7 +6,7 @@ import aiohttp
 
 from ._http import get_json
 from ._parsing import response_parser
-from .models import Leaderboard, Match, MatchPlayer, PlayerSummary, Profile, Rating
+from .models import Leaderboard, Match, MatchPlayer, Profile, Rating
 
 BASE_URL = "https://data.aoe2companion.com/api"
 
@@ -14,10 +14,6 @@ BASE_URL = "https://data.aoe2companion.com/api"
 class Aoe2CompanionClient:
     def __init__(self, session: aiohttp.ClientSession) -> None:
         self._session = session
-
-    async def search_players(self, name: str) -> list[PlayerSummary]:
-        body = await self._get("profiles", search=name)
-        return parse_search(body)
 
     async def get_profile(self, profile_id: int) -> Profile:
         body = await self._get(f"profiles/{profile_id}")
@@ -29,11 +25,6 @@ class Aoe2CompanionClient:
 
     async def _get(self, path: str, **params: Any) -> dict[str, Any]:
         return await get_json(self._session, f"{BASE_URL}/{path}", params)
-
-
-@response_parser
-def parse_search(body: dict[str, Any]) -> list[PlayerSummary]:
-    return [_player_summary(profile) for profile in body.get("profiles", [])]
 
 
 @response_parser
@@ -49,15 +40,6 @@ def parse_profile(body: dict[str, Any]) -> Profile:
 @response_parser
 def parse_matches(body: dict[str, Any]) -> list[Match]:
     return [_match(match) for match in body.get("matches", [])]
-
-
-def _player_summary(raw: dict[str, Any]) -> PlayerSummary:
-    return PlayerSummary(
-        profile_id=raw["profileId"],
-        name=raw["name"],
-        country=raw.get("country"),
-        games=_int_or_none(raw.get("games")),
-    )
 
 
 def _known_ratings(profile: dict[str, Any]) -> Iterator[Rating]:
@@ -116,7 +98,3 @@ def _leaderboard_or_none(value: str | None) -> Leaderboard | None:
 
 def _datetime_or_none(value: str | None) -> datetime | None:
     return datetime.fromisoformat(value) if value else None
-
-
-def _int_or_none(value: Any) -> int | None:
-    return int(value) if value is not None else None

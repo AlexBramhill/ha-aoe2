@@ -6,7 +6,6 @@ from custom_components.aoe2.api import AoeClientResponseError, Leaderboard
 from custom_components.aoe2.api._aoe2companion import (
     parse_matches,
     parse_profile,
-    parse_search,
 )
 
 VIPER = 196240
@@ -34,12 +33,6 @@ def test_parse_matches(load_fixture):
     assert match.finished > match.started
     kingstone = match.player_with_id(2776293)
     assert (kingstone.civ, kingstone.rating_change, kingstone.won) == ("Persians", 17, True)
-
-
-def test_parse_search(load_fixture):
-    first = parse_search(load_fixture("aoe2companion_search.json"))[0]
-
-    assert (first.profile_id, first.name, first.games) == (VIPER, "TheViper", 11048)
 
 
 def test_unexpected_shape_raises_response_error():
