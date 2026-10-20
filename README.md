@@ -1,12 +1,14 @@
 # ha-aoe2
 
-A Home Assistant integration for Age of Empires II: DE. It tracks a player's Elo and their latest games.
+Home Assistant integration for Age of Empires II: Definitive Edition. Tracks player ratings and recent matches.
 
-> Work in progress. The API layer is done; the Home Assistant side (coordinator, config flow, sensors) is next.
+> **Status:** in development.
 
-## Getting going
+## Requirements
 
-You need Python 3.13 or newer.
+- Python 3.13 or later
+
+## Setup
 
 ```sh
 python3 -m venv .venv
@@ -14,49 +16,40 @@ source .venv/bin/activate
 pip install --group dev
 ```
 
-Run the tests:
+## Development
+
+Run the test suite:
 
 ```sh
 pytest
 ```
 
-Lint:
+Run the linter:
 
 ```sh
 ruff check
 ```
 
-## Try it against the real APIs
+## Querying the APIs
 
-You'll need a profile ID. Search for one by name:
+`scripts/try_api.py` queries a data source directly from the command line.
+
+Search for a player by name:
 
 ```sh
-python scripts/try_api.py aoe2companion --search TheViper
+python scripts/try_api.py aoe2companion --search <name>
 ```
 
-Then pull ratings and recent games:
+Fetch a player's ratings and recent matches by profile ID:
 
 ```sh
-python scripts/try_api.py aoe2companion 196240
-python scripts/try_api.py worldsedge 196240 --count 10
+python scripts/try_api.py aoe2companion <profile_id>
+python scripts/try_api.py worldsedge <profile_id> --count 10
 ```
 
 ## Data sources
 
-There are two, and both use the same profile IDs:
-
-- **aoe2companion** is the default. It has a good name search and gives civ and map names.
-- **worldsedge** is the official (but undocumented) Relic/World's Edge API. Its search only matches exact in-game names, and it returns civs as IDs only.
-
-## Layout
-
-```
-custom_components/aoe2/api/   # API clients, no Home Assistant imports
-  client.py                   # AoeClient protocol both clients follow
-  _aoe2companion.py           # aoe2companion client + parsers
-  _worldsedge.py              # World's Edge client + parsers
-  models.py                   # Profile, Rating, Match, ...
-  errors.py                   # AoeClient*Error types
-tests/                        # parser tests against saved real responses
-scripts/try_api.py            # poke the live APIs from the terminal
-```
+| Name | Provider |
+|---|---|
+| `aoe2companion` | [aoe2companion.com](https://www.aoe2companion.com) |
+| `worldsedge` | Relic / World's Edge community API |
