@@ -20,6 +20,7 @@ from .const import CONF_PROFILE_ID, DOMAIN, EVENT_MATCH_FINISHED, LOGGER
 from .recorded_matches import RecordedMatches
 
 UPDATE_INTERVAL = timedelta(minutes=10)
+IN_MATCH_UPDATE_INTERVAL = timedelta(minutes=3)
 RECENT_MATCH_COUNT = 5
 
 type Aoe2ConfigEntry = ConfigEntry[Aoe2Coordinator]
@@ -83,6 +84,7 @@ class Aoe2Coordinator(TimestampDataUpdateCoordinator[Aoe2Data]):
     async def _async_update_data(self) -> Aoe2Data:
         latest = await self._fetch_player_data()
         self._newly_recorded_matches = await self._record_new_matches(latest)
+        self.update_interval = _update_interval_for(latest)
         return latest
 
     @callback
@@ -137,6 +139,10 @@ class Aoe2Coordinator(TimestampDataUpdateCoordinator[Aoe2Data]):
             map_name=match.map_name,
             **_player_result(match.player_with_id(self._profile_id)),
         )
+
+
+def _update_interval_for(data: Aoe2Data) -> timedelta:
+    return UPDATE_INTERVAL if data.current_match() is None else IN_MATCH_UPDATE_INTERVAL
 
 
 def _player_result(player: MatchPlayer) -> PlayerResult:

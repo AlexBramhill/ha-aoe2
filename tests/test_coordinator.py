@@ -20,7 +20,12 @@ from custom_components.aoe2.const import (
     DOMAIN,
     EVENT_MATCH_FINISHED,
 )
-from custom_components.aoe2.coordinator import Aoe2Coordinator, Aoe2Data
+from custom_components.aoe2.coordinator import (
+    IN_MATCH_UPDATE_INTERVAL,
+    UPDATE_INTERVAL,
+    Aoe2Coordinator,
+    Aoe2Data,
+)
 from tests.api.builders import TYPICAL_START, MatchBuilder
 from tests.fake_client import FakeAoeClient
 
@@ -252,3 +257,31 @@ async def test_restart_announces_match_that_finished_while_stopped(
 
 def storage_key(coordinator: Aoe2Coordinator) -> str:
     return f"{DOMAIN}.{coordinator.config_entry.entry_id}.recorded_matches"
+
+
+async def test_polls_more_often_during_a_match(
+    hass: HomeAssistant, coordinator: Aoe2Coordinator, fake_client: FakeAoeClient
+):
+    # Given
+    fake_client.matches = [NEWER_MATCH.unfinished().build(), EARLIER_MATCH.build()]
+
+    # When
+    await refresh(hass, coordinator)
+
+    # Then
+    assert coordinator.update_interval == IN_MATCH_UPDATE_INTERVAL
+
+
+async def test_returns_to_normal_polling_after_the_match(
+    hass: HomeAssistant, coordinator: Aoe2Coordinator, fake_client: FakeAoeClient
+):
+    # Given
+    fake_client.matches = [NEWER_MATCH.unfinished().build(), EARLIER_MATCH.build()]
+    await refresh(hass, coordinator)
+    fake_client.matches = [NEWER_MATCH.build(), EARLIER_MATCH.build()]
+
+    # When
+    await refresh(hass, coordinator)
+
+    # Then
+    assert coordinator.update_interval == UPDATE_INTERVAL
