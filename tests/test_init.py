@@ -5,31 +5,12 @@ from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import HomeAssistant
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from custom_components.aoe2.api import AoeClient, AoeClientConnectionError, ClientName
+from custom_components.aoe2.api import AoeClientConnectionError, ClientName
 from custom_components.aoe2.const import CONF_CLIENT, CONF_PROFILE_ID, DOMAIN
 from custom_components.aoe2.coordinator import Aoe2Coordinator
 from tests.fake_client import FakeAoeClient
 
 PROFILE_ID = 1
-
-
-@pytest.fixture
-def fake_client() -> FakeAoeClient:
-    return FakeAoeClient()
-
-
-@pytest.fixture
-def created_client_names(
-    monkeypatch: pytest.MonkeyPatch, fake_client: FakeAoeClient
-) -> list[ClientName]:
-    names: list[ClientName] = []
-
-    def create_fake_client(client_name: ClientName, _session: object) -> AoeClient:
-        names.append(client_name)
-        return fake_client
-
-    monkeypatch.setattr("custom_components.aoe2.create_client", create_fake_client)
-    return names
 
 
 def config_entry_for(client_name: ClientName) -> MockConfigEntry:

@@ -1,0 +1,24 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Add an Age of Empires II player",
+        "description": "Track a player's ratings and recent matches.",
+        "data": {
+          "profile_id": "Profile ID"
+        },
+        "data_description": {
+          "profile_id": "The number at the end of the player's profile address on aoe2companion.com, for example 196240."
+        }
+      }
+    },
+    "error": {
+      "player_not_found": "No player has this profile ID.",
+      "cannot_connect": "Couldn't reach the data source. Try again in a few minutes.",
+      "unknown": "Something unexpected went wrong. Check the logs for details."
+    },
+    "abort": {
+      "already_configured": "This player has already been added."
+    }
+  }
+}
