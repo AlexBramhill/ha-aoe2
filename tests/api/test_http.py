@@ -1,5 +1,7 @@
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
-from typing import cast
+from typing import Any, cast
 
 import aiohttp
 import pytest
@@ -10,7 +12,7 @@ from custom_components.aoe2.api import (
     AoeClientRateLimitError,
     AoeClientResponseError,
 )
-from custom_components.aoe2.api._http import _raise_for_status
+from custom_components.aoe2.api._http import USER_AGENT, _raise_for_status, get_json
 
 
 @dataclass
@@ -18,6 +20,24 @@ class FakeResponse:
     status: int
     headers: dict[str, str] = field(default_factory=dict)
     url: str = "https://example.test"
+
+
+@dataclass
+class FakeJsonResponse(FakeResponse):
+    body: Any = None
+
+    async def json(self, content_type: str | None = None) -> Any:
+        return self.body
+
+
+@dataclass
+class RecordingSession:
+    sent_headers: list[dict[str, str]] = field(default_factory=list)
+
+    @asynccontextmanager
+    async def get(self, url: str, **kwargs: Any) -> AsyncIterator[FakeJsonResponse]:
+        self.sent_headers.append(kwargs.get("headers", {}))
+        yield FakeJsonResponse(status=200, url=url, body={"ok": True})
 
 
 def fake_response(status: int, headers: dict[str, str] | None = None) -> aiohttp.ClientResponse:
@@ -72,3 +92,15 @@ def test_rate_limit_reads_retry_after(
 
     # Then
     assert raised.value.retry_after == retry_after_seconds
+
+
+async def test_requests_identify_the_project_with_a_user_agent():
+    # Given
+    session = RecordingSession()
+
+    # When
+    await get_json(cast(aiohttp.ClientSession, session), "https://example.test/api")
+
+    # Then
+    assert session.sent_headers == [{"User-Agent": USER_AGENT}]
+    assert "https://github.com/AlexBramhill/ha-aoe2" in USER_AGENT
