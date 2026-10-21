@@ -7,6 +7,8 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from .coordinator import Aoe2ConfigEntry, Aoe2Coordinator
 from .entity import Aoe2Entity
 
+PARALLEL_UPDATES = 0
+
 
 async def async_setup_entry(
     hass: HomeAssistant,

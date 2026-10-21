@@ -1,3 +1,5 @@
+import logging
+
 import pytest
 from homeassistant.const import STATE_UNAVAILABLE, Platform
 from homeassistant.core import HomeAssistant
@@ -11,7 +13,7 @@ from custom_components.aoe2.sensor import (
     recent_rating_change,
     recent_win_rate,
 )
-from tests.api.builders import MatchBuilder, ProfileBuilder, build_match_player
+from tests.api.builders import MatchBuilder, ProfileBuilder, build_match_player, build_rating
 from tests.fake_client import FakeAoeClient
 from tests.integration import (
     PROFILE_ID,
@@ -168,3 +170,36 @@ async def test_sensors_become_unavailable_when_refresh_fails(
 
     # Then
     assert state_of(hass, Platform.SENSOR, "rm_1v1_rating").state == STATE_UNAVAILABLE
+
+
+@pytest.mark.usefixtures("created_client_names")
+async def test_rating_sensors_appear_for_newly_played_leaderboard(
+    hass: HomeAssistant, fake_client: FakeAoeClient
+):
+    # Given
+    entry = await set_up_integration(hass)
+    fake_client.profile = (
+        ProfileBuilder().with_rating(build_rating(Leaderboard.EW_1V1, 1400)).build().expected
+    )
+
+    # When
+    await refresh(hass, entry)
+
+    # Then
+    assert state_of(hass, Platform.SENSOR, "ew_1v1_rating").state == "1400"
+    assert state_of(hass, Platform.SENSOR, "rm_1v1_rating").state == "1650"
+
+
+@pytest.mark.usefixtures("created_client_names")
+async def test_refresh_does_not_add_existing_rating_sensors_again(
+    hass: HomeAssistant, caplog: pytest.LogCaptureFixture
+):
+    # Given
+    entry = await set_up_integration(hass)
+
+    # When
+    await refresh(hass, entry)
+    await refresh(hass, entry)
+
+    # Then
+    assert not [record for record in caplog.records if record.levelno >= logging.ERROR]

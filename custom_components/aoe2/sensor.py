@@ -10,13 +10,15 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.const import PERCENTAGE, EntityCategory
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.typing import StateType
 
 from .api import Leaderboard, Match, MatchPlayer, Rating
 from .coordinator import Aoe2ConfigEntry, Aoe2Coordinator, Aoe2Data
 from .entity import Aoe2Entity
+
+PARALLEL_UPDATES = 0
 
 RESULT_WIN = "win"
 RESULT_LOSS = "loss"
@@ -216,11 +218,13 @@ async def async_setup_entry(
     coordinator = entry.runtime_data
     async_add_entities(
         [
-            *_rating_sensors_for(coordinator),
             *(Aoe2PlayerSensor(coordinator, description) for description in PLAYER_SENSORS),
             Aoe2LastUpdatedSensor(coordinator),
         ]
     )
+    rating_sensors = RatingSensorsPerLeaderboard(coordinator, async_add_entities)
+    rating_sensors.add_for_new_leaderboards()
+    entry.async_on_unload(coordinator.async_add_listener(rating_sensors.add_for_new_leaderboards))
 
 
 class Aoe2RatingSensor(Aoe2Entity, SensorEntity):
@@ -275,13 +279,34 @@ class Aoe2LastUpdatedSensor(Aoe2Entity, SensorEntity):
         return self.coordinator.last_update_success_time
 
 
-def _rating_sensors_for(coordinator: Aoe2Coordinator) -> list[Aoe2RatingSensor]:
-    return [
-        Aoe2RatingSensor(coordinator, description, rating.leaderboard)
-        for rating in coordinator.data.profile.ratings
-        if rating.leaderboard in LEADERBOARD_NAMES
-        for description in RATING_SENSORS
-    ]
+class RatingSensorsPerLeaderboard:
+    def __init__(
+        self, coordinator: Aoe2Coordinator, async_add_entities: AddConfigEntryEntitiesCallback
+    ) -> None:
+        self._coordinator = coordinator
+        self._async_add_entities = async_add_entities
+        self._leaderboards_with_sensors: set[Leaderboard] = set()
+
+    @callback
+    def add_for_new_leaderboards(self) -> None:
+        new_leaderboards = self._leaderboards_without_sensors()
+        self._leaderboards_with_sensors.update(new_leaderboards)
+        self._async_add_entities(self._sensors_for(new_leaderboards))
+
+    def _leaderboards_without_sensors(self) -> list[Leaderboard]:
+        return [
+            rating.leaderboard
+            for rating in self._coordinator.data.profile.ratings
+            if rating.leaderboard in LEADERBOARD_NAMES
+            and rating.leaderboard not in self._leaderboards_with_sensors
+        ]
+
+    def _sensors_for(self, leaderboards: list[Leaderboard]) -> list[Aoe2RatingSensor]:
+        return [
+            Aoe2RatingSensor(self._coordinator, description, leaderboard)
+            for leaderboard in leaderboards
+            for description in RATING_SENSORS
+        ]
 
 
 def _from_last_match[Value](data: Aoe2Data, value_of: Callable[[Match], Value]) -> Value | None:

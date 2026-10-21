@@ -4,7 +4,7 @@ from datetime import timedelta
 from typing import TypedDict
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.update_coordinator import TimestampDataUpdateCoordinator, UpdateFailed
 
 from .api import (
@@ -17,6 +17,7 @@ from .api import (
     Profile,
 )
 from .const import CONF_PROFILE_ID, DOMAIN, EVENT_MATCH_FINISHED, LOGGER
+from .recorded_matches import RecordedMatches
 
 UPDATE_INTERVAL = timedelta(minutes=10)
 RECENT_MATCH_COUNT = 5
@@ -45,9 +46,6 @@ class Aoe2Data:
     def finished_matches(self) -> tuple[Match, ...]:
         return tuple(match for match in self.matches if match.finished is not None)
 
-    def finished_match_ids(self) -> set[int]:
-        return {match.match_id for match in self.finished_matches()}
-
     def last_finished_match(self) -> Match | None:
         return next(iter(self.finished_matches()), None)
 
@@ -71,6 +69,8 @@ class Aoe2Coordinator(TimestampDataUpdateCoordinator[Aoe2Data]):
         )
         self._client = client
         self._profile_id: int = entry.data[CONF_PROFILE_ID]
+        self._recorded_matches = RecordedMatches(hass, entry.entry_id)
+        self._newly_recorded_matches: list[Match] = []
 
     @property
     def profile_id(self) -> int:
@@ -82,9 +82,16 @@ class Aoe2Coordinator(TimestampDataUpdateCoordinator[Aoe2Data]):
 
     async def _async_update_data(self) -> Aoe2Data:
         latest = await self._fetch_player_data()
-        if self.data is not None:
-            self._announce_newly_finished_matches(self.data, latest)
+        self._newly_recorded_matches = await self._record_new_matches(latest)
         return latest
+
+    @callback
+    def async_update_listeners(self) -> None:
+        """Announce after entities update, so automations see the new ratings."""
+        super().async_update_listeners()
+        for match in self._newly_recorded_matches:
+            self.hass.bus.async_fire(EVENT_MATCH_FINISHED, self._match_event_data(match))
+        self._newly_recorded_matches = []
 
     async def _fetch_player_data(self) -> Aoe2Data:
         try:
@@ -98,9 +105,29 @@ class Aoe2Coordinator(TimestampDataUpdateCoordinator[Aoe2Data]):
             raise UpdateFailed(str(error)) from error
         return Aoe2Data(profile=profile, matches=tuple(matches))
 
-    def _announce_newly_finished_matches(self, previous: Aoe2Data, latest: Aoe2Data) -> None:
-        for match in _newly_finished_matches_oldest_first(previous, latest):
-            self.hass.bus.async_fire(EVENT_MATCH_FINISHED, self._match_event_data(match))
+    async def _record_new_matches(self, latest: Aoe2Data) -> list[Match]:
+        finished_oldest_first = list(reversed(latest.finished_matches()))
+        if await self._player_was_just_added():
+            await self._record_without_announcing(finished_oldest_first)
+            return []
+        new_matches = self._not_yet_recorded(finished_oldest_first)
+        if new_matches:
+            await self._recorded_matches.async_record(match.match_id for match in new_matches)
+        return new_matches
+
+    async def _player_was_just_added(self) -> bool:
+        """A new entry has no saved record yet; one restarted after a reboot does."""
+        if self._recorded_matches.is_loaded:
+            return False
+        found_saved_record = await self._recorded_matches.async_load()
+        return not found_saved_record
+
+    async def _record_without_announcing(self, past_matches: list[Match]) -> None:
+        """Games played before the player was added are history, not news."""
+        await self._recorded_matches.async_record(match.match_id for match in past_matches)
+
+    def _not_yet_recorded(self, matches: list[Match]) -> list[Match]:
+        return [match for match in matches if match.match_id not in self._recorded_matches]
 
     def _match_event_data(self, match: Match) -> MatchFinishedEvent:
         return MatchFinishedEvent(
@@ -110,16 +137,6 @@ class Aoe2Coordinator(TimestampDataUpdateCoordinator[Aoe2Data]):
             map_name=match.map_name,
             **_player_result(match.player_with_id(self._profile_id)),
         )
-
-
-def _newly_finished_matches_oldest_first(previous: Aoe2Data, latest: Aoe2Data) -> list[Match]:
-    already_announced = previous.finished_match_ids()
-    newest_first = [
-        match
-        for match in latest.matches
-        if match.finished is not None and match.match_id not in already_announced
-    ]
-    return list(reversed(newest_first))
 
 
 def _player_result(player: MatchPlayer) -> PlayerResult:

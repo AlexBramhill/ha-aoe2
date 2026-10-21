@@ -6,6 +6,8 @@ from .const import EVENT_MATCH_FINISHED
 from .coordinator import Aoe2ConfigEntry, Aoe2Coordinator, MatchFinishedEvent
 from .entity import Aoe2Entity
 
+PARALLEL_UPDATES = 0
+
 EVENT_WIN = "win"
 EVENT_LOSS = "loss"
 EVENT_UNKNOWN_RESULT = "unknown"

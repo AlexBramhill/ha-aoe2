@@ -1,10 +1,11 @@
-from typing import get_args
+from typing import Any, get_args
 
 import pytest
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import HomeAssistant
 
 from custom_components.aoe2.api import AoeClientConnectionError, ClientName
+from custom_components.aoe2.const import DOMAIN
 from custom_components.aoe2.coordinator import Aoe2Coordinator
 from tests.fake_client import FakeAoeClient
 from tests.integration import config_entry_for, set_up
@@ -53,3 +54,21 @@ async def test_unload_unloads_entry(hass: HomeAssistant):
     # Then
     assert unloaded
     assert entry.state is ConfigEntryState.NOT_LOADED
+
+
+@pytest.mark.usefixtures("created_client_names")
+async def test_remove_deletes_saved_announcements(
+    hass: HomeAssistant, hass_storage: dict[str, Any]
+):
+    # Given
+    entry = config_entry_for("aoe2companion")
+    await set_up(hass, entry)
+    storage_key = f"{DOMAIN}.{entry.entry_id}.recorded_matches"
+    assert storage_key in hass_storage
+
+    # When
+    await hass.config_entries.async_remove(entry.entry_id)
+    await hass.async_block_till_done()
+
+    # Then
+    assert storage_key not in hass_storage

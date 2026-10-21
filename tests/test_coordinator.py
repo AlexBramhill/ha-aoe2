@@ -1,4 +1,5 @@
 from datetime import timedelta
+from typing import Any
 
 import pytest
 from homeassistant.core import HomeAssistant
@@ -184,3 +185,70 @@ async def test_announced_match_is_not_announced_again(
 
     # Then
     assert events == []
+
+
+async def test_empty_response_does_not_cause_matches_to_be_announced_again(
+    hass: HomeAssistant, coordinator: Aoe2Coordinator, fake_client: FakeAoeClient
+):
+    # Given
+    await refresh(hass, coordinator)
+    fake_client.matches = [NEWER_MATCH.build(), EARLIER_MATCH.build()]
+    await refresh(hass, coordinator)
+    fake_client.matches = []
+    await refresh(hass, coordinator)
+    events = async_capture_events(hass, EVENT_MATCH_FINISHED)
+    fake_client.matches = [NEWER_MATCH.build(), EARLIER_MATCH.build()]
+
+    # When
+    await refresh(hass, coordinator)
+
+    # Then
+    assert events == []
+
+
+async def test_first_refresh_records_existing_matches(
+    hass: HomeAssistant, coordinator: Aoe2Coordinator, hass_storage: dict[str, Any]
+):
+    # When
+    await refresh(hass, coordinator)
+
+    # Then
+    stored = hass_storage[storage_key(coordinator)]["data"]
+    assert stored == {"match_ids": [1]}
+
+
+async def test_restart_does_not_announce_matches_again(
+    hass: HomeAssistant, coordinator: Aoe2Coordinator, fake_client: FakeAoeClient
+):
+    # Given
+    await refresh(hass, coordinator)
+    fake_client.matches = [NEWER_MATCH.build(), EARLIER_MATCH.build()]
+    await refresh(hass, coordinator)
+    restarted = Aoe2Coordinator(hass, coordinator.config_entry, fake_client)
+    events = async_capture_events(hass, EVENT_MATCH_FINISHED)
+
+    # When
+    await refresh(hass, restarted)
+
+    # Then
+    assert events == []
+
+
+async def test_restart_announces_match_that_finished_while_stopped(
+    hass: HomeAssistant, coordinator: Aoe2Coordinator, fake_client: FakeAoeClient
+):
+    # Given
+    await refresh(hass, coordinator)
+    fake_client.matches = [NEWER_MATCH.build(), EARLIER_MATCH.build()]
+    restarted = Aoe2Coordinator(hass, coordinator.config_entry, fake_client)
+    events = async_capture_events(hass, EVENT_MATCH_FINISHED)
+
+    # When
+    await refresh(hass, restarted)
+
+    # Then
+    assert [event.data["match_id"] for event in events] == [2]
+
+
+def storage_key(coordinator: Aoe2Coordinator) -> str:
+    return f"{DOMAIN}.{coordinator.config_entry.entry_id}.recorded_matches"
