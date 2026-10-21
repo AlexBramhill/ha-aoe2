@@ -29,11 +29,12 @@ Run the test suite:
 uv run pytest
 ```
 
-Run the linter and formatter checks:
+Run the linter, formatter and type checks:
 
 ```sh
 uv run ruff check
 uv run ruff format --check
+uv run pyright
 ```
 
 ## Querying the APIs

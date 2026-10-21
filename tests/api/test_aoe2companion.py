@@ -21,7 +21,9 @@ def test_match_player_includes_civ_name(matches_response: Body):
     newest_match = parse_matches(matches_response)[0]
 
     # Then
-    assert newest_match.player_with_id(KINGSTONE_PROFILE_ID).civ == "Persians"
+    kingstone = newest_match.player_with_id(KINGSTONE_PROFILE_ID)
+    assert kingstone is not None
+    assert kingstone.civ == "Persians"
 
 
 def test_match_reports_map_played(matches_response: Body):

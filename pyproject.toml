@@ -8,6 +8,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "pyright[nodejs]>=1.1.414",
     "pytest",
     "pytest-asyncio",
     "pytest-homeassistant-custom-component>=0.13.373",
@@ -24,3 +25,8 @@ line-length = 100
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "SIM", "RUF"]
+
+[tool.pyright]
+include = ["custom_components", "scripts", "tests"]
+venvPath = "."
+venv = ".venv"

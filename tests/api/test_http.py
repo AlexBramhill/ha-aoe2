@@ -1,5 +1,7 @@
 from dataclasses import dataclass, field
+from typing import cast
 
+import aiohttp
 import pytest
 
 from custom_components.aoe2.api import (
@@ -18,14 +20,19 @@ class FakeResponse:
     url: str = "https://example.test"
 
 
-def rate_limited_response(retry_after: str | None) -> FakeResponse:
+def fake_response(status: int, headers: dict[str, str] | None = None) -> aiohttp.ClientResponse:
+    """Status handling only reads status, headers and url, so a stand-in is enough."""
+    return cast(aiohttp.ClientResponse, FakeResponse(status, headers or {}))
+
+
+def rate_limited_response(retry_after: str | None) -> aiohttp.ClientResponse:
     headers = {"Retry-After": retry_after} if retry_after else {}
-    return FakeResponse(429, headers)
+    return fake_response(429, headers)
 
 
 def test_success_status_does_not_raise():
     # Given
-    response = FakeResponse(200)
+    response = fake_response(200)
 
     # When / Then
     _raise_for_status(response)
@@ -42,7 +49,7 @@ def test_success_status_does_not_raise():
 )
 def test_error_status_raises(status: int, expected_error: type[Exception]):
     # Given
-    response = FakeResponse(status)
+    response = fake_response(status)
 
     # When / Then
     with pytest.raises(expected_error):

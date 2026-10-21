@@ -1,6 +1,7 @@
 from collections.abc import Callable
-from typing import get_args
+from typing import cast, get_args
 
+import aiohttp
 import pytest
 
 from custom_components.aoe2.api import (
@@ -9,6 +10,7 @@ from custom_components.aoe2.api import (
     ClientName,
     Leaderboard,
     Match,
+    MatchPlayer,
     create_client,
 )
 from tests.api.builders import (
@@ -31,6 +33,8 @@ from tests.api.helpers import (
 )
 
 UNKNOWN_PROFILE_ID = 999_999_999
+
+UNUSED_SESSION = cast(aiohttp.ClientSession, None)
 
 RANKED_PLAYER = ProfileBuilder().with_profile_id(42).with_name("Ranked").build()
 UNRANKED_PLAYER = (
@@ -59,6 +63,12 @@ def match_with_id(matches: list[Match], match_id: int) -> Match:
     return next(match for match in matches if match.match_id == match_id)
 
 
+def player_in(match: Match, profile_id: int) -> MatchPlayer:
+    player = match.player_with_id(profile_id)
+    assert player is not None, f"profile {profile_id} not in match {match.match_id}"
+    return player
+
+
 @pytest.fixture(params=get_args(ClientName))
 def client_name(request: pytest.FixtureRequest) -> ClientName:
     return request.param
@@ -73,7 +83,7 @@ def recorded_player(request: pytest.FixtureRequest) -> RecordedPlayer:
 def connect(monkeypatch: pytest.MonkeyPatch) -> Connect:
     def connect_to(fake_api: FakeApi) -> AoeClient:
         monkeypatch.setattr(fake_api.module, "get_json", fake_api.get_json)
-        return create_client(fake_api.name, session=None)
+        return create_client(fake_api.name, session=UNUSED_SESSION)
 
     return connect_to
 
@@ -213,7 +223,7 @@ async def test_viper_lost_match_reports_result_rating_and_team(viper_client: Aoe
     matches = await viper_client.get_recent_matches(VIPER.profile_id, count=len(VIPER_MATCH_IDS))
 
     # Then
-    viper = match_with_id(matches, VIPER_LOST_UNRANKED_MATCH_ID).player_with_id(VIPER.profile_id)
+    viper = player_in(match_with_id(matches, VIPER_LOST_UNRANKED_MATCH_ID), VIPER.profile_id)
     assert viper.won is False
     assert viper.rating_change == -20
     assert viper.rating_after_match == 1695
@@ -226,7 +236,7 @@ async def test_viper_ranked_match_reports_leaderboard_rating_and_team(viper_clie
 
     # Then
     ranked_match = match_with_id(matches, VIPER_WON_RANKED_MATCH_ID)
-    viper = ranked_match.player_with_id(VIPER.profile_id)
+    viper = player_in(ranked_match, VIPER.profile_id)
     assert ranked_match.leaderboard is Leaderboard.RM_1V1
     assert viper.won is True
     assert viper.rating_change == 4

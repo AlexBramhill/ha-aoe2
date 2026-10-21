@@ -24,4 +24,7 @@ def number_teams_from_one(players: Iterable[MatchPlayer]) -> tuple[MatchPlayer, 
     players = tuple(players)
     source_teams = sorted({player.team for player in players if player.team is not None})
     team_numbers = {team: number for number, team in enumerate(source_teams, start=1)}
-    return tuple(replace(player, team=team_numbers.get(player.team)) for player in players)
+    return tuple(
+        replace(player, team=None if player.team is None else team_numbers[player.team])
+        for player in players
+    )
