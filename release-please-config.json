@@ -13,6 +13,11 @@
           "type": "json",
           "path": "custom_components/aoe2/manifest.json",
           "jsonpath": "$.version"
+        },
+        {
+          "type": "toml",
+          "path": "uv.lock",
+          "jsonpath": "$.package[?(@.name.value=='ha-aoe2')].version"
         }
       ]
     }
