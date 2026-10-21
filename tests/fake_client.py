@@ -10,6 +10,7 @@ class FakeAoeClient:
     matches: list[Match] = field(default_factory=lambda: [MatchBuilder().build()])
     error: AoeClientError | None = None
     attribution: str = "Data provided by a fake source"
+    website_url: str = "https://fake.test"
 
     def profile_url(self, profile_id: int) -> str:
         return f"https://fake.test/players/{profile_id}"

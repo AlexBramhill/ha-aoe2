@@ -167,3 +167,11 @@ def test_every_leaderboard_except_other_has_an_aoe2companion_id():
 
     # Then
     assert mapped == set(Leaderboard) - {Leaderboard.OTHER}
+
+
+def test_website_url_is_aoe2companion():
+    # Given
+    client = Aoe2CompanionClient(UNUSED_SESSION)
+
+    # Then
+    assert client.website_url == "https://www.aoe2companion.com"

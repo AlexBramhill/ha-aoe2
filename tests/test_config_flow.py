@@ -49,6 +49,17 @@ async def test_flow_starts_with_profile_id_form(hass: HomeAssistant):
 
 
 @pytest.mark.usefixtures("created_client_names")
+async def test_form_links_to_the_configured_data_source(
+    hass: HomeAssistant, fake_client: FakeAoeClient
+):
+    # When
+    result = await hass.config_entries.flow.async_init(DOMAIN, context={"source": SOURCE_USER})
+
+    # Then
+    assert result.get("description_placeholders") == {"data_source_url": fake_client.website_url}
+
+
+@pytest.mark.usefixtures("created_client_names")
 async def test_valid_profile_creates_entry_named_after_player(
     hass: HomeAssistant, fake_client: FakeAoeClient
 ):

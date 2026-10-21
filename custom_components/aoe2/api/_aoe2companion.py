@@ -9,7 +9,8 @@ from ._parsing import number_teams_from_one, response_parser
 from .models import Leaderboard, Match, MatchPlayer, Profile, Rating
 
 BASE_URL = "https://data.aoe2companion.com/api"
-PROFILE_URL = "https://www.aoe2companion.com/profile/{profile_id}"
+WEBSITE_URL = "https://www.aoe2companion.com"
+PROFILE_URL = f"{WEBSITE_URL}/profile/{{profile_id}}"
 ATTRIBUTION = "Data provided by aoe2companion.com"
 
 LEADERBOARDS_BY_ID: dict[str, Leaderboard] = {
@@ -36,6 +37,10 @@ class Aoe2CompanionClient:
     @property
     def attribution(self) -> str:
         return ATTRIBUTION
+
+    @property
+    def website_url(self) -> str:
+        return WEBSITE_URL
 
     def profile_url(self, profile_id: int) -> str:
         return PROFILE_URL.format(profile_id=profile_id)

@@ -5,6 +5,7 @@ from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import (
+    AoeClient,
     AoeClientConnectionError,
     AoeClientError,
     AoeClientNotFoundError,
@@ -44,8 +45,10 @@ class Aoe2ConfigFlow(ConfigFlow, domain=DOMAIN):
         self._abort_if_unique_id_configured()
 
     async def _get_profile(self, profile_id: int) -> Profile:
-        client = create_client(DEFAULT_CLIENT, async_get_clientsession(self.hass))
-        return await client.get_profile(profile_id)
+        return await self._client().get_profile(profile_id)
+
+    def _client(self) -> AoeClient:
+        return create_client(DEFAULT_CLIENT, async_get_clientsession(self.hass))
 
     def _create_player_entry(self, profile_id: int, player_name: str) -> ConfigFlowResult:
         return self.async_create_entry(
@@ -60,6 +63,7 @@ class Aoe2ConfigFlow(ConfigFlow, domain=DOMAIN):
             step_id="user",
             data_schema=self.add_suggested_values_to_schema(USER_SCHEMA, user_input),
             errors=errors,
+            description_placeholders={"data_source_url": self._client().website_url},
         )
 
 
