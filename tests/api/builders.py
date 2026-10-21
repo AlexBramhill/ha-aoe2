@@ -126,7 +126,7 @@ class MatchBuilder:
     match_id: int = 1
     started: datetime = TYPICAL_START
     finished: datetime | None = TYPICAL_START + TYPICAL_DURATION
-    leaderboard: Leaderboard | None = Leaderboard.RM_1V1
+    leaderboard: Leaderboard = Leaderboard.RM_1V1
     map_name: str = "Arabia"
     players: tuple[MatchPlayer, ...] = TYPICAL_PLAYERS
 

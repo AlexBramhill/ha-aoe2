@@ -60,24 +60,20 @@ def format_match(match: Match, profile_id: int) -> str:
         format_result(player),
         str(match.leaderboard),
         match.map_name,
-        format_civ(player),
+        player.civ,
         format_rating_change(player),
     ]
     return "  " + "  ".join(columns)
 
 
-def format_result(player: MatchPlayer | None) -> str:
-    if player is None or player.won is None:
+def format_result(player: MatchPlayer) -> str:
+    if player.won is None:
         return "?   "
     return "WIN " if player.won else "LOSS"
 
 
-def format_civ(player: MatchPlayer | None) -> str:
-    return "" if player is None else player.civ
-
-
-def format_rating_change(player: MatchPlayer | None) -> str:
-    if player is None or player.rating_change is None:
+def format_rating_change(player: MatchPlayer) -> str:
+    if player.rating_change is None:
         return ""
     return f"{player.rating_change:+d}"
 

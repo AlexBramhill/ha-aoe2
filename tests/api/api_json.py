@@ -39,7 +39,7 @@ def _aoe2companion_match(match: Match) -> Body:
         "matchId": match.match_id,
         "started": _iso_timestamp(match.started),
         "finished": _iso_timestamp(match.finished),
-        "leaderboardId": None if match.leaderboard is None else match.leaderboard.value,
+        "leaderboardId": match.leaderboard.value,
         "mapName": match.map_name,
         "teams": [
             {"teamId": team, "players": [_aoe2companion_player(player) for player in players]}

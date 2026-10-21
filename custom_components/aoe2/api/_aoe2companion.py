@@ -43,8 +43,9 @@ def parse_matches(body: dict[str, Any]) -> list[Match]:
 
 
 def _known_ratings(body: dict[str, Any]) -> Iterator[Rating]:
+    """Unrecognised leaderboards are skipped: several would all collapse into OTHER."""
     for raw in body.get("leaderboards", []):
-        if (leaderboard := _leaderboard_or_none(raw.get("leaderboardId"))) is not None:
+        if (leaderboard := Leaderboard(raw["leaderboardId"])) is not Leaderboard.OTHER:
             yield _rating(leaderboard, raw)
 
 
@@ -66,7 +67,7 @@ def _match(raw: dict[str, Any]) -> Match:
         match_id=raw["matchId"],
         started=datetime.fromisoformat(raw["started"]),
         finished=_datetime_or_none(raw.get("finished")),
-        leaderboard=_leaderboard_or_none(raw.get("leaderboardId")),
+        leaderboard=Leaderboard(raw["leaderboardId"]),
         map_name=raw["mapName"],
         players=number_teams_from_one(_match_player(player) for player in _all_players(raw)),
     )
@@ -95,13 +96,6 @@ def _rating_after_match(raw: dict[str, Any]) -> int | None:
     if rating_before is None or change is None:
         return None
     return rating_before + change
-
-
-def _leaderboard_or_none(value: str | None) -> Leaderboard | None:
-    try:
-        return Leaderboard(value)
-    except ValueError:
-        return None
 
 
 def _datetime_or_none(value: str | None) -> datetime | None:

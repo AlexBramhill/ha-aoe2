@@ -1,6 +1,6 @@
 import pytest
 
-from custom_components.aoe2.api import AoeClientResponseError
+from custom_components.aoe2.api import AoeClientResponseError, Leaderboard
 from custom_components.aoe2.api._aoe2companion import (
     parse_matches,
     parse_profile,
@@ -9,6 +9,15 @@ from tests.api.api_json import Body
 from tests.api.helpers import VIPER, VIPER_WON_RANKED_MATCH_ID
 
 KINGSTONE_PROFILE_ID = 2776293
+RATING_JSON = {
+    "rating": 1050,
+    "rank": 34570,
+    "wins": 56,
+    "losses": 51,
+    "streak": 1,
+    "maxRating": 1100,
+    "lastMatchTime": "2026-10-18T19:26:00.000Z",
+}
 
 
 @pytest.fixture
@@ -22,7 +31,6 @@ def test_match_player_includes_civ_name(matches_response: Body):
 
     # Then
     kingstone = newest_match.player_with_id(KINGSTONE_PROFILE_ID)
-    assert kingstone is not None
     assert kingstone.civ == "Persians"
 
 
@@ -75,7 +83,6 @@ def test_ai_player_has_name_team_and_civ_but_no_result():
 
     # Then
     ai = match.player_with_id(-1)
-    assert ai is not None
     assert (ai.name, ai.team, ai.civ) == ("AI", 2, "Malians")
     assert (ai.won, ai.rating_after_match, ai.rating_change) == (None, None, None)
 
@@ -91,8 +98,37 @@ def test_rating_after_match_is_unknown_without_rating_change():
 
     # Then
     player = match.player_with_id(1241154)
-    assert player is not None
     assert player.rating_after_match is None
+
+
+def test_match_on_unrecognised_leaderboard_is_other():
+    # Given
+    response = ai_match_response()
+    response["matches"][0]["leaderboardId"] = "brand_new_mode"
+
+    # When
+    match = parse_matches(response)[0]
+
+    # Then
+    assert match.leaderboard is Leaderboard.OTHER
+
+
+def test_profile_skips_ratings_on_unrecognised_leaderboards():
+    # Given
+    profile = {
+        "profileId": 1241154,
+        "name": "Steve Onager",
+        "leaderboards": [
+            {**RATING_JSON, "leaderboardId": "rm_team"},
+            {**RATING_JSON, "leaderboardId": "brand_new_mode"},
+        ],
+    }
+
+    # When
+    parsed = parse_profile(profile)
+
+    # Then
+    assert [rating.leaderboard for rating in parsed.ratings] == [Leaderboard.RM_TEAM]
 
 
 def test_malformed_profile_raises_response_error():

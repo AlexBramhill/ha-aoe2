@@ -10,7 +10,6 @@ from custom_components.aoe2.api import (
     ClientName,
     Leaderboard,
     Match,
-    MatchPlayer,
     create_client,
 )
 from tests.api.builders import (
@@ -61,12 +60,6 @@ type Connect = Callable[[FakeApi], AoeClient]
 
 def match_with_id(matches: list[Match], match_id: int) -> Match:
     return next(match for match in matches if match.match_id == match_id)
-
-
-def player_in(match: Match, profile_id: int) -> MatchPlayer:
-    player = match.player_with_id(profile_id)
-    assert player is not None, f"profile {profile_id} not in match {match.match_id}"
-    return player
 
 
 @pytest.fixture(params=get_args(ClientName))
@@ -160,7 +153,8 @@ async def test_matches_include_requested_player(client: AoeClient, recorded_play
 
     # Then
     assert matches
-    assert all(match.player_with_id(recorded_player.profile_id) for match in matches)
+    for match in matches:
+        match.player_with_id(recorded_player.profile_id)
 
 
 async def test_match_times_are_timezone_aware(client: AoeClient, recorded_player: RecordedPlayer):
@@ -222,7 +216,7 @@ async def test_viper_lost_match_reports_result_rating_and_team(viper_client: Aoe
     matches = await viper_client.get_recent_matches(VIPER.profile_id, count=len(VIPER_MATCH_IDS))
 
     # Then
-    viper = player_in(match_with_id(matches, VIPER_LOST_UNRANKED_MATCH_ID), VIPER.profile_id)
+    viper = match_with_id(matches, VIPER_LOST_UNRANKED_MATCH_ID).player_with_id(VIPER.profile_id)
     assert viper.won is False
     assert viper.rating_change == -20
     assert viper.rating_after_match == 1695
@@ -235,7 +229,7 @@ async def test_viper_ranked_match_reports_leaderboard_rating_and_team(viper_clie
 
     # Then
     ranked_match = match_with_id(matches, VIPER_WON_RANKED_MATCH_ID)
-    viper = player_in(ranked_match, VIPER.profile_id)
+    viper = ranked_match.player_with_id(VIPER.profile_id)
     assert ranked_match.leaderboard is Leaderboard.RM_1V1
     assert viper.won is True
     assert viper.rating_change == 4

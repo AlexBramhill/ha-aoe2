@@ -33,7 +33,7 @@ class PlayerResult(TypedDict):
 class MatchFinishedEvent(PlayerResult):
     profile_id: int
     match_id: int
-    leaderboard: Leaderboard | None
+    leaderboard: Leaderboard
     map_name: str
 
 
@@ -102,9 +102,7 @@ def _newly_finished_matches_oldest_first(previous: Aoe2Data, latest: Aoe2Data) -
     return list(reversed(newest_first))
 
 
-def _player_result(player: MatchPlayer | None) -> PlayerResult:
-    if player is None:
-        return PlayerResult(won=None, rating_after_match=None, rating_change=None)
+def _player_result(player: MatchPlayer) -> PlayerResult:
     return PlayerResult(
         won=player.won,
         rating_after_match=player.rating_after_match,
