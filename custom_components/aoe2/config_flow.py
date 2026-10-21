@@ -1,8 +1,19 @@
 from typing import Any
 
 import probatio
-from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
+from homeassistant.config_entries import (
+    ConfigEntry,
+    ConfigFlow,
+    ConfigFlowResult,
+    OptionsFlowWithReload,
+)
+from homeassistant.core import callback
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.selector import (
+    NumberSelector,
+    NumberSelectorConfig,
+    NumberSelectorMode,
+)
 
 from .api import (
     AoeClient,
@@ -13,7 +24,17 @@ from .api import (
     Profile,
     create_client,
 )
-from .const import CONF_CLIENT, CONF_PROFILE_ID, DEFAULT_CLIENT, DOMAIN, LOGGER
+from .const import (
+    CONF_CLIENT,
+    CONF_IN_MATCH_UPDATE_MINUTES,
+    CONF_PROFILE_ID,
+    CONF_UPDATE_MINUTES,
+    DEFAULT_CLIENT,
+    DOMAIN,
+    LOGGER,
+    MIN_IN_MATCH_UPDATE_MINUTES,
+    MIN_UPDATE_MINUTES,
+)
 
 FORM_ERROR = "base"
 ERROR_PLAYER_NOT_FOUND = "player_not_found"
@@ -24,8 +45,33 @@ POSITIVE_INTEGER = probatio.All(probatio.Coerce(int), probatio.Range(min=1))
 USER_SCHEMA = probatio.Schema({probatio.Required(CONF_PROFILE_ID): POSITIVE_INTEGER})
 
 
+def _minutes_at_least(minimum: int) -> NumberSelector:
+    return NumberSelector(
+        NumberSelectorConfig(
+            min=minimum, step=1, unit_of_measurement="min", mode=NumberSelectorMode.BOX
+        )
+    )
+
+
+OPTIONS_SCHEMA = probatio.Schema(
+    {
+        probatio.Required(CONF_UPDATE_MINUTES, default=MIN_UPDATE_MINUTES): _minutes_at_least(
+            MIN_UPDATE_MINUTES
+        ),
+        probatio.Required(
+            CONF_IN_MATCH_UPDATE_MINUTES, default=MIN_IN_MATCH_UPDATE_MINUTES
+        ): _minutes_at_least(MIN_IN_MATCH_UPDATE_MINUTES),
+    }
+)
+
+
 class Aoe2ConfigFlow(ConfigFlow, domain=DOMAIN):
     VERSION = 1
+
+    @staticmethod
+    @callback
+    def async_get_options_flow(config_entry: ConfigEntry) -> Aoe2OptionsFlow:
+        return Aoe2OptionsFlow()
 
     async def async_step_user(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         if user_input is None:
@@ -65,6 +111,22 @@ class Aoe2ConfigFlow(ConfigFlow, domain=DOMAIN):
             errors=errors,
             description_placeholders={"data_source_url": self._client().website_url},
         )
+
+
+class Aoe2OptionsFlow(OptionsFlowWithReload):
+    async def async_step_init(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        if user_input is not None:
+            return self.async_create_entry(data=_in_whole_minutes(user_input))
+        return self.async_show_form(
+            step_id="init",
+            data_schema=self.add_suggested_values_to_schema(
+                OPTIONS_SCHEMA, self.config_entry.options
+            ),
+        )
+
+
+def _in_whole_minutes(options: dict[str, Any]) -> dict[str, int]:
+    return {key: int(minutes) for key, minutes in options.items()}
 
 
 def _form_errors_for(error: AoeClientError) -> dict[str, str]:

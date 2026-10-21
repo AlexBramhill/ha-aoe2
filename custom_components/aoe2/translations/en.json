@@ -21,6 +21,22 @@
       "already_configured": "This player has already been added."
     }
   },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Update intervals",
+        "description": "How often to check for new ratings and matches. Shorter intervals show results sooner but put more load on the data source.",
+        "data": {
+          "update_minutes": "Update interval",
+          "in_match_update_minutes": "Update interval during a match"
+        },
+        "data_description": {
+          "update_minutes": "Minutes between checks when the player is not in a match. Minimum 10.",
+          "in_match_update_minutes": "Minutes between checks while the player is in a match. Minimum 3."
+        }
+      }
+    }
+  },
   "entity": {
     "sensor": {
       "rating": {

@@ -90,7 +90,11 @@ Replace `event.theviper_match_finished` with the entity ID shown for your player
 
 ## Updates
 
-Player data is refreshed every 10 minutes, and every 3 minutes while the player is in a match so results appear soon after a match ends. Automatic updates can be turned off in the integration entry's **System options**; the `homeassistant.update_entity` action refreshes the data on demand.
+Player data is refreshed every 10 minutes, and every 3 minutes while the player is in a match so results appear soon after a match ends.
+
+To change these intervals, select **Configure** on the integration entry. The intervals cannot be set below 10 minutes, or 3 minutes during a match, to keep load on the data source low.
+
+Automatic updates can be turned off in the integration entry's **System options**; the `homeassistant.update_entity` action refreshes the data on demand.
 
 ## Diagnostics
 

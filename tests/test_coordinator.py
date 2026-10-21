@@ -16,15 +16,18 @@ from custom_components.aoe2.api import (
 )
 from custom_components.aoe2.const import (
     CONF_CLIENT,
+    CONF_IN_MATCH_UPDATE_MINUTES,
     CONF_PROFILE_ID,
+    CONF_UPDATE_MINUTES,
     DOMAIN,
     EVENT_MATCH_FINISHED,
+    MIN_IN_MATCH_UPDATE_MINUTES,
+    MIN_UPDATE_MINUTES,
 )
 from custom_components.aoe2.coordinator import (
-    IN_MATCH_UPDATE_INTERVAL,
-    UPDATE_INTERVAL,
     Aoe2Coordinator,
     Aoe2Data,
+    UpdateIntervals,
 )
 from tests.api.builders import TYPICAL_START, MatchBuilder
 from tests.fake_client import FakeAoeClient
@@ -269,7 +272,7 @@ async def test_polls_more_often_during_a_match(
     await refresh(hass, coordinator)
 
     # Then
-    assert coordinator.update_interval == IN_MATCH_UPDATE_INTERVAL
+    assert coordinator.update_interval == timedelta(minutes=MIN_IN_MATCH_UPDATE_MINUTES)
 
 
 async def test_returns_to_normal_polling_after_the_match(
@@ -284,4 +287,24 @@ async def test_returns_to_normal_polling_after_the_match(
     await refresh(hass, coordinator)
 
     # Then
-    assert coordinator.update_interval == UPDATE_INTERVAL
+    assert coordinator.update_interval == timedelta(minutes=MIN_UPDATE_MINUTES)
+
+
+def test_update_intervals_default_to_the_minimums():
+    # When
+    intervals = UpdateIntervals.from_options({})
+
+    # Then
+    assert intervals.usual == timedelta(minutes=MIN_UPDATE_MINUTES)
+    assert intervals.in_match == timedelta(minutes=MIN_IN_MATCH_UPDATE_MINUTES)
+
+
+def test_update_intervals_come_from_options():
+    # When
+    intervals = UpdateIntervals.from_options(
+        {CONF_UPDATE_MINUTES: 30, CONF_IN_MATCH_UPDATE_MINUTES: 5}
+    )
+
+    # Then
+    assert intervals.usual == timedelta(minutes=30)
+    assert intervals.in_match == timedelta(minutes=5)

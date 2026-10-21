@@ -1,7 +1,8 @@
 import asyncio
+from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import timedelta
-from typing import TypedDict
+from typing import Any, Self, TypedDict
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
@@ -16,11 +17,18 @@ from .api import (
     MatchPlayer,
     Profile,
 )
-from .const import CONF_PROFILE_ID, DOMAIN, EVENT_MATCH_FINISHED, LOGGER
+from .const import (
+    CONF_IN_MATCH_UPDATE_MINUTES,
+    CONF_PROFILE_ID,
+    CONF_UPDATE_MINUTES,
+    DOMAIN,
+    EVENT_MATCH_FINISHED,
+    LOGGER,
+    MIN_IN_MATCH_UPDATE_MINUTES,
+    MIN_UPDATE_MINUTES,
+)
 from .recorded_matches import RecordedMatches
 
-UPDATE_INTERVAL = timedelta(minutes=10)
-IN_MATCH_UPDATE_INTERVAL = timedelta(minutes=3)
 RECENT_MATCH_COUNT = 5
 
 type Aoe2ConfigEntry = ConfigEntry[Aoe2Coordinator]
@@ -37,6 +45,24 @@ class MatchFinishedEvent(PlayerResult):
     match_id: int
     leaderboard: Leaderboard
     map_name: str
+
+
+@dataclass(frozen=True, slots=True)
+class UpdateIntervals:
+    usual: timedelta
+    in_match: timedelta
+
+    @classmethod
+    def from_options(cls, options: Mapping[str, Any]) -> Self:
+        return cls(
+            usual=timedelta(minutes=options.get(CONF_UPDATE_MINUTES, MIN_UPDATE_MINUTES)),
+            in_match=timedelta(
+                minutes=options.get(CONF_IN_MATCH_UPDATE_MINUTES, MIN_IN_MATCH_UPDATE_MINUTES)
+            ),
+        )
+
+    def for_data(self, data: Aoe2Data) -> timedelta:
+        return self.usual if data.current_match() is None else self.in_match
 
 
 @dataclass(frozen=True, slots=True)
@@ -61,12 +87,13 @@ class Aoe2Coordinator(TimestampDataUpdateCoordinator[Aoe2Data]):
     config_entry: Aoe2ConfigEntry
 
     def __init__(self, hass: HomeAssistant, entry: Aoe2ConfigEntry, client: AoeClient) -> None:
+        self._update_intervals = UpdateIntervals.from_options(entry.options)
         super().__init__(
             hass,
             LOGGER,
             config_entry=entry,
             name=DOMAIN,
-            update_interval=UPDATE_INTERVAL,
+            update_interval=self._update_intervals.usual,
         )
         self._client = client
         self._profile_id: int = entry.data[CONF_PROFILE_ID]
@@ -84,7 +111,7 @@ class Aoe2Coordinator(TimestampDataUpdateCoordinator[Aoe2Data]):
     async def _async_update_data(self) -> Aoe2Data:
         latest = await self._fetch_player_data()
         self._newly_recorded_matches = await self._record_new_matches(latest)
-        self.update_interval = _update_interval_for(latest)
+        self.update_interval = self._update_intervals.for_data(latest)
         return latest
 
     @callback
@@ -139,10 +166,6 @@ class Aoe2Coordinator(TimestampDataUpdateCoordinator[Aoe2Data]):
             map_name=match.map_name,
             **_player_result(match.player_with_id(self._profile_id)),
         )
-
-
-def _update_interval_for(data: Aoe2Data) -> timedelta:
-    return UPDATE_INTERVAL if data.current_match() is None else IN_MATCH_UPDATE_INTERVAL
 
 
 def _player_result(player: MatchPlayer) -> PlayerResult:
