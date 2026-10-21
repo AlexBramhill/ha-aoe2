@@ -44,7 +44,7 @@ Fetch a player's ratings and recent matches by profile ID:
 
 ```sh
 uv run python scripts/try_api.py aoe2companion <profile_id>
-uv run python scripts/try_api.py worldsedge <profile_id> --count 10
+uv run python scripts/try_api.py aoe2companion <profile_id> --count 10
 ```
 
 ## Data sources
@@ -52,4 +52,3 @@ uv run python scripts/try_api.py worldsedge <profile_id> --count 10
 | Name | Provider |
 |---|---|
 | `aoe2companion` | [aoe2companion.com](https://www.aoe2companion.com) |
-| `worldsedge` | Relic / World's Edge community API |

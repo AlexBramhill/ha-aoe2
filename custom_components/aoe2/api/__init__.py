@@ -6,7 +6,6 @@ from typing import Literal
 import aiohttp
 
 from ._aoe2companion import Aoe2CompanionClient
-from ._worldsedge import WorldsEdgeClient
 from .client import AoeClient
 from .errors import (
     AoeClientConnectionError,
@@ -17,11 +16,10 @@ from .errors import (
 )
 from .models import Leaderboard, Match, MatchPlayer, Profile, Rating
 
-ClientName = Literal["aoe2companion", "worldsedge"]
+ClientName = Literal["aoe2companion"]
 
 CLIENTS: dict[ClientName, Callable[[aiohttp.ClientSession], AoeClient]] = {
     "aoe2companion": Aoe2CompanionClient,
-    "worldsedge": WorldsEdgeClient,
 }
 
 

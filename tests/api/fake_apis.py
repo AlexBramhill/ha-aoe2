@@ -7,7 +7,6 @@ from custom_components.aoe2.api import (
     AoeClientNotFoundError,
     ClientName,
     _aoe2companion,
-    _worldsedge,
 )
 from tests.api.api_json import Body
 from tests.api.builders import BuiltMatchHistory, BuiltProfile
@@ -71,22 +70,6 @@ def aoe2companion_fake(player: RecordedPlayer) -> FakeApi:
     )
 
 
-def worldsedge_fake(player: RecordedPlayer) -> FakeApi:
-    return FakeApi(
-        name="worldsedge",
-        module=_worldsedge,
-        responses_by_path={
-            "GetPersonalStat": player.read_fixture("worldsedge_stat.json"),
-            "getRecentMatchHistory": player.read_fixture("worldsedge_matches.json"),
-        },
-        profile_path=lambda _profile_id: "GetPersonalStat",
-        profile_response=lambda built: built.worldsedge_response,
-        matches_path="getRecentMatchHistory",
-        matches_response=lambda history: history.worldsedge_response,
-    )
-
-
 FAKE_API_FOR_CLIENT: dict[ClientName, Callable[[RecordedPlayer], FakeApi]] = {
     "aoe2companion": aoe2companion_fake,
-    "worldsedge": worldsedge_fake,
 }

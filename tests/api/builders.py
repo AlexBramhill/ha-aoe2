@@ -8,8 +8,6 @@ from tests.api.api_json import (
     Body,
     aoe2companion_matches_json,
     aoe2companion_profile_json,
-    worldsedge_matches_json,
-    worldsedge_profile_json,
 )
 
 
@@ -17,14 +15,12 @@ from tests.api.api_json import (
 class BuiltProfile:
     expected: Profile
     aoe2companion_response: Body
-    worldsedge_response: Body
 
 
 @dataclass(frozen=True)
 class BuiltMatchHistory:
     expected: list[Match]
     aoe2companion_response: Body
-    worldsedge_response: Body
 
 
 def build_rating(leaderboard: Leaderboard, rating: int, **fields: Any) -> Rating:
@@ -91,7 +87,6 @@ class ProfileBuilder:
         return BuiltProfile(
             expected=profile,
             aoe2companion_response=aoe2companion_profile_json(profile),
-            worldsedge_response=worldsedge_profile_json(profile),
         )
 
 
@@ -160,7 +155,6 @@ def build_match_history(*matches: MatchBuilder) -> BuiltMatchHistory:
     return BuiltMatchHistory(
         expected=expected,
         aoe2companion_response=aoe2companion_matches_json(expected),
-        worldsedge_response=worldsedge_matches_json(expected),
     )
 
 

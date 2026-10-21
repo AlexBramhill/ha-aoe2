@@ -20,7 +20,7 @@ def response_parser[**Params, Result](
 
 
 def number_teams_from_one(players: Iterable[MatchPlayer]) -> tuple[MatchPlayer, ...]:
-    """Sources number teams differently (0- or 1-based), so renumber in each source's order."""
+    """Renumber teams from 1 in the source's order, whatever numbering the source uses."""
     players = tuple(players)
     source_teams = sorted({player.team for player in players if player.team is not None})
     team_numbers = {team: number for number, team in enumerate(source_teams, start=1)}

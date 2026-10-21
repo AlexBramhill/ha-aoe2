@@ -40,18 +40,6 @@ def test_aoe2companion_response_has_recorded_shape(player: RecordedPlayer):
 
 
 @pytest.mark.parametrize("player", RECORDED_PLAYERS, ids=lambda player: player.name)
-def test_worldsedge_response_has_recorded_shape(player: RecordedPlayer):
-    # Given
-    recorded = player.read_fixture("worldsedge_stat.json")
-
-    # When
-    built = ProfileBuilder().build()
-
-    # Then
-    assert has_same_shape(built.worldsedge_response, recorded)
-
-
-@pytest.mark.parametrize("player", RECORDED_PLAYERS, ids=lambda player: player.name)
 def test_aoe2companion_matches_have_recorded_shape(player: RecordedPlayer):
     # Given
     recorded = player.read_fixture("aoe2companion_matches.json")
@@ -61,18 +49,6 @@ def test_aoe2companion_matches_have_recorded_shape(player: RecordedPlayer):
 
     # Then
     assert has_same_shape(built.aoe2companion_response, recorded)
-
-
-@pytest.mark.parametrize("player", RECORDED_PLAYERS, ids=lambda player: player.name)
-def test_worldsedge_matches_have_recorded_shape(player: RecordedPlayer):
-    # Given
-    recorded = player.read_fixture("worldsedge_matches.json")
-
-    # When
-    built = build_match_history(MatchBuilder())
-
-    # Then
-    assert has_same_shape(built.worldsedge_response, recorded)
 
 
 def test_default_player_is_complete():
@@ -106,12 +82,3 @@ def test_without_ratings_builds_player_with_no_games():
 
     # Then
     assert built.expected.ratings == ()
-
-
-def test_build_rejects_leaderboard_worldsedge_does_not_have():
-    # Given
-    builder = ProfileBuilder().with_rating(build_rating(Leaderboard.UNRANKED, 1500))
-
-    # When / Then
-    with pytest.raises(ValueError):
-        builder.build()
