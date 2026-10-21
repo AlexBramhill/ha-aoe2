@@ -34,7 +34,7 @@ class MatchFinishedEvent(PlayerResult):
     profile_id: int
     match_id: int
     leaderboard: Leaderboard | None
-    map_name: str | None
+    map_name: str
 
 
 @dataclass(frozen=True, slots=True)

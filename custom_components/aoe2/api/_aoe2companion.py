@@ -56,8 +56,8 @@ def _rating(leaderboard: Leaderboard, raw: dict[str, Any]) -> Rating:
         wins=raw.get("wins", 0),
         losses=raw.get("losses", 0),
         streak=raw.get("streak", 0),
-        highest_rating=raw.get("maxRating"),
-        last_match=_datetime_or_none(raw.get("lastMatchTime")),
+        highest_rating=raw["maxRating"],
+        last_match=datetime.fromisoformat(raw["lastMatchTime"]),
     )
 
 
@@ -67,7 +67,7 @@ def _match(raw: dict[str, Any]) -> Match:
         started=datetime.fromisoformat(raw["started"]),
         finished=_datetime_or_none(raw.get("finished")),
         leaderboard=_leaderboard_or_none(raw.get("leaderboardId")),
-        map_name=raw.get("mapName"),
+        map_name=raw["mapName"],
         players=number_teams_from_one(_match_player(player) for player in _all_players(raw)),
     )
 
@@ -80,9 +80,9 @@ def _all_players(match: dict[str, Any]) -> Iterator[dict[str, Any]]:
 def _match_player(raw: dict[str, Any]) -> MatchPlayer:
     return MatchPlayer(
         profile_id=raw["profileId"],
-        name=raw.get("name"),
-        team=raw.get("team"),
-        civ=raw.get("civName"),
+        name=raw["name"],
+        team=raw["team"],
+        civ=raw["civName"],
         rating_after_match=_rating_after_match(raw),
         rating_change=raw.get("ratingDiff"),
         won=raw.get("won"),
@@ -93,7 +93,7 @@ def _rating_after_match(raw: dict[str, Any]) -> int | None:
     """aoe2companion reports the rating going into the match."""
     rating_before, change = raw.get("rating"), raw.get("ratingDiff")
     if rating_before is None or change is None:
-        return rating_before
+        return None
     return rating_before + change
 
 

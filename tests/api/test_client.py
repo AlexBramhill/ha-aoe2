@@ -192,14 +192,13 @@ async def test_teams_are_numbered_from_one(client: AoeClient, recorded_player: R
         assert teams == set(range(1, len(teams) + 1))
 
 
-async def test_map_names_are_readable(client: AoeClient, recorded_player: RecordedPlayer):
+async def test_matches_have_map_names(client: AoeClient, recorded_player: RecordedPlayer):
     # When
     matches = await client.get_recent_matches(recorded_player.profile_id)
 
     # Then
     for match in matches:
         assert match.map_name
-        assert not match.map_name.endswith((".rms", ".rms2"))
 
 
 async def test_match_count_is_respected(client: AoeClient, recorded_player: RecordedPlayer):

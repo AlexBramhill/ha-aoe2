@@ -62,7 +62,7 @@ def _aoe2companion_player(player: MatchPlayer) -> Body:
 
 def _rating_before_match(player: MatchPlayer) -> int | None:
     if player.rating_after_match is None or player.rating_change is None:
-        return player.rating_after_match
+        return None
     return player.rating_after_match - player.rating_change
 
 

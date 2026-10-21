@@ -59,15 +59,11 @@ def format_match(match: Match, profile_id: int) -> str:
         f"{match.started:%Y-%m-%d %H:%M}",
         format_result(player),
         str(match.leaderboard),
-        format_map_name(match),
+        match.map_name,
         format_civ(player),
         format_rating_change(player),
     ]
     return "  " + "  ".join(columns)
-
-
-def format_map_name(match: Match) -> str:
-    return "" if match.map_name is None else match.map_name
 
 
 def format_result(player: MatchPlayer | None) -> str:
@@ -77,9 +73,7 @@ def format_result(player: MatchPlayer | None) -> str:
 
 
 def format_civ(player: MatchPlayer | None) -> str:
-    if player is None or player.civ is None:
-        return ""
-    return player.civ
+    return "" if player is None else player.civ
 
 
 def format_rating_change(player: MatchPlayer | None) -> str:

@@ -60,8 +60,6 @@ def test_default_player_is_complete():
     assert built.expected.ratings
     for rating in built.expected.ratings:
         assert rating.rank is not None
-        assert rating.highest_rating is not None
-        assert rating.last_match is not None
 
 
 def test_with_rating_replaces_rating_on_same_leaderboard_in_place():

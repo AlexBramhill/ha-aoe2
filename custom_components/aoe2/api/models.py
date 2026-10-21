@@ -19,8 +19,8 @@ class Rating:
     wins: int
     losses: int
     streak: int
-    highest_rating: int | None = None
-    last_match: datetime | None = None
+    highest_rating: int
+    last_match: datetime
 
     @property
     def games(self) -> int:
@@ -45,9 +45,9 @@ class Profile:
 @dataclass(frozen=True, slots=True)
 class MatchPlayer:
     profile_id: int
-    name: str | None
-    team: int | None
-    civ: str | None
+    name: str
+    team: int
+    civ: str
     rating_after_match: int | None
     rating_change: int | None
     won: bool | None
@@ -59,7 +59,7 @@ class Match:
     started: datetime
     finished: datetime | None
     leaderboard: Leaderboard | None
-    map_name: str | None
+    map_name: str
     players: tuple[MatchPlayer, ...]
 
     def player_with_id(self, profile_id: int) -> MatchPlayer | None:

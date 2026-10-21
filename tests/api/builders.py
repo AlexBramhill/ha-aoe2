@@ -23,11 +23,21 @@ class BuiltMatchHistory:
     aoe2companion_response: Body
 
 
+TYPICAL_LAST_MATCH = datetime(2026, 10, 1, 18, 30, tzinfo=UTC)
+
+
 def build_rating(leaderboard: Leaderboard, rating: int, **fields: Any) -> Rating:
-    unranked_with_no_games = Rating(
-        leaderboard=leaderboard, rating=rating, rank=None, wins=0, losses=0, streak=0
+    unranked_with_one_game = Rating(
+        leaderboard=leaderboard,
+        rating=rating,
+        rank=None,
+        wins=1,
+        losses=0,
+        streak=1,
+        highest_rating=rating,
+        last_match=TYPICAL_LAST_MATCH,
     )
-    return replace(unranked_with_no_games, **fields)
+    return replace(unranked_with_one_game, **fields)
 
 
 TYPICAL_RATINGS = (
@@ -95,7 +105,7 @@ def build_match_player(profile_id: int, **fields: Any) -> MatchPlayer:
         profile_id=profile_id,
         name=f"Player {profile_id}",
         team=1,
-        civ=None,
+        civ="Franks",
         rating_after_match=1510,
         rating_change=10,
         won=True,
@@ -117,7 +127,7 @@ class MatchBuilder:
     started: datetime = TYPICAL_START
     finished: datetime | None = TYPICAL_START + TYPICAL_DURATION
     leaderboard: Leaderboard | None = Leaderboard.RM_1V1
-    map_name: str | None = "Arabia"
+    map_name: str = "Arabia"
     players: tuple[MatchPlayer, ...] = TYPICAL_PLAYERS
 
     def with_match_id(self, match_id: int) -> Self:
@@ -167,4 +177,4 @@ def _replace_or_append[Item](
 
 
 def _team_order(player: MatchPlayer) -> int:
-    return 0 if player.team is None else player.team
+    return player.team
