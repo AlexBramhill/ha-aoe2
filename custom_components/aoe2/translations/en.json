@@ -20,5 +20,80 @@
     "abort": {
       "already_configured": "This player has already been added."
     }
+  },
+  "entity": {
+    "sensor": {
+      "rating": {
+        "name": "{leaderboard} rating"
+      },
+      "rank": {
+        "name": "{leaderboard} rank"
+      },
+      "wins": {
+        "name": "{leaderboard} wins"
+      },
+      "losses": {
+        "name": "{leaderboard} losses"
+      },
+      "games": {
+        "name": "{leaderboard} games"
+      },
+      "win_rate": {
+        "name": "{leaderboard} win rate"
+      },
+      "streak": {
+        "name": "{leaderboard} streak"
+      },
+      "highest_rating": {
+        "name": "{leaderboard} highest rating"
+      },
+      "last_match_result": {
+        "name": "Last match result",
+        "state": {
+          "win": "Win",
+          "loss": "Loss"
+        }
+      },
+      "last_match_rating_change": {
+        "name": "Last match rating change"
+      },
+      "last_played": {
+        "name": "Last played"
+      },
+      "last_match_map": {
+        "name": "Last match map"
+      },
+      "last_match_civ": {
+        "name": "Last match civ"
+      },
+      "recent_win_rate": {
+        "name": "Recent win rate"
+      },
+      "recent_rating_change": {
+        "name": "Recent rating change"
+      },
+      "last_updated": {
+        "name": "Last updated"
+      }
+    },
+    "binary_sensor": {
+      "in_match": {
+        "name": "In a match"
+      }
+    },
+    "event": {
+      "match_finished": {
+        "name": "Match finished",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "win": "Win",
+              "loss": "Loss",
+              "unknown": "Unknown result"
+            }
+          }
+        }
+      }
+    }
   }
 }

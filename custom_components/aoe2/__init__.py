@@ -6,7 +6,7 @@ from .api import create_client
 from .const import CONF_CLIENT
 from .coordinator import Aoe2ConfigEntry, Aoe2Coordinator
 
-PLATFORMS: list[Platform] = []
+PLATFORMS: list[Platform] = [Platform.BINARY_SENSOR, Platform.EVENT, Platform.SENSOR]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: Aoe2ConfigEntry) -> bool:

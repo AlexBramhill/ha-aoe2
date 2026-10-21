@@ -2,11 +2,13 @@ import pytest
 
 from custom_components.aoe2.api import AoeClientResponseError, Leaderboard
 from custom_components.aoe2.api._aoe2companion import (
+    LEADERBOARDS_BY_ID,
+    Aoe2CompanionClient,
     parse_matches,
     parse_profile,
 )
 from tests.api.api_json import Body
-from tests.api.helpers import VIPER, VIPER_WON_RANKED_MATCH_ID
+from tests.api.helpers import UNUSED_SESSION, VIPER, VIPER_WON_RANKED_MATCH_ID
 
 KINGSTONE_PROFILE_ID = 2776293
 RATING_JSON = {
@@ -138,3 +140,30 @@ def test_malformed_profile_raises_response_error():
     # When / Then
     with pytest.raises(AoeClientResponseError):
         parse_profile(malformed_profile)
+
+
+def test_profile_url_links_to_aoe2companion_profile():
+    # Given
+    client = Aoe2CompanionClient(UNUSED_SESSION)
+
+    # When
+    url = client.profile_url(VIPER.profile_id)
+
+    # Then
+    assert url == "https://www.aoe2companion.com/profile/196240"
+
+
+def test_attribution_credits_aoe2companion():
+    # Given
+    client = Aoe2CompanionClient(UNUSED_SESSION)
+
+    # Then
+    assert "aoe2companion" in client.attribution
+
+
+def test_every_leaderboard_except_other_has_an_aoe2companion_id():
+    # Given
+    mapped = set(LEADERBOARDS_BY_ID.values())
+
+    # Then
+    assert mapped == set(Leaderboard) - {Leaderboard.OTHER}

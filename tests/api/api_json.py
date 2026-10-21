@@ -2,9 +2,14 @@ from datetime import datetime
 from itertools import groupby
 from typing import Any
 
-from custom_components.aoe2.api import Match, MatchPlayer, Profile, Rating
+from custom_components.aoe2.api import Leaderboard, Match, MatchPlayer, Profile, Rating
+from custom_components.aoe2.api._aoe2companion import LEADERBOARDS_BY_ID
 
 type Body = dict[str, Any]
+
+AOE2COMPANION_IDS_BY_LEADERBOARD = {
+    leaderboard: leaderboard_id for leaderboard_id, leaderboard in LEADERBOARDS_BY_ID.items()
+}
 
 
 def aoe2companion_profile_json(profile: Profile) -> Body:
@@ -22,7 +27,7 @@ def aoe2companion_matches_json(matches: list[Match]) -> Body:
 
 def _aoe2companion_leaderboard(rating: Rating) -> Body:
     return {
-        "leaderboardId": rating.leaderboard.value,
+        "leaderboardId": _aoe2companion_leaderboard_id(rating.leaderboard),
         "rating": rating.rating,
         "rank": rating.rank,
         "wins": rating.wins,
@@ -39,7 +44,7 @@ def _aoe2companion_match(match: Match) -> Body:
         "matchId": match.match_id,
         "started": _iso_timestamp(match.started),
         "finished": _iso_timestamp(match.finished),
-        "leaderboardId": match.leaderboard.value,
+        "leaderboardId": _aoe2companion_leaderboard_id(match.leaderboard),
         "mapName": match.map_name,
         "teams": [
             {"teamId": team, "players": [_aoe2companion_player(player) for player in players]}
@@ -68,3 +73,9 @@ def _rating_before_match(player: MatchPlayer) -> int | None:
 
 def _iso_timestamp(moment: datetime | None) -> str | None:
     return None if moment is None else moment.strftime("%Y-%m-%dT%H:%M:%S.000Z")
+
+
+def _aoe2companion_leaderboard_id(leaderboard: Leaderboard) -> str:
+    if leaderboard not in AOE2COMPANION_IDS_BY_LEADERBOARD:
+        raise ValueError(f"aoe2companion has no ID for {leaderboard}")
+    return AOE2COMPANION_IDS_BY_LEADERBOARD[leaderboard]

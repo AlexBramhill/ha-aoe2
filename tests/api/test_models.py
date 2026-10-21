@@ -1,6 +1,7 @@
 import pytest
 
-from tests.api.builders import MatchBuilder
+from custom_components.aoe2.api import Leaderboard
+from tests.api.builders import MatchBuilder, build_rating
 
 ABSENT_PROFILE_ID = 999
 
@@ -23,3 +24,19 @@ def test_player_with_id_raises_for_player_not_in_match():
     # When / Then
     with pytest.raises(LookupError):
         match.player_with_id(ABSENT_PROFILE_ID)
+
+
+def test_win_rate_is_wins_over_games():
+    # Given
+    rating = build_rating(Leaderboard.RM_1V1, 1500, wins=3, losses=1)
+
+    # Then
+    assert rating.win_rate == 0.75
+
+
+def test_win_rate_is_zero_without_games():
+    # Given
+    rating = build_rating(Leaderboard.RM_1V1, 1500, wins=0, losses=0)
+
+    # Then
+    assert rating.win_rate == 0.0

@@ -1,7 +1,6 @@
 from collections.abc import Callable
-from typing import cast, get_args
+from typing import get_args
 
-import aiohttp
 import pytest
 
 from custom_components.aoe2.api import (
@@ -24,6 +23,7 @@ from tests.api.builders import (
 from tests.api.fake_apis import FAKE_API_FOR_CLIENT, FakeApi
 from tests.api.helpers import (
     RECORDED_PLAYERS,
+    UNUSED_SESSION,
     VIPER,
     VIPER_LOST_UNRANKED_MATCH_ID,
     VIPER_MATCH_IDS,
@@ -33,7 +33,6 @@ from tests.api.helpers import (
 
 UNKNOWN_PROFILE_ID = 999_999_999
 
-UNUSED_SESSION = cast(aiohttp.ClientSession, None)
 
 RANKED_PLAYER = ProfileBuilder().with_profile_id(42).with_name("Ranked").build()
 UNRANKED_PLAYER = (

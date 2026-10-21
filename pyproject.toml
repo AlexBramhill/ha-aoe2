@@ -30,3 +30,4 @@ select = ["E", "F", "I", "B", "UP", "SIM", "RUF"]
 include = ["custom_components", "scripts", "tests"]
 venvPath = "."
 venv = ".venv"
+reportIncompatibleVariableOverride = false

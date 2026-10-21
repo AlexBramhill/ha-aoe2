@@ -4,8 +4,6 @@ from enum import StrEnum
 
 
 class Leaderboard(StrEnum):
-    """aoe2companion's leaderboard IDs."""
-
     RM_1V1 = "rm_1v1"
     RM_TEAM = "rm_team"
     EW_1V1 = "ew_1v1"
@@ -20,11 +18,6 @@ class Leaderboard(StrEnum):
     EW_1V1_CONSOLE = "ew_1v1_console"
     EW_TEAM_CONSOLE = "ew_team_console"
     OTHER = "other"
-
-    @classmethod
-    def _missing_(cls, value: object) -> Leaderboard:
-        """A leaderboard aoe2companion adds later becomes OTHER rather than an error."""
-        return cls.OTHER
 
 
 @dataclass(frozen=True, slots=True)
@@ -43,8 +36,8 @@ class Rating:
         return self.wins + self.losses
 
     @property
-    def win_rate(self) -> float | None:
-        return self.wins / self.games if self.games else None
+    def win_rate(self) -> float:
+        return self.wins / self.games if self.games else 0.0
 
 
 @dataclass(frozen=True, slots=True)

@@ -1,9 +1,12 @@
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
+
+import aiohttp
 
 FIXTURES = Path(__file__).parent / "fixtures"
+UNUSED_SESSION = cast(aiohttp.ClientSession, None)
 
 
 @dataclass(frozen=True)

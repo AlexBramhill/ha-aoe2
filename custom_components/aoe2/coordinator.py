@@ -5,7 +5,7 @@ from typing import TypedDict
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from homeassistant.helpers.update_coordinator import TimestampDataUpdateCoordinator, UpdateFailed
 
 from .api import (
     AoeClient,
@@ -42,11 +42,23 @@ class Aoe2Data:
     profile: Profile
     matches: tuple[Match, ...]
 
+    def finished_matches(self) -> tuple[Match, ...]:
+        return tuple(match for match in self.matches if match.finished is not None)
+
     def finished_match_ids(self) -> set[int]:
-        return {match.match_id for match in self.matches if match.finished is not None}
+        return {match.match_id for match in self.finished_matches()}
+
+    def last_finished_match(self) -> Match | None:
+        return next(iter(self.finished_matches()), None)
+
+    def current_match(self) -> Match | None:
+        return next((match for match in self.matches if match.finished is None), None)
+
+    def player_in(self, match: Match) -> MatchPlayer:
+        return match.player_with_id(self.profile.profile_id)
 
 
-class Aoe2Coordinator(DataUpdateCoordinator[Aoe2Data]):
+class Aoe2Coordinator(TimestampDataUpdateCoordinator[Aoe2Data]):
     config_entry: Aoe2ConfigEntry
 
     def __init__(self, hass: HomeAssistant, entry: Aoe2ConfigEntry, client: AoeClient) -> None:
@@ -59,6 +71,14 @@ class Aoe2Coordinator(DataUpdateCoordinator[Aoe2Data]):
         )
         self._client = client
         self._profile_id: int = entry.data[CONF_PROFILE_ID]
+
+    @property
+    def profile_id(self) -> int:
+        return self._profile_id
+
+    @property
+    def client(self) -> AoeClient:
+        return self._client
 
     async def _async_update_data(self) -> Aoe2Data:
         latest = await self._fetch_player_data()

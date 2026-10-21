@@ -1,0 +1,68 @@
+{
+  "entity": {
+    "sensor": {
+      "rating": {
+        "default": "mdi:chart-line"
+      },
+      "rank": {
+        "default": "mdi:podium"
+      },
+      "wins": {
+        "default": "mdi:trophy"
+      },
+      "losses": {
+        "default": "mdi:close-circle-outline"
+      },
+      "games": {
+        "default": "mdi:sword-cross"
+      },
+      "win_rate": {
+        "default": "mdi:percent"
+      },
+      "streak": {
+        "default": "mdi:fire"
+      },
+      "highest_rating": {
+        "default": "mdi:arrow-up-bold"
+      },
+      "last_match_result": {
+        "default": "mdi:sword-cross",
+        "state": {
+          "win": "mdi:trophy",
+          "loss": "mdi:close-circle"
+        }
+      },
+      "last_match_rating_change": {
+        "default": "mdi:swap-vertical"
+      },
+      "last_played": {
+        "default": "mdi:clock-outline"
+      },
+      "last_match_map": {
+        "default": "mdi:map"
+      },
+      "last_match_civ": {
+        "default": "mdi:castle"
+      },
+      "recent_win_rate": {
+        "default": "mdi:percent"
+      },
+      "recent_rating_change": {
+        "default": "mdi:chart-line-variant"
+      }
+    },
+    "binary_sensor": {
+      "in_match": {
+        "default": "mdi:controller-off",
+        "state": {
+          "on": "mdi:controller"
+        }
+      }
+    },
+    "event": {
+      "match_finished": {
+        "default": "mdi:flag-checkered"
+      }
+    }
+  }
+}
