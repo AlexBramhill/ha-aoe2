@@ -137,6 +137,19 @@ uv run pyright
 
 CI also runs Home Assistant's `hassfest` and the HACS validation.
 
+### Releasing
+
+Releases are created by [release-please](https://github.com/googleapis/release-please) from commit messages on `main`, which follow [Conventional Commits](https://www.conventionalcommits.org):
+
+| Commit prefix | Example | Release |
+|---|---|---|
+| `fix:` | `fix: keep rank when unranked` | Patch, for example 0.2.0 → 0.2.1 |
+| `feat:` | `feat: add streak sensor` | Minor, for example 0.2.0 → 0.3.0 |
+| `feat!:` or a `BREAKING CHANGE:` footer | `feat!: rename rating sensors` | Major once 1.0.0 is reached; minor before |
+| `docs:`, `test:`, `ci:`, `chore:`, `refactor:` | `docs: explain profile IDs` | None |
+
+After each push to `main`, release-please opens or updates a release pull request that bumps the version in `manifest.json` and `pyproject.toml` and updates `CHANGELOG.md`. Merging it tags the version and publishes the GitHub release that HACS offers to users.
+
 ### Querying the APIs
 
 `scripts/try_api.py` queries a data source directly from the command line.
