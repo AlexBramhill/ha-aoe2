@@ -34,9 +34,9 @@ def test_win_rate_is_wins_over_games():
     assert rating.win_rate == 0.75
 
 
-def test_win_rate_is_zero_without_games():
+def test_win_rate_is_unknown_without_games():
     # Given
     rating = build_rating(Leaderboard.RM_1V1, 1500, wins=0, losses=0)
 
     # Then
-    assert rating.win_rate == 0.0
+    assert rating.win_rate is None

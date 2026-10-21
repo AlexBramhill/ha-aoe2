@@ -145,11 +145,11 @@ def last_match_details(data: Aoe2Data) -> dict[str, Any]:
     }
 
 
-def recent_win_rate(data: Aoe2Data) -> float:
+def recent_win_rate(data: Aoe2Data) -> float | None:
     results = [data.player_in(match).won for match in data.finished_matches()]
     known_results = [won for won in results if won is not None]
     if not known_results:
-        return 0.0
+        return None
     return _as_percentage(known_results.count(True) / len(known_results))
 
 
@@ -307,5 +307,5 @@ def _opponents_of(match: Match, player: MatchPlayer) -> list[str]:
     return [other.name for other in match.players if other.team != player.team]
 
 
-def _as_percentage(fraction: float) -> float:
-    return round(fraction * 100, 1)
+def _as_percentage(fraction: float | None) -> float | None:
+    return None if fraction is None else round(fraction * 100, 1)

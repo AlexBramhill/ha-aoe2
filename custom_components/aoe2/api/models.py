@@ -36,8 +36,8 @@ class Rating:
         return self.wins + self.losses
 
     @property
-    def win_rate(self) -> float:
-        return self.wins / self.games if self.games else 0.0
+    def win_rate(self) -> float | None:
+        return self.wins / self.games if self.games else None
 
 
 @dataclass(frozen=True, slots=True)
