@@ -1,0 +1,10 @@
+{
+  "domain": "aoe2",
+  "name": "Age of Empires II",
+  "codeowners": ["@AlexBramhill"],
+  "config_flow": false,
+  "integration_type": "service",
+  "iot_class": "cloud_polling",
+  "requirements": [],
+  "version": "0.1.0"
+}
