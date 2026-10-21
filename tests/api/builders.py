@@ -1,14 +1,28 @@
+from collections.abc import Callable
 from dataclasses import dataclass, replace
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from typing import Any, Self
 
-from custom_components.aoe2.api import Leaderboard, Profile, Rating
-from tests.api.api_json import Body, aoe2companion_profile_json, worldsedge_profile_json
+from custom_components.aoe2.api import Leaderboard, Match, MatchPlayer, Profile, Rating
+from tests.api.api_json import (
+    Body,
+    aoe2companion_matches_json,
+    aoe2companion_profile_json,
+    worldsedge_matches_json,
+    worldsedge_profile_json,
+)
 
 
 @dataclass(frozen=True)
 class BuiltProfile:
     expected: Profile
+    aoe2companion_response: Body
+    worldsedge_response: Body
+
+
+@dataclass(frozen=True)
+class BuiltMatchHistory:
+    expected: list[Match]
     aoe2companion_response: Body
     worldsedge_response: Body
 
@@ -61,12 +75,7 @@ class ProfileBuilder:
         return replace(self, country=country)
 
     def with_rating(self, rating: Rating) -> Self:
-        if all(existing.leaderboard != rating.leaderboard for existing in self.ratings):
-            return replace(self, ratings=(*self.ratings, rating))
-        ratings = tuple(
-            rating if existing.leaderboard == rating.leaderboard else existing
-            for existing in self.ratings
-        )
+        ratings = _replace_or_append(self.ratings, rating, key=lambda item: item.leaderboard)
         return replace(self, ratings=ratings)
 
     def without_ratings(self) -> Self:
@@ -84,3 +93,84 @@ class ProfileBuilder:
             aoe2companion_response=aoe2companion_profile_json(profile),
             worldsedge_response=worldsedge_profile_json(profile),
         )
+
+
+def build_match_player(profile_id: int, **fields: Any) -> MatchPlayer:
+    winner_on_team_one = MatchPlayer(
+        profile_id=profile_id,
+        name=f"Player {profile_id}",
+        team=1,
+        civ=None,
+        rating_after_match=1510,
+        rating_change=10,
+        won=True,
+    )
+    return replace(winner_on_team_one, **fields)
+
+
+TYPICAL_PLAYERS = (
+    build_match_player(1),
+    build_match_player(2, team=2, rating_after_match=1490, rating_change=-10, won=False),
+)
+TYPICAL_START = datetime(2026, 10, 1, 18, 0, tzinfo=UTC)
+TYPICAL_DURATION = timedelta(minutes=35)
+
+
+@dataclass(frozen=True)
+class MatchBuilder:
+    match_id: int = 1
+    started: datetime = TYPICAL_START
+    finished: datetime | None = TYPICAL_START + TYPICAL_DURATION
+    leaderboard: Leaderboard | None = Leaderboard.RM_1V1
+    map_name: str | None = "Arabia"
+    players: tuple[MatchPlayer, ...] = TYPICAL_PLAYERS
+
+    def with_match_id(self, match_id: int) -> Self:
+        return replace(self, match_id=match_id)
+
+    def with_start(self, started: datetime) -> Self:
+        return replace(self, started=started, finished=started + TYPICAL_DURATION)
+
+    def unfinished(self) -> Self:
+        return replace(self, finished=None)
+
+    def with_leaderboard(self, leaderboard: Leaderboard) -> Self:
+        return replace(self, leaderboard=leaderboard)
+
+    def with_map_name(self, map_name: str) -> Self:
+        return replace(self, map_name=map_name)
+
+    def with_player(self, player: MatchPlayer) -> Self:
+        players = _replace_or_append(self.players, player, key=lambda item: item.profile_id)
+        return replace(self, players=players)
+
+    def build(self) -> Match:
+        return Match(
+            match_id=self.match_id,
+            started=self.started,
+            finished=self.finished,
+            leaderboard=self.leaderboard,
+            map_name=self.map_name,
+            players=tuple(sorted(self.players, key=_team_order)),
+        )
+
+
+def build_match_history(*matches: MatchBuilder) -> BuiltMatchHistory:
+    expected = [match.build() for match in matches]
+    return BuiltMatchHistory(
+        expected=expected,
+        aoe2companion_response=aoe2companion_matches_json(expected),
+        worldsedge_response=worldsedge_matches_json(expected),
+    )
+
+
+def _replace_or_append[Item](
+    items: tuple[Item, ...], new_item: Item, key: Callable[[Item], object]
+) -> tuple[Item, ...]:
+    if all(key(existing) != key(new_item) for existing in items):
+        return (*items, new_item)
+    return tuple(new_item if key(existing) == key(new_item) else existing for existing in items)
+
+
+def _team_order(player: MatchPlayer) -> int:
+    return 0 if player.team is None else player.team

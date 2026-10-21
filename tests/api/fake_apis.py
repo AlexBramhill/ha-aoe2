@@ -10,7 +10,7 @@ from custom_components.aoe2.api import (
     _worldsedge,
 )
 from tests.api.api_json import Body
-from tests.api.builders import BuiltProfile
+from tests.api.builders import BuiltMatchHistory, BuiltProfile
 from tests.api.helpers import RecordedPlayer
 
 type Params = dict[str, Any]
@@ -34,13 +34,19 @@ class FakeApi:
     responses_by_path: dict[str, Body]
     profile_path: Callable[[int], str]
     profile_response: Callable[[BuiltProfile], Body]
+    matches_path: str
+    matches_response: Callable[[BuiltMatchHistory], Body]
     server_behaviour: ServerBehaviour = serve_unchanged
 
     def serving_profile(self, built: BuiltProfile) -> Self:
         path = self.profile_path(built.expected.profile_id)
-        return replace(
-            self, responses_by_path={**self.responses_by_path, path: self.profile_response(built)}
-        )
+        return self._serving(path, self.profile_response(built))
+
+    def serving_matches(self, history: BuiltMatchHistory) -> Self:
+        return self._serving(self.matches_path, self.matches_response(history))
+
+    def _serving(self, path: str, body: Body) -> Self:
+        return replace(self, responses_by_path={**self.responses_by_path, path: body})
 
     async def get_json(self, _session: Any, url: str, params: Params | None = None) -> Body:
         path = url.removeprefix(f"{self.module.BASE_URL}/")
@@ -59,6 +65,8 @@ def aoe2companion_fake(player: RecordedPlayer) -> FakeApi:
         },
         profile_path=lambda profile_id: f"profiles/{profile_id}",
         profile_response=lambda built: built.aoe2companion_response,
+        matches_path="matches",
+        matches_response=lambda history: history.aoe2companion_response,
         server_behaviour=limit_matches_to_per_page,
     )
 
@@ -73,6 +81,8 @@ def worldsedge_fake(player: RecordedPlayer) -> FakeApi:
         },
         profile_path=lambda _profile_id: "GetPersonalStat",
         profile_response=lambda built: built.worldsedge_response,
+        matches_path="getRecentMatchHistory",
+        matches_response=lambda history: history.worldsedge_response,
     )
 
 

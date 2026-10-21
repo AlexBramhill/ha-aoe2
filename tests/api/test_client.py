@@ -11,7 +11,15 @@ from custom_components.aoe2.api import (
     Match,
     create_client,
 )
-from tests.api.builders import BuiltProfile, ProfileBuilder, build_rating
+from tests.api.builders import (
+    BuiltMatchHistory,
+    BuiltProfile,
+    MatchBuilder,
+    ProfileBuilder,
+    build_match_history,
+    build_match_player,
+    build_rating,
+)
 from tests.api.fake_apis import FAKE_API_FOR_CLIENT, FakeApi
 from tests.api.helpers import (
     RECORDED_PLAYERS,
@@ -34,6 +42,15 @@ UNRANKED_PLAYER = (
     .build()
 )
 NEW_PLAYER = ProfileBuilder().with_profile_id(44).with_name("New").without_ratings().build()
+
+ONE_V_ONE_HISTORY = build_match_history(MatchBuilder())
+UNFINISHED_HISTORY = build_match_history(MatchBuilder().unfinished())
+TEAM_GAME_HISTORY = build_match_history(
+    MatchBuilder()
+    .with_leaderboard(Leaderboard.RM_TEAM)
+    .with_player(build_match_player(3))
+    .with_player(build_match_player(4, team=2, rating_change=-12, won=False))
+)
 
 type Connect = Callable[[FakeApi], AoeClient]
 
@@ -92,6 +109,24 @@ async def test_built_profile_is_parsed_as_expected(
 
     # Then
     assert profile == player.expected
+
+
+@pytest.mark.parametrize(
+    "history",
+    [ONE_V_ONE_HISTORY, UNFINISHED_HISTORY, TEAM_GAME_HISTORY],
+    ids=["1v1", "unfinished", "team-game"],
+)
+async def test_built_matches_are_parsed_as_expected(
+    viper_fake_api: FakeApi, connect: Connect, history: BuiltMatchHistory
+):
+    # Given
+    client = connect(viper_fake_api.serving_matches(history))
+
+    # When
+    matches = await client.get_recent_matches(profile_id=1)
+
+    # Then
+    assert matches == history.expected
 
 
 async def test_unknown_profile_raises_not_found(client: AoeClient):

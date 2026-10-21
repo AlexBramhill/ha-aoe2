@@ -3,7 +3,7 @@ from typing import Any
 import pytest
 
 from custom_components.aoe2.api import Leaderboard
-from tests.api.builders import ProfileBuilder, build_rating
+from tests.api.builders import MatchBuilder, ProfileBuilder, build_match_history, build_rating
 from tests.api.helpers import RECORDED_PLAYERS, RecordedPlayer
 
 
@@ -46,6 +46,30 @@ def test_worldsedge_response_has_recorded_shape(player: RecordedPlayer):
 
     # When
     built = ProfileBuilder().build()
+
+    # Then
+    assert has_same_shape(built.worldsedge_response, recorded)
+
+
+@pytest.mark.parametrize("player", RECORDED_PLAYERS, ids=lambda player: player.name)
+def test_aoe2companion_matches_have_recorded_shape(player: RecordedPlayer):
+    # Given
+    recorded = player.read_fixture("aoe2companion_matches.json")
+
+    # When
+    built = build_match_history(MatchBuilder())
+
+    # Then
+    assert has_same_shape(built.aoe2companion_response, recorded)
+
+
+@pytest.mark.parametrize("player", RECORDED_PLAYERS, ids=lambda player: player.name)
+def test_worldsedge_matches_have_recorded_shape(player: RecordedPlayer):
+    # Given
+    recorded = player.read_fixture("worldsedge_matches.json")
+
+    # When
+    built = build_match_history(MatchBuilder())
 
     # Then
     assert has_same_shape(built.worldsedge_response, recorded)
