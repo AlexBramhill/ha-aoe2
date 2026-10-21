@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Add an Age of Empires II player",
-        "description": "Track a player's ratings and recent matches.",
+        "description": "Track a player's ratings and recent matches. Data is provided by [aoe2companion](https://www.aoe2companion.com).\n\nThis is an unofficial integration, not affiliated with aoe2companion or the makers of Age of Empires II.",
         "data": {
           "profile_id": "Profile ID"
         },

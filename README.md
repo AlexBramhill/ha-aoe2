@@ -8,6 +8,8 @@ Home Assistant integration for Age of Empires II: Definitive Edition. Tracks pla
 
 > **Status:** in development.
 
+> **Unofficial project.** This is a community-made integration. It is not affiliated with, endorsed by or supported by [aoe2companion](https://www.aoe2companion.com), Microsoft, Xbox Game Studios, World's Edge or Forgotten Empires. Age of Empires is a trademark of Microsoft Corporation.
+
 ## Requirements
 
 - Python 3.14.2 or later (required by Home Assistant 2026.10)
@@ -53,3 +55,5 @@ uv run python scripts/try_api.py aoe2companion <profile_id> --count 10
 | Name | Provider |
 |---|---|
 | `aoe2companion` | [aoe2companion.com](https://www.aoe2companion.com) |
+
+Player data is provided by [aoe2companion](https://www.aoe2companion.com) through its public API. Thanks to the aoe2companion team for making it available. To keep load on their service low, the integration polls each player at most once every 10 minutes.
