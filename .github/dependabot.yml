@@ -4,10 +4,14 @@ updates:
     directories:
       - /
       - /.github/actions/*
+    commit-message:
+      prefix: ci
     schedule:
       interval: weekly
 
   - package-ecosystem: uv
     directory: /
+    commit-message:
+      prefix: chore
     schedule:
       interval: weekly
