@@ -11,8 +11,9 @@ from custom_components.aoe2.api import (
     AoeClientNotFoundError,
     AoeClientRateLimitError,
     AoeClientResponseError,
+    _backoff,
 )
-from custom_components.aoe2.api._http import _raise_for_status, get_json
+from custom_components.aoe2.api._http import MAX_RETRIES, _raise_for_status, get_json
 from tests.api.helpers import TEST_USER_AGENT
 
 
@@ -39,6 +40,34 @@ class RecordingSession:
     async def get(self, url: str, **kwargs: Any) -> AsyncIterator[FakeJsonResponse]:
         self.sent_headers.append(kwargs.get("headers", {}))
         yield FakeJsonResponse(status=200, url=url, body={"ok": True})
+
+
+@dataclass
+class FlakySession:
+    """Answers with the given statuses in order, then 200 once they run out."""
+
+    statuses: list[int]
+    attempts: int = 0
+
+    @asynccontextmanager
+    async def get(self, url: str, **kwargs: Any) -> AsyncIterator[FakeJsonResponse]:
+        status = self.statuses[self.attempts] if self.attempts < len(self.statuses) else 200
+        self.attempts += 1
+        yield FakeJsonResponse(status=status, url=url, body={"ok": True})
+
+
+@pytest.fixture
+def no_backoff_sleep(monkeypatch: pytest.MonkeyPatch) -> None:
+    async def skip_sleep(delay: float) -> None:
+        pass
+
+    monkeypatch.setattr(_backoff.asyncio, "sleep", skip_sleep)
+
+
+async def get_from(session: FlakySession) -> dict[str, Any]:
+    return await get_json(
+        cast(aiohttp.ClientSession, session), "https://example.test/api", user_agent=TEST_USER_AGENT
+    )
 
 
 def fake_response(status: int, headers: dict[str, str] | None = None) -> aiohttp.ClientResponse:
@@ -106,3 +135,37 @@ async def test_requests_send_the_given_user_agent():
 
     # Then
     assert session.sent_headers == [{"User-Agent": TEST_USER_AGENT}]
+
+
+@pytest.mark.usefixtures("no_backoff_sleep")
+async def test_server_errors_are_retried_until_success():
+    # Given
+    session = FlakySession(statuses=[503] * MAX_RETRIES)
+
+    # When
+    body = await get_from(session)
+
+    # Then
+    assert body == {"ok": True}
+    assert session.attempts == MAX_RETRIES + 1
+
+
+@pytest.mark.parametrize(
+    ("status", "expected_error"),
+    [
+        (404, AoeClientNotFoundError),
+        (400, AoeClientResponseError),
+        (429, AoeClientRateLimitError),
+    ],
+)
+@pytest.mark.usefixtures("no_backoff_sleep")
+async def test_non_transient_failure_is_not_retried(status: int, expected_error: type[Exception]):
+    # Given
+    session = FlakySession(statuses=[status])
+
+    # When
+    with pytest.raises(expected_error):
+        await get_from(session)
+
+    # Then
+    assert session.attempts == 1

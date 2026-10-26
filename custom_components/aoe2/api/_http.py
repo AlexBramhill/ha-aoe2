@@ -1,10 +1,12 @@
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import asynccontextmanager
+from functools import partial
 from http import HTTPStatus
 from typing import Any
 
 import aiohttp
 
+from ._backoff import with_exponential_backoff
 from .errors import (
     AoeClientConnectionError,
     AoeClientNotFoundError,
@@ -13,6 +15,8 @@ from .errors import (
 )
 
 REQUEST_TIMEOUT = aiohttp.ClientTimeout(total=15)
+MAX_RETRIES = 5
+FIRST_RETRY_DELAY_SECONDS = 5
 
 
 async def get_json(
@@ -21,6 +25,25 @@ async def get_json(
     params: dict[str, Any] | None = None,
     *,
     user_agent: str,
+) -> dict[str, Any]:
+    request = partial(_request_json, session, url, params, user_agent)
+    return await _retry_transient_failures(request)
+
+
+async def _retry_transient_failures(
+    request: Callable[[], Awaitable[dict[str, Any]]],
+) -> dict[str, Any]:
+    """Rate limits aren't retried here; the coordinator honours their Retry-After."""
+    return await with_exponential_backoff(
+        request,
+        retry_on=AoeClientConnectionError,
+        max_retries=MAX_RETRIES,
+        first_delay_seconds=FIRST_RETRY_DELAY_SECONDS,
+    )
+
+
+async def _request_json(
+    session: aiohttp.ClientSession, url: str, params: dict[str, Any] | None, user_agent: str
 ) -> dict[str, Any]:
     async with (
         _connection_error_handler(url),
