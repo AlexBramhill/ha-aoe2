@@ -6,12 +6,15 @@ from .api import create_client
 from .const import CONF_CLIENT
 from .coordinator import Aoe2ConfigEntry, Aoe2Coordinator
 from .recorded_matches import RecordedMatches
+from .user_agent import async_user_agent
 
 PLATFORMS: list[Platform] = [Platform.BINARY_SENSOR, Platform.EVENT, Platform.SENSOR]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: Aoe2ConfigEntry) -> bool:
-    client = create_client(entry.data[CONF_CLIENT], async_get_clientsession(hass))
+    client = create_client(
+        entry.data[CONF_CLIENT], async_get_clientsession(hass), await async_user_agent(hass)
+    )
     coordinator = Aoe2Coordinator(hass, entry, client)
     await coordinator.async_config_entry_first_refresh()
     entry.runtime_data = coordinator

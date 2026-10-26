@@ -31,8 +31,9 @@ LEADERBOARDS_BY_ID: dict[str, Leaderboard] = {
 
 
 class Aoe2CompanionClient:
-    def __init__(self, session: aiohttp.ClientSession) -> None:
+    def __init__(self, session: aiohttp.ClientSession, user_agent: str) -> None:
         self._session = session
+        self._user_agent = user_agent
 
     @property
     def attribution(self) -> str:
@@ -54,7 +55,9 @@ class Aoe2CompanionClient:
         return parse_matches(body)
 
     async def _get(self, path: str, **params: Any) -> dict[str, Any]:
-        return await get_json(self._session, f"{BASE_URL}/{path}", params)
+        return await get_json(
+            self._session, f"{BASE_URL}/{path}", params, user_agent=self._user_agent
+        )
 
 
 @response_parser

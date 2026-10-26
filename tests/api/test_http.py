@@ -12,7 +12,8 @@ from custom_components.aoe2.api import (
     AoeClientRateLimitError,
     AoeClientResponseError,
 )
-from custom_components.aoe2.api._http import USER_AGENT, _raise_for_status, get_json
+from custom_components.aoe2.api._http import _raise_for_status, get_json
+from tests.api.helpers import TEST_USER_AGENT
 
 
 @dataclass
@@ -94,13 +95,14 @@ def test_rate_limit_reads_retry_after(
     assert raised.value.retry_after == retry_after_seconds
 
 
-async def test_requests_identify_the_project_with_a_user_agent():
+async def test_requests_send_the_given_user_agent():
     # Given
     session = RecordingSession()
 
     # When
-    await get_json(cast(aiohttp.ClientSession, session), "https://example.test/api")
+    await get_json(
+        cast(aiohttp.ClientSession, session), "https://example.test/api", user_agent=TEST_USER_AGENT
+    )
 
     # Then
-    assert session.sent_headers == [{"User-Agent": USER_AGENT}]
-    assert "https://github.com/AlexBramhill/ha-aoe2" in USER_AGENT
+    assert session.sent_headers == [{"User-Agent": TEST_USER_AGENT}]

@@ -24,7 +24,9 @@ def created_client_names(
 ) -> list[ClientName]:
     names: list[ClientName] = []
 
-    def create_fake_client(client_name: ClientName, _session: object) -> AoeClient:
+    def create_fake_client(
+        client_name: ClientName, _session: object, _user_agent: str
+    ) -> AoeClient:
         names.append(client_name)
         return fake_client
 

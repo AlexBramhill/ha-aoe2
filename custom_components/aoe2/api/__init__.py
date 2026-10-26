@@ -18,13 +18,15 @@ from .models import Leaderboard, Match, MatchPlayer, Profile, Rating
 
 ClientName = Literal["aoe2companion"]
 
-CLIENTS: dict[ClientName, Callable[[aiohttp.ClientSession], AoeClient]] = {
+CLIENTS: dict[ClientName, Callable[[aiohttp.ClientSession, str], AoeClient]] = {
     "aoe2companion": Aoe2CompanionClient,
 }
 
 
-def create_client(client_name: ClientName, session: aiohttp.ClientSession) -> AoeClient:
-    return CLIENTS[client_name](session)
+def create_client(
+    client_name: ClientName, session: aiohttp.ClientSession, user_agent: str
+) -> AoeClient:
+    return CLIENTS[client_name](session, user_agent)
 
 
 __all__ = [

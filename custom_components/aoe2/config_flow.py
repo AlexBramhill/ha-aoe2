@@ -21,7 +21,6 @@ from .api import (
     AoeClientError,
     AoeClientNotFoundError,
     AoeClientRateLimitError,
-    Profile,
     create_client,
 )
 from .const import (
@@ -35,6 +34,7 @@ from .const import (
     MIN_IN_MATCH_UPDATE_MINUTES,
     MIN_UPDATE_MINUTES,
 )
+from .user_agent import async_user_agent
 
 FORM_ERROR = "base"
 ERROR_PLAYER_NOT_FOUND = "player_not_found"
@@ -74,27 +74,27 @@ class Aoe2ConfigFlow(ConfigFlow, domain=DOMAIN):
         return Aoe2OptionsFlow()
 
     async def async_step_user(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        client = await self._client()
         if user_input is None:
-            return self._show_user_form()
+            return self._show_user_form(client)
 
         profile_id: int = user_input[CONF_PROFILE_ID]
         await self._abort_if_player_already_added(profile_id)
 
         try:
-            profile = await self._get_profile(profile_id)
+            profile = await client.get_profile(profile_id)
         except AoeClientError as error:
-            return self._show_user_form(user_input, errors=_form_errors_for(error))
+            return self._show_user_form(client, user_input, errors=_form_errors_for(error))
         return self._create_player_entry(profile_id, profile.name)
 
     async def _abort_if_player_already_added(self, profile_id: int) -> None:
         await self.async_set_unique_id(str(profile_id))
         self._abort_if_unique_id_configured()
 
-    async def _get_profile(self, profile_id: int) -> Profile:
-        return await self._client().get_profile(profile_id)
-
-    def _client(self) -> AoeClient:
-        return create_client(DEFAULT_CLIENT, async_get_clientsession(self.hass))
+    async def _client(self) -> AoeClient:
+        return create_client(
+            DEFAULT_CLIENT, async_get_clientsession(self.hass), await async_user_agent(self.hass)
+        )
 
     def _create_player_entry(self, profile_id: int, player_name: str) -> ConfigFlowResult:
         return self.async_create_entry(
@@ -103,13 +103,16 @@ class Aoe2ConfigFlow(ConfigFlow, domain=DOMAIN):
         )
 
     def _show_user_form(
-        self, user_input: dict[str, Any] | None = None, errors: dict[str, str] | None = None
+        self,
+        client: AoeClient,
+        user_input: dict[str, Any] | None = None,
+        errors: dict[str, str] | None = None,
     ) -> ConfigFlowResult:
         return self.async_show_form(
             step_id="user",
             data_schema=self.add_suggested_values_to_schema(USER_SCHEMA, user_input),
             errors=errors,
-            description_placeholders={"data_source_url": self._client().website_url},
+            description_placeholders={"data_source_url": client.website_url},
         )
 
 

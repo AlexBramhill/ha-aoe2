@@ -47,7 +47,9 @@ class FakeApi:
     def _serving(self, path: str, body: Body) -> Self:
         return replace(self, responses_by_path={**self.responses_by_path, path: body})
 
-    async def get_json(self, _session: Any, url: str, params: Params | None = None) -> Body:
+    async def get_json(
+        self, _session: Any, url: str, params: Params | None = None, *, user_agent: str
+    ) -> Body:
         path = url.removeprefix(f"{self.module.BASE_URL}/")
         if path not in self.responses_by_path:
             raise AoeClientNotFoundError(url)

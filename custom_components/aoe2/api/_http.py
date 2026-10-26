@@ -13,16 +13,19 @@ from .errors import (
 )
 
 REQUEST_TIMEOUT = aiohttp.ClientTimeout(total=15)
-USER_AGENT = "ha-aoe2 (+https://github.com/AlexBramhill/ha-aoe2)"
 
 
 async def get_json(
-    session: aiohttp.ClientSession, url: str, params: dict[str, Any] | None = None
+    session: aiohttp.ClientSession,
+    url: str,
+    params: dict[str, Any] | None = None,
+    *,
+    user_agent: str,
 ) -> dict[str, Any]:
     async with (
         _connection_error_handler(url),
         session.get(
-            url, params=params, headers={"User-Agent": USER_AGENT}, timeout=REQUEST_TIMEOUT
+            url, params=params, headers={"User-Agent": user_agent}, timeout=REQUEST_TIMEOUT
         ) as response,
     ):
         _raise_for_status(response)

@@ -6,6 +6,7 @@ python scripts/try_api.py aoe2companion <profile_id> --count 10
 
 import argparse
 import asyncio
+import json
 import sys
 from pathlib import Path
 from typing import get_args
@@ -24,11 +25,18 @@ from custom_components.aoe2.api import (
     create_client,
 )
 
+MANIFEST = Path(__file__).resolve().parents[1] / "custom_components/aoe2/manifest.json"
+
 
 async def main(args: argparse.Namespace) -> None:
     async with aiohttp.ClientSession() as session:
-        client = create_client(args.client, session)
+        client = create_client(args.client, session, script_user_agent())
         await print_player(client, args.profile_id, args.count)
+
+
+def script_user_agent() -> str:
+    version = json.loads(MANIFEST.read_text())["version"]
+    return f"ha-aoe2/{version}+try_api (+https://github.com/AlexBramhill/ha-aoe2)"
 
 
 async def print_player(client: AoeClient, profile_id: int, match_count: int) -> None:
