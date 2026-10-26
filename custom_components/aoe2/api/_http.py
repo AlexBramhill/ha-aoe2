@@ -15,8 +15,8 @@ from .errors import (
 )
 
 REQUEST_TIMEOUT = aiohttp.ClientTimeout(total=15)
-MAX_RETRIES = 5
-FIRST_RETRY_DELAY_SECONDS = 5
+MAX_RETRIES = 2
+FIRST_RETRY_DELAY_SECONDS = 1.0
 
 
 async def get_json(
