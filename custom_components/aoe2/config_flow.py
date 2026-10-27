@@ -21,6 +21,7 @@ from .api import (
     AoeClientError,
     AoeClientNotFoundError,
     AoeClientRetryError,
+    Profile,
     create_client,
 )
 from .const import (
@@ -82,11 +83,11 @@ class Aoe2ConfigFlow(ConfigFlow, domain=DOMAIN):
         profile_id: int = user_input[CONF_PROFILE_ID]
         await self._abort_if_player_already_added(profile_id)
 
-        try:
-            profile = await client.get_profile(profile_id)
-        except AoeClientError as error:
-            return self._show_profile_form("user", client, user_input, _form_errors_for(error))
-        return self._create_player_entry(profile_id, profile.name)
+        match await _get_profile_or_form_errors(client, profile_id):
+            case Profile() as profile:
+                return self._create_player_entry(profile_id, profile.name)
+            case errors:
+                return self._show_profile_form("user", client, user_input, errors)
 
     async def async_step_reconfigure(
         self, user_input: dict[str, Any] | None = None
@@ -101,20 +102,13 @@ class Aoe2ConfigFlow(ConfigFlow, domain=DOMAIN):
         if is_new_player:
             await self._abort_if_player_already_added(profile_id)
 
-        try:
-            profile = await client.get_profile(profile_id)
-        except AoeClientError as error:
-            return self._show_profile_form(
-                "reconfigure", client, user_input, _form_errors_for(error)
-            )
-        if is_new_player:
-            await self._forget_previous_player(entry)
-        return self.async_update_reload_and_abort(
-            entry,
-            unique_id=str(profile_id),
-            title=profile.name,
-            data_updates={CONF_PROFILE_ID: profile_id},
-        )
+        match await _get_profile_or_form_errors(client, profile_id):
+            case Profile() as profile:
+                if is_new_player:
+                    await self._forget_previous_player(entry)
+                return self._update_player_entry(entry, profile_id, profile.name)
+            case errors:
+                return self._show_profile_form("reconfigure", client, user_input, errors)
 
     async def _abort_if_player_already_added(self, profile_id: int) -> None:
         await self.async_set_unique_id(str(profile_id))
@@ -137,6 +131,16 @@ class Aoe2ConfigFlow(ConfigFlow, domain=DOMAIN):
         previous_player = (DOMAIN, str(entry.data[CONF_PROFILE_ID]))
         if device := devices.async_get_device_by_identifier(previous_player, entry.entry_id):
             devices.async_update_device(device.id, remove_config_entry_id=entry.entry_id)
+
+    def _update_player_entry(
+        self, entry: ConfigEntry, profile_id: int, player_name: str
+    ) -> ConfigFlowResult:
+        return self.async_update_reload_and_abort(
+            entry,
+            unique_id=str(profile_id),
+            title=player_name,
+            data_updates={CONF_PROFILE_ID: profile_id},
+        )
 
     def _show_profile_form(
         self,
@@ -167,6 +171,15 @@ class Aoe2OptionsFlow(OptionsFlowWithReload):
 
 def _in_whole_minutes(options: dict[str, Any]) -> dict[str, int]:
     return {key: int(minutes) for key, minutes in options.items()}
+
+
+async def _get_profile_or_form_errors(
+    client: AoeClient, profile_id: int
+) -> Profile | dict[str, str]:
+    try:
+        return await client.get_profile(profile_id)
+    except AoeClientError as error:
+        return _form_errors_for(error)
 
 
 def _form_errors_for(error: AoeClientError) -> dict[str, str]:
