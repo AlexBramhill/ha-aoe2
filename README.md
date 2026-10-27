@@ -3,6 +3,7 @@
 [![CI](https://github.com/AlexBramhill/ha-aoe2/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/AlexBramhill/ha-aoe2/actions/workflows/ci.yml)
 [![Python 3.14+](https://img.shields.io/badge/python-3.14%2B-blue.svg)](https://www.python.org/downloads/)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![HACS Custom](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://hacs.xyz)
 
 Home Assistant integration for Age of Empires II: Definitive Edition. Tracks player ratings and recent matches.
 
@@ -16,6 +17,10 @@ Requires Home Assistant 2026.10 or later.
 
 ### HACS
 
+[![Open your Home Assistant instance and open this repository inside HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=AlexBramhill&repository=ha-aoe2&category=integration)
+
+Or add it by hand:
+
 1. In HACS, open the menu and select **Custom repositories**.
 2. Add `https://github.com/AlexBramhill/ha-aoe2` with the type **Integration**.
 3. Search for **Age of Empires II** in HACS and download it.
@@ -27,6 +32,10 @@ Requires Home Assistant 2026.10 or later.
 2. Restart Home Assistant.
 
 ## Configuration
+
+[![Open your Home Assistant instance and start setting up Age of Empires II.](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=aoe2)
+
+Or set it up by hand:
 
 1. Go to **Settings → Devices & services → Add integration** and select **Age of Empires II**.
 2. Enter the player's profile ID. It is the number at the end of the player's profile address on [aoe2companion.com](https://www.aoe2companion.com), for example `196240`.
