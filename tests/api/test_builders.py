@@ -3,8 +3,8 @@ from typing import Any
 import pytest
 
 from custom_components.aoe2.api import Leaderboard
-from tests.api.builders import MatchBuilder, ProfileBuilder, build_match_history, build_rating
 from tests.api.helpers import RECORDED_PLAYERS, RecordedPlayer
+from tests.builders import MatchBuilder, ProfileBuilder, build_match_history, build_rating
 
 
 def has_same_shape(built: Any, recorded: Any) -> bool:

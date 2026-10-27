@@ -1,7 +1,7 @@
 import pytest
 
 from custom_components.aoe2.api import Leaderboard
-from tests.api.builders import MatchBuilder, build_rating
+from tests.builders import MatchBuilder, build_rating
 
 ABSENT_PROFILE_ID = 999
 

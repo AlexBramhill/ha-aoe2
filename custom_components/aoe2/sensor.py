@@ -14,14 +14,24 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.typing import StateType
 
-from .api import Leaderboard, Match, MatchPlayer, Rating
+from .api import Leaderboard, Rating
 from .coordinator import Aoe2ConfigEntry, Aoe2Coordinator, Aoe2Data
 from .entity import Aoe2Entity
+from .stats import (
+    RESULT_LOSS,
+    RESULT_WIN,
+    get_last_match_civ,
+    get_last_match_details,
+    get_last_match_map,
+    get_last_match_rating_change,
+    get_last_match_result,
+    get_last_played,
+    get_percentage,
+    get_recent_rating_change,
+    get_recent_win_rate,
+)
 
 PARALLEL_UPDATES = 0
-
-RESULT_WIN = "win"
-RESULT_LOSS = "loss"
 
 LEADERBOARD_NAMES: dict[Leaderboard, str] = {
     Leaderboard.RM_1V1: "RM 1v1",
@@ -94,7 +104,7 @@ RATING_SENSORS: tuple[Aoe2RatingSensorEntityDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=1,
         entity_registry_enabled_default=False,
-        value_fn=lambda rating: _get_percentage(rating.win_rate),
+        value_fn=lambda rating: get_percentage(rating.win_rate),
     ),
     Aoe2RatingSensorEntityDescription(
         key="streak",
@@ -110,55 +120,6 @@ RATING_SENSORS: tuple[Aoe2RatingSensorEntityDescription, ...] = (
         value_fn=lambda rating: rating.highest_rating,
     ),
 )
-
-
-def get_last_match_result(data: Aoe2Data) -> str | None:
-    return _get_from_last_match(data, lambda match: _get_result(data.player_in(match)))
-
-
-def get_last_match_rating_change(data: Aoe2Data) -> int | None:
-    return _get_from_last_match(data, lambda match: data.player_in(match).rating_change)
-
-
-def get_last_played(data: Aoe2Data) -> datetime | None:
-    return _get_from_last_match(data, lambda match: match.finished)
-
-
-def get_last_match_map(data: Aoe2Data) -> str | None:
-    return _get_from_last_match(data, lambda match: match.map_name)
-
-
-def get_last_match_civ(data: Aoe2Data) -> str | None:
-    return _get_from_last_match(data, lambda match: data.player_in(match).civ)
-
-
-def get_last_match_details(data: Aoe2Data) -> dict[str, Any]:
-    match = data.last_finished_match()
-    if match is None:
-        return {}
-    player = data.player_in(match)
-    return {
-        "leaderboard": match.leaderboard,
-        "map": match.map_name,
-        "civ": player.civ,
-        "rating_after_match": player.rating_after_match,
-        "teammates": _get_teammates(match, player),
-        "opponents": _get_opponents(match, player),
-    }
-
-
-def get_recent_win_rate(data: Aoe2Data) -> float | None:
-    results = [data.player_in(match).won for match in data.finished_matches()]
-    known_results = [won for won in results if won is not None]
-    if not known_results:
-        return None
-    return _get_percentage(known_results.count(True) / len(known_results))
-
-
-def get_recent_rating_change(data: Aoe2Data) -> int | None:
-    changes = [data.player_in(match).rating_change for match in data.finished_matches()]
-    known_changes = [change for change in changes if change is not None]
-    return sum(known_changes) if known_changes else None
 
 
 PLAYER_SENSORS: tuple[Aoe2PlayerSensorEntityDescription, ...] = (
@@ -307,30 +268,3 @@ class RatingSensorsPerLeaderboard:
             for leaderboard in leaderboards
             for description in RATING_SENSORS
         ]
-
-
-def _get_from_last_match[Value](data: Aoe2Data, value_of: Callable[[Match], Value]) -> Value | None:
-    match = data.last_finished_match()
-    return None if match is None else value_of(match)
-
-
-def _get_result(player: MatchPlayer) -> str | None:
-    if player.won is None:
-        return None
-    return RESULT_WIN if player.won else RESULT_LOSS
-
-
-def _get_teammates(match: Match, player: MatchPlayer) -> list[str]:
-    return [
-        other.name
-        for other in match.players
-        if other.team == player.team and other.profile_id != player.profile_id
-    ]
-
-
-def _get_opponents(match: Match, player: MatchPlayer) -> list[str]:
-    return [other.name for other in match.players if other.team != player.team]
-
-
-def _get_percentage(fraction: float | None) -> float | None:
-    return None if fraction is None else round(fraction * 100, 1)

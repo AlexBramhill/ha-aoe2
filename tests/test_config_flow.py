@@ -32,7 +32,7 @@ from custom_components.aoe2.const import (
     MIN_IN_MATCH_UPDATE_MINUTES,
     MIN_UPDATE_MINUTES,
 )
-from tests.api.builders import MatchBuilder, ProfileBuilder, build_match_player
+from tests.builders import MatchBuilder, ProfileBuilder, build_match_player
 from tests.fake_client import FakeAoeClient
 from tests.integration import PROFILE_ID as SET_UP_PROFILE_ID
 from tests.integration import set_up_integration, state_of

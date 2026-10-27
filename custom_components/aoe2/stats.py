@@ -1,0 +1,85 @@
+from collections.abc import Callable
+from datetime import datetime
+from typing import Any
+
+from .api import Match, MatchPlayer
+from .coordinator import Aoe2Data
+
+RESULT_WIN = "win"
+RESULT_LOSS = "loss"
+
+
+def get_last_match_result(data: Aoe2Data) -> str | None:
+    return _get_from_last_match(data, lambda match: _get_result(data.player_in(match)))
+
+
+def get_last_match_rating_change(data: Aoe2Data) -> int | None:
+    return _get_from_last_match(data, lambda match: data.player_in(match).rating_change)
+
+
+def get_last_played(data: Aoe2Data) -> datetime | None:
+    return _get_from_last_match(data, lambda match: match.finished)
+
+
+def get_last_match_map(data: Aoe2Data) -> str | None:
+    return _get_from_last_match(data, lambda match: match.map_name)
+
+
+def get_last_match_civ(data: Aoe2Data) -> str | None:
+    return _get_from_last_match(data, lambda match: data.player_in(match).civ)
+
+
+def get_last_match_details(data: Aoe2Data) -> dict[str, Any]:
+    match = data.last_finished_match()
+    if match is None:
+        return {}
+    player = data.player_in(match)
+    return {
+        "leaderboard": match.leaderboard,
+        "map": match.map_name,
+        "civ": player.civ,
+        "rating_after_match": player.rating_after_match,
+        "teammates": _get_teammates(match, player),
+        "opponents": _get_opponents(match, player),
+    }
+
+
+def get_recent_win_rate(data: Aoe2Data) -> float | None:
+    results = [data.player_in(match).won for match in data.finished_matches()]
+    known_results = [won for won in results if won is not None]
+    if not known_results:
+        return None
+    return get_percentage(known_results.count(True) / len(known_results))
+
+
+def get_recent_rating_change(data: Aoe2Data) -> int | None:
+    changes = [data.player_in(match).rating_change for match in data.finished_matches()]
+    known_changes = [change for change in changes if change is not None]
+    return sum(known_changes) if known_changes else None
+
+
+def get_percentage(fraction: float | None) -> float | None:
+    return None if fraction is None else round(fraction * 100, 1)
+
+
+def _get_from_last_match[Value](data: Aoe2Data, value_of: Callable[[Match], Value]) -> Value | None:
+    match = data.last_finished_match()
+    return None if match is None else value_of(match)
+
+
+def _get_result(player: MatchPlayer) -> str | None:
+    if player.won is None:
+        return None
+    return RESULT_WIN if player.won else RESULT_LOSS
+
+
+def _get_teammates(match: Match, player: MatchPlayer) -> list[str]:
+    return [
+        other.name
+        for other in match.players
+        if other.team == player.team and other.profile_id != player.profile_id
+    ]
+
+
+def _get_opponents(match: Match, player: MatchPlayer) -> list[str]:
+    return [other.name for other in match.players if other.team != player.team]

@@ -2,7 +2,7 @@ import pytest
 from homeassistant.const import STATE_OFF, STATE_ON, Platform
 from homeassistant.core import HomeAssistant
 
-from tests.api.builders import MatchBuilder
+from tests.builders import MatchBuilder
 from tests.fake_client import FakeAoeClient
 from tests.integration import refresh, set_up_integration, state_of
 

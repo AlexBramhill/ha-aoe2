@@ -29,7 +29,7 @@ from custom_components.aoe2.coordinator import (
     Aoe2Data,
     UpdateIntervals,
 )
-from tests.api.builders import TYPICAL_START, MatchBuilder
+from tests.builders import TYPICAL_START, MatchBuilder
 from tests.fake_client import FakeAoeClient
 
 PROFILE_ID = 1

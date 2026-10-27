@@ -9,8 +9,8 @@ from custom_components.aoe2.api import (
     _aoe2companion,
 )
 from tests.api.api_json import Body
-from tests.api.builders import BuiltMatchHistory, BuiltProfile
 from tests.api.helpers import RecordedPlayer
+from tests.builders import BuiltMatchHistory, BuiltProfile
 
 type Params = dict[str, Any]
 type ServerBehaviour = Callable[[Body, Params], Body]

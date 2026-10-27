@@ -11,15 +11,6 @@ from custom_components.aoe2.api import (
     Match,
     create_client,
 )
-from tests.api.builders import (
-    BuiltMatchHistory,
-    BuiltProfile,
-    MatchBuilder,
-    ProfileBuilder,
-    build_match_history,
-    build_match_player,
-    build_rating,
-)
 from tests.api.fake_apis import FAKE_API_FOR_CLIENT, FakeApi
 from tests.api.helpers import (
     RECORDED_PLAYERS,
@@ -30,6 +21,15 @@ from tests.api.helpers import (
     VIPER_MATCH_IDS,
     VIPER_WON_RANKED_MATCH_ID,
     RecordedPlayer,
+)
+from tests.builders import (
+    BuiltMatchHistory,
+    BuiltProfile,
+    MatchBuilder,
+    ProfileBuilder,
+    build_match_history,
+    build_match_player,
+    build_rating,
 )
 
 UNKNOWN_PROFILE_ID = 999_999_999
