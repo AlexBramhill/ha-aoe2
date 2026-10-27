@@ -1135,6 +1135,7 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "homeassistant" },
     { name = "pyright", extra = ["nodejs"] },
     { name = "pytest" },
     { name = "pytest-asyncio" },
@@ -1147,6 +1148,7 @@ requires-dist = [{ name = "aiohttp", specifier = ">=3.14.5" }]
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "homeassistant", specifier = ">=2026.10.2" },
     { name = "pyright", extras = ["nodejs"], specifier = ">=1.1.414" },
     { name = "pytest" },
     { name = "pytest-asyncio" },

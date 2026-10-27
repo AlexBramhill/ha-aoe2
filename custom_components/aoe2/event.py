@@ -3,7 +3,7 @@ from homeassistant.core import Event, HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from .const import EVENT_MATCH_FINISHED
-from .coordinator import Aoe2ConfigEntry, Aoe2Coordinator, MatchFinishedEvent
+from .coordinator import Aoe2ConfigEntry, Aoe2Coordinator, MatchFinishedEventData
 from .entity import Aoe2Entity
 
 PARALLEL_UPDATES = 0
@@ -35,7 +35,7 @@ class Aoe2MatchFinishedEvent(Aoe2Entity, EventEntity):
         )
 
     @callback
-    def _handle_match_finished(self, event: Event[MatchFinishedEvent]) -> None:
+    def _handle_match_finished(self, event: Event[MatchFinishedEventData]) -> None:
         if event.data["profile_id"] != self.coordinator.profile_id:
             return
         self._trigger_event(_get_event_type(event.data["won"]), dict(event.data))

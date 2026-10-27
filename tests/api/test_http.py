@@ -29,10 +29,6 @@ class FakeResponse:
     status: int
     headers: dict[str, str] = field(default_factory=dict)
     url: str = "https://example.test"
-
-
-@dataclass
-class FakeJsonResponse(FakeResponse):
     body: Any = None
 
     async def json(self, content_type: str | None = None) -> Any:
@@ -45,10 +41,10 @@ class RecordingSession:
     sent_timeouts: list[aiohttp.ClientTimeout] = field(default_factory=list)
 
     @asynccontextmanager
-    async def get(self, url: str, **kwargs: Any) -> AsyncIterator[FakeJsonResponse]:
+    async def get(self, url: str, **kwargs: Any) -> AsyncIterator[FakeResponse]:
         self.sent_headers.append(kwargs.get("headers", {}))
         self.sent_timeouts.append(kwargs["timeout"])
-        yield FakeJsonResponse(status=200, url=url, body={"ok": True})
+        yield FakeResponse(status=200, url=url, body={"ok": True})
 
 
 @dataclass
@@ -60,10 +56,10 @@ class FlakySession:
     attempts: int = 0
 
     @asynccontextmanager
-    async def get(self, url: str, **kwargs: Any) -> AsyncIterator[FakeJsonResponse]:
+    async def get(self, url: str, **kwargs: Any) -> AsyncIterator[FakeResponse]:
         status = self.statuses[self.attempts] if self.attempts < len(self.statuses) else 200
         self.attempts += 1
-        yield FakeJsonResponse(status=status, headers=self.headers, url=url, body={"ok": True})
+        yield FakeResponse(status=status, headers=self.headers, url=url, body={"ok": True})
 
 
 @pytest.fixture

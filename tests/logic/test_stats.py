@@ -1,6 +1,6 @@
 from custom_components.aoe2.api import Leaderboard
-from custom_components.aoe2.coordinator import Aoe2Data
-from custom_components.aoe2.stats import (
+from custom_components.aoe2.logic import (
+    PlayerData,
     get_last_match_details,
     get_last_match_result,
     get_recent_rating_change,
@@ -18,8 +18,8 @@ LOST_MATCH = (
 )
 
 
-def data_with(*matches: MatchBuilder) -> Aoe2Data:
-    return Aoe2Data(profile=PLAYER, matches=tuple(match.build() for match in matches))
+def data_with(*matches: MatchBuilder) -> PlayerData:
+    return PlayerData(profile=PLAYER, matches=tuple(match.build() for match in matches))
 
 
 def test_last_match_result_is_from_newest_finished_match():

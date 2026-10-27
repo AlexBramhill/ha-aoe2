@@ -15,11 +15,12 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.typing import StateType
 
 from .api import Leaderboard, Rating
-from .coordinator import Aoe2ConfigEntry, Aoe2Coordinator, Aoe2Data
+from .coordinator import Aoe2ConfigEntry, Aoe2Coordinator
 from .entity import Aoe2Entity
-from .stats import (
+from .logic import (
     RESULT_LOSS,
     RESULT_WIN,
+    PlayerData,
     get_last_match_civ,
     get_last_match_details,
     get_last_match_map,
@@ -59,8 +60,8 @@ class Aoe2RatingSensorEntityDescription(SensorEntityDescription):
 
 @dataclass(frozen=True, kw_only=True)
 class Aoe2PlayerSensorEntityDescription(SensorEntityDescription):
-    value_fn: Callable[[Aoe2Data], SensorValue]
-    attributes_fn: Callable[[Aoe2Data], dict[str, Any]] | None = None
+    value_fn: Callable[[PlayerData], SensorValue]
+    attributes_fn: Callable[[PlayerData], dict[str, Any]] | None = None
 
 
 RATING_SENSORS: tuple[Aoe2RatingSensorEntityDescription, ...] = (

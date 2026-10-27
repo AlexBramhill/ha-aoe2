@@ -24,11 +24,8 @@ from custom_components.aoe2.const import (
     MIN_IN_MATCH_UPDATE_MINUTES,
     MIN_UPDATE_MINUTES,
 )
-from custom_components.aoe2.coordinator import (
-    Aoe2Coordinator,
-    Aoe2Data,
-    UpdateIntervals,
-)
+from custom_components.aoe2.coordinator import Aoe2Coordinator, get_update_intervals
+from custom_components.aoe2.logic import PlayerData
 from tests.builders import TYPICAL_START, MatchBuilder
 from tests.fake_client import FakeAoeClient
 
@@ -63,7 +60,7 @@ async def test_refresh_provides_profile_and_matches(
     await refresh(hass, coordinator)
 
     # Then
-    expected = Aoe2Data(profile=fake_client.profile, matches=(EARLIER_MATCH.build(),))
+    expected = PlayerData(profile=fake_client.profile, matches=(EARLIER_MATCH.build(),))
     assert coordinator.data == expected
 
 
@@ -303,7 +300,7 @@ async def test_returns_to_normal_polling_after_the_match(
 
 def test_update_intervals_default_to_the_minimums():
     # When
-    intervals = UpdateIntervals.from_options({})
+    intervals = get_update_intervals({})
 
     # Then
     assert intervals.usual == timedelta(minutes=MIN_UPDATE_MINUTES)
@@ -312,9 +309,7 @@ def test_update_intervals_default_to_the_minimums():
 
 def test_update_intervals_come_from_options():
     # When
-    intervals = UpdateIntervals.from_options(
-        {CONF_UPDATE_MINUTES: 30, CONF_IN_MATCH_UPDATE_MINUTES: 5}
-    )
+    intervals = get_update_intervals({CONF_UPDATE_MINUTES: 30, CONF_IN_MATCH_UPDATE_MINUTES: 5})
 
     # Then
     assert intervals.usual == timedelta(minutes=30)
