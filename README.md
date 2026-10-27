@@ -13,7 +13,7 @@ Requires Home Assistant 2026.10 or later.
 
 [![Open your Home Assistant instance and open this repository inside HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=AlexBramhill&repository=ha-aoe2&category=integration)
 
-Or add `https://github.com/AlexBramhill/ha-aoe2` to HACS as a custom **Integration** repository, download **Age of Empires II** and restart Home Assistant.
+Or add `https://github.com/AlexBramhill/ha-aoe2` to HACS as a custom Integration repository, download `Age of Empires II` and restart Home Assistant.
 
 ## Configuration
 
