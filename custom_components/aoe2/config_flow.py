@@ -44,7 +44,7 @@ ERROR_CANNOT_CONNECT = "cannot_connect"
 ERROR_UNKNOWN = "unknown"
 
 POSITIVE_INTEGER = probatio.All(probatio.Coerce(int), probatio.Range(min=1))
-USER_SCHEMA = probatio.Schema({probatio.Required(CONF_PROFILE_ID): POSITIVE_INTEGER})
+PROFILE_SCHEMA = probatio.Schema({probatio.Required(CONF_PROFILE_ID): POSITIVE_INTEGER})
 
 
 def _minutes_at_least(minimum: int) -> NumberSelector:
@@ -151,7 +151,7 @@ class Aoe2ConfigFlow(ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         return self.async_show_form(
             step_id=step_id,
-            data_schema=self.add_suggested_values_to_schema(USER_SCHEMA, suggested_values),
+            data_schema=self.add_suggested_values_to_schema(PROFILE_SCHEMA, suggested_values),
             errors=errors,
             description_placeholders={"data_source_url": client.website_url},
         )
