@@ -47,7 +47,7 @@ POSITIVE_INTEGER = probatio.All(probatio.Coerce(int), probatio.Range(min=1))
 PROFILE_SCHEMA = probatio.Schema({probatio.Required(CONF_PROFILE_ID): POSITIVE_INTEGER})
 
 
-def _minutes_at_least(minimum: int) -> NumberSelector:
+def _get_minutes_selector(minimum: int) -> NumberSelector:
     return NumberSelector(
         NumberSelectorConfig(
             min=minimum, step=1, unit_of_measurement="min", mode=NumberSelectorMode.BOX
@@ -57,12 +57,12 @@ def _minutes_at_least(minimum: int) -> NumberSelector:
 
 OPTIONS_SCHEMA = probatio.Schema(
     {
-        probatio.Required(CONF_UPDATE_MINUTES, default=MIN_UPDATE_MINUTES): _minutes_at_least(
+        probatio.Required(CONF_UPDATE_MINUTES, default=MIN_UPDATE_MINUTES): _get_minutes_selector(
             MIN_UPDATE_MINUTES
         ),
         probatio.Required(
             CONF_IN_MATCH_UPDATE_MINUTES, default=MIN_IN_MATCH_UPDATE_MINUTES
-        ): _minutes_at_least(MIN_IN_MATCH_UPDATE_MINUTES),
+        ): _get_minutes_selector(MIN_IN_MATCH_UPDATE_MINUTES),
     }
 )
 
@@ -76,7 +76,7 @@ class Aoe2ConfigFlow(ConfigFlow, domain=DOMAIN):
         return Aoe2OptionsFlow()
 
     async def async_step_user(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
-        client = await self._client()
+        client = await self._get_client()
         if user_input is None:
             return self._show_profile_form("user", client)
 
@@ -93,7 +93,7 @@ class Aoe2ConfigFlow(ConfigFlow, domain=DOMAIN):
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         entry = self._get_reconfigure_entry()
-        client = await self._client()
+        client = await self._get_client()
         if user_input is None:
             return self._show_profile_form("reconfigure", client, dict(entry.data))
 
@@ -114,11 +114,6 @@ class Aoe2ConfigFlow(ConfigFlow, domain=DOMAIN):
         await self.async_set_unique_id(str(profile_id))
         self._abort_if_unique_id_configured()
 
-    async def _client(self) -> AoeClient:
-        return create_client(
-            DEFAULT_CLIENT, async_get_clientsession(self.hass), await async_user_agent(self.hass)
-        )
-
     def _create_player_entry(self, profile_id: int, player_name: str) -> ConfigFlowResult:
         return self.async_create_entry(
             title=player_name,
@@ -132,14 +127,9 @@ class Aoe2ConfigFlow(ConfigFlow, domain=DOMAIN):
         if device := devices.async_get_device_by_identifier(previous_player, entry.entry_id):
             devices.async_update_device(device.id, remove_config_entry_id=entry.entry_id)
 
-    def _update_player_entry(
-        self, entry: ConfigEntry, profile_id: int, player_name: str
-    ) -> ConfigFlowResult:
-        return self.async_update_reload_and_abort(
-            entry,
-            unique_id=str(profile_id),
-            title=player_name,
-            data_updates={CONF_PROFILE_ID: profile_id},
+    async def _get_client(self) -> AoeClient:
+        return create_client(
+            DEFAULT_CLIENT, async_get_clientsession(self.hass), await async_user_agent(self.hass)
         )
 
     def _show_profile_form(
@@ -156,11 +146,21 @@ class Aoe2ConfigFlow(ConfigFlow, domain=DOMAIN):
             description_placeholders={"data_source_url": client.website_url},
         )
 
+    def _update_player_entry(
+        self, entry: ConfigEntry, profile_id: int, player_name: str
+    ) -> ConfigFlowResult:
+        return self.async_update_reload_and_abort(
+            entry,
+            unique_id=str(profile_id),
+            title=player_name,
+            data_updates={CONF_PROFILE_ID: profile_id},
+        )
+
 
 class Aoe2OptionsFlow(OptionsFlowWithReload):
     async def async_step_init(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         if user_input is not None:
-            return self.async_create_entry(data=_in_whole_minutes(user_input))
+            return self.async_create_entry(data=_get_whole_minutes(user_input))
         return self.async_show_form(
             step_id="init",
             data_schema=self.add_suggested_values_to_schema(
@@ -169,7 +169,7 @@ class Aoe2OptionsFlow(OptionsFlowWithReload):
         )
 
 
-def _in_whole_minutes(options: dict[str, Any]) -> dict[str, int]:
+def _get_whole_minutes(options: dict[str, Any]) -> dict[str, int]:
     return {key: int(minutes) for key, minutes in options.items()}
 
 
@@ -179,10 +179,10 @@ async def _get_profile_or_form_errors(
     try:
         return await client.get_profile(profile_id)
     except AoeClientError as error:
-        return _form_errors_for(error)
+        return _get_form_errors(error)
 
 
-def _form_errors_for(error: AoeClientError) -> dict[str, str]:
+def _get_form_errors(error: AoeClientError) -> dict[str, str]:
     match error:
         case AoeClientNotFoundError():
             return {CONF_PROFILE_ID: ERROR_PLAYER_NOT_FOUND}
