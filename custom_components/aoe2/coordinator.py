@@ -119,7 +119,7 @@ class Aoe2Coordinator(TimestampDataUpdateCoordinator[Aoe2Data]):
         """Announce after entities update, so automations see the new ratings."""
         super().async_update_listeners()
         for match in self._newly_recorded_matches:
-            self.hass.bus.async_fire(EVENT_MATCH_FINISHED, self._match_event_data(match))
+            self.hass.bus.async_fire(EVENT_MATCH_FINISHED, self._get_match_event_data(match))
         self._newly_recorded_matches = []
 
     async def _fetch_player_data(self) -> Aoe2Data:
@@ -139,7 +139,7 @@ class Aoe2Coordinator(TimestampDataUpdateCoordinator[Aoe2Data]):
         if await self._player_was_just_added():
             await self._record_without_announcing(finished_oldest_first)
             return []
-        new_matches = self._not_yet_recorded(finished_oldest_first)
+        new_matches = self._get_not_yet_recorded(finished_oldest_first)
         if new_matches:
             await self._recorded_matches.async_record(match.match_id for match in new_matches)
         return new_matches
@@ -155,20 +155,20 @@ class Aoe2Coordinator(TimestampDataUpdateCoordinator[Aoe2Data]):
         """Games played before the player was added are history, not news."""
         await self._recorded_matches.async_record(match.match_id for match in past_matches)
 
-    def _not_yet_recorded(self, matches: list[Match]) -> list[Match]:
+    def _get_not_yet_recorded(self, matches: list[Match]) -> list[Match]:
         return [match for match in matches if match.match_id not in self._recorded_matches]
 
-    def _match_event_data(self, match: Match) -> MatchFinishedEvent:
+    def _get_match_event_data(self, match: Match) -> MatchFinishedEvent:
         return MatchFinishedEvent(
             profile_id=self._profile_id,
             match_id=match.match_id,
             leaderboard=match.leaderboard,
             map_name=match.map_name,
-            **_player_result(match.player_with_id(self._profile_id)),
+            **_get_player_result(match.player_with_id(self._profile_id)),
         )
 
 
-def _player_result(player: MatchPlayer) -> PlayerResult:
+def _get_player_result(player: MatchPlayer) -> PlayerResult:
     return PlayerResult(
         won=player.won,
         rating_after_match=player.rating_after_match,

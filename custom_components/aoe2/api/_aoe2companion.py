@@ -66,23 +66,23 @@ def parse_profile(body: dict[str, Any]) -> Profile:
         profile_id=body["profileId"],
         name=body["name"],
         country=body.get("country"),
-        ratings=tuple(_known_ratings(body)),
+        ratings=tuple(_get_known_ratings(body)),
     )
 
 
 @response_parser
 def parse_matches(body: dict[str, Any]) -> list[Match]:
-    return [_match(match) for match in body.get("matches", [])]
+    return [_get_match(match) for match in body.get("matches", [])]
 
 
-def _known_ratings(body: dict[str, Any]) -> Iterator[Rating]:
+def _get_known_ratings(body: dict[str, Any]) -> Iterator[Rating]:
     """Unrecognised leaderboards are skipped: several would all collapse into OTHER."""
     for raw in body.get("leaderboards", []):
-        if (leaderboard := _leaderboard_for(raw["leaderboardId"])) is not Leaderboard.OTHER:
-            yield _rating(leaderboard, raw)
+        if (leaderboard := _get_leaderboard(raw["leaderboardId"])) is not Leaderboard.OTHER:
+            yield _get_rating(leaderboard, raw)
 
 
-def _rating(leaderboard: Leaderboard, raw: dict[str, Any]) -> Rating:
+def _get_rating(leaderboard: Leaderboard, raw: dict[str, Any]) -> Rating:
     return Rating(
         leaderboard=leaderboard,
         rating=raw["rating"],
@@ -95,35 +95,37 @@ def _rating(leaderboard: Leaderboard, raw: dict[str, Any]) -> Rating:
     )
 
 
-def _match(raw: dict[str, Any]) -> Match:
+def _get_match(raw: dict[str, Any]) -> Match:
     return Match(
         match_id=raw["matchId"],
         started=datetime.fromisoformat(raw["started"]),
-        finished=_datetime_or_none(raw.get("finished")),
-        leaderboard=_leaderboard_for(raw["leaderboardId"]),
+        finished=_get_datetime_or_none(raw.get("finished")),
+        leaderboard=_get_leaderboard(raw["leaderboardId"]),
         map_name=raw["mapName"],
-        players=number_teams_from_one(_match_player(player) for player in _all_players(raw)),
+        players=number_teams_from_one(
+            _get_match_player(player) for player in _get_all_players(raw)
+        ),
     )
 
 
-def _all_players(match: dict[str, Any]) -> Iterator[dict[str, Any]]:
+def _get_all_players(match: dict[str, Any]) -> Iterator[dict[str, Any]]:
     for team in match.get("teams", []):
         yield from team.get("players", [])
 
 
-def _match_player(raw: dict[str, Any]) -> MatchPlayer:
+def _get_match_player(raw: dict[str, Any]) -> MatchPlayer:
     return MatchPlayer(
         profile_id=raw["profileId"],
         name=raw["name"],
         team=raw["team"],
         civ=raw["civName"],
-        rating_after_match=_rating_after_match(raw),
+        rating_after_match=_get_rating_after_match(raw),
         rating_change=raw.get("ratingDiff"),
         won=raw.get("won"),
     )
 
 
-def _rating_after_match(raw: dict[str, Any]) -> int | None:
+def _get_rating_after_match(raw: dict[str, Any]) -> int | None:
     """aoe2companion reports the rating going into the match."""
     rating_before, change = raw.get("rating"), raw.get("ratingDiff")
     if rating_before is None or change is None:
@@ -131,10 +133,10 @@ def _rating_after_match(raw: dict[str, Any]) -> int | None:
     return rating_before + change
 
 
-def _datetime_or_none(value: str | None) -> datetime | None:
+def _get_datetime_or_none(value: str | None) -> datetime | None:
     return datetime.fromisoformat(value) if value else None
 
 
-def _leaderboard_for(leaderboard_id: str) -> Leaderboard:
+def _get_leaderboard(leaderboard_id: str) -> Leaderboard:
     """Leaderboards aoe2companion adds later become OTHER rather than an error."""
     return LEADERBOARDS_BY_ID.get(leaderboard_id, Leaderboard.OTHER)

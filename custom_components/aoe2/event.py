@@ -38,11 +38,11 @@ class Aoe2MatchFinishedEvent(Aoe2Entity, EventEntity):
     def _handle_match_finished(self, event: Event[MatchFinishedEvent]) -> None:
         if event.data["profile_id"] != self.coordinator.profile_id:
             return
-        self._trigger_event(_event_type_for(event.data["won"]), dict(event.data))
+        self._trigger_event(_get_event_type(event.data["won"]), dict(event.data))
         self.async_write_ha_state()
 
 
-def _event_type_for(won: bool | None) -> str:
+def _get_event_type(won: bool | None) -> str:
     match won:
         case True:
             return EVENT_WIN

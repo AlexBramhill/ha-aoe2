@@ -8,10 +8,10 @@ from homeassistant.helpers import entity_registry
 from custom_components.aoe2.api import AoeClientConnectionError, Leaderboard
 from custom_components.aoe2.coordinator import Aoe2Data
 from custom_components.aoe2.sensor import (
-    last_match_details,
-    last_match_result,
-    recent_rating_change,
-    recent_win_rate,
+    get_last_match_details,
+    get_last_match_result,
+    get_recent_rating_change,
+    get_recent_win_rate,
 )
 from tests.api.builders import MatchBuilder, ProfileBuilder, build_match_player, build_rating
 from tests.fake_client import FakeAoeClient
@@ -41,7 +41,7 @@ def test_last_match_result_is_from_newest_finished_match():
     data = data_with(MatchBuilder().with_match_id(3).unfinished(), LOST_MATCH, WON_MATCH)
 
     # When
-    result = last_match_result(data)
+    result = get_last_match_result(data)
 
     # Then
     assert result == "loss"
@@ -52,7 +52,7 @@ def test_last_match_result_is_unknown_without_finished_matches():
     data = data_with(MatchBuilder().unfinished())
 
     # When
-    result = last_match_result(data)
+    result = get_last_match_result(data)
 
     # Then
     assert result is None
@@ -68,7 +68,7 @@ def test_last_match_details_list_teammates_and_opponents():
     )
 
     # When
-    details = last_match_details(data_with(team_game))
+    details = get_last_match_details(data_with(team_game))
 
     # Then
     assert details["teammates"] == ["Ally"]
@@ -80,7 +80,7 @@ def test_recent_win_rate_counts_finished_matches():
     data = data_with(WON_MATCH, LOST_MATCH, MatchBuilder().with_match_id(3).unfinished())
 
     # When
-    win_rate = recent_win_rate(data)
+    win_rate = get_recent_win_rate(data)
 
     # Then
     assert win_rate == 50.0
@@ -91,7 +91,7 @@ def test_recent_win_rate_is_unknown_without_finished_matches():
     data = data_with(MatchBuilder().unfinished())
 
     # When
-    win_rate = recent_win_rate(data)
+    win_rate = get_recent_win_rate(data)
 
     # Then
     assert win_rate is None
@@ -102,7 +102,7 @@ def test_recent_rating_change_sums_finished_matches():
     data = data_with(WON_MATCH, LOST_MATCH)
 
     # When
-    change = recent_rating_change(data)
+    change = get_recent_rating_change(data)
 
     # Then
     assert change == 10 - 14

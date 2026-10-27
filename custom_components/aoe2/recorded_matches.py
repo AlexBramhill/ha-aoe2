@@ -31,10 +31,10 @@ class RecordedMatches:
         return stored is not None
 
     def __contains__(self, match_id: int) -> bool:
-        return match_id in self._loaded_match_ids()
+        return match_id in self._get_loaded_match_ids()
 
     async def async_record(self, match_ids: Iterable[int]) -> None:
-        recorded = self._loaded_match_ids()
+        recorded = self._get_loaded_match_ids()
         recorded.extend(match_id for match_id in match_ids if match_id not in recorded)
         del recorded[:-MAX_RECORDED_MATCHES]
         await self._store.async_save(StoredRecordedMatches(match_ids=recorded))
@@ -42,7 +42,7 @@ class RecordedMatches:
     async def async_remove(self) -> None:
         await self._store.async_remove()
 
-    def _loaded_match_ids(self) -> list[int]:
+    def _get_loaded_match_ids(self) -> list[int]:
         if self._match_ids is None:
             raise RuntimeError("Recorded matches used before async_load")
         return self._match_ids

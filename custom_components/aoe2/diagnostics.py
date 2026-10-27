@@ -22,18 +22,18 @@ async def async_get_config_entry_diagnostics(
             "coordinator": {
                 "last_update_success": coordinator.last_update_success,
                 "last_update_success_time": coordinator.last_update_success_time,
-                "update_interval_seconds": _seconds(coordinator.update_interval),
+                "update_interval_seconds": _get_seconds(coordinator.update_interval),
             },
-            "data": _as_json_data(asdict(coordinator.data)),
+            "data": _get_json_data(asdict(coordinator.data)),
         },
         IDENTIFYING_KEYS,
     )
 
 
-def _as_json_data(value: Any) -> Any:
+def _get_json_data(value: Any) -> Any:
     """Tuples become lists, so redaction reaches inside them."""
     return json.loads(json_dumps(value))
 
 
-def _seconds(interval: timedelta | None) -> float | None:
+def _get_seconds(interval: timedelta | None) -> float | None:
     return None if interval is None else interval.total_seconds()

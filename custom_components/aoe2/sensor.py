@@ -94,7 +94,7 @@ RATING_SENSORS: tuple[Aoe2RatingSensorEntityDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=1,
         entity_registry_enabled_default=False,
-        value_fn=lambda rating: _as_percentage(rating.win_rate),
+        value_fn=lambda rating: _get_percentage(rating.win_rate),
     ),
     Aoe2RatingSensorEntityDescription(
         key="streak",
@@ -112,27 +112,27 @@ RATING_SENSORS: tuple[Aoe2RatingSensorEntityDescription, ...] = (
 )
 
 
-def last_match_result(data: Aoe2Data) -> str | None:
-    return _from_last_match(data, lambda match: _result(data.player_in(match)))
+def get_last_match_result(data: Aoe2Data) -> str | None:
+    return _get_from_last_match(data, lambda match: _get_result(data.player_in(match)))
 
 
-def last_match_rating_change(data: Aoe2Data) -> int | None:
-    return _from_last_match(data, lambda match: data.player_in(match).rating_change)
+def get_last_match_rating_change(data: Aoe2Data) -> int | None:
+    return _get_from_last_match(data, lambda match: data.player_in(match).rating_change)
 
 
-def last_played(data: Aoe2Data) -> datetime | None:
-    return _from_last_match(data, lambda match: match.finished)
+def get_last_played(data: Aoe2Data) -> datetime | None:
+    return _get_from_last_match(data, lambda match: match.finished)
 
 
-def last_match_map(data: Aoe2Data) -> str | None:
-    return _from_last_match(data, lambda match: match.map_name)
+def get_last_match_map(data: Aoe2Data) -> str | None:
+    return _get_from_last_match(data, lambda match: match.map_name)
 
 
-def last_match_civ(data: Aoe2Data) -> str | None:
-    return _from_last_match(data, lambda match: data.player_in(match).civ)
+def get_last_match_civ(data: Aoe2Data) -> str | None:
+    return _get_from_last_match(data, lambda match: data.player_in(match).civ)
 
 
-def last_match_details(data: Aoe2Data) -> dict[str, Any]:
+def get_last_match_details(data: Aoe2Data) -> dict[str, Any]:
     match = data.last_finished_match()
     if match is None:
         return {}
@@ -142,20 +142,20 @@ def last_match_details(data: Aoe2Data) -> dict[str, Any]:
         "map": match.map_name,
         "civ": player.civ,
         "rating_after_match": player.rating_after_match,
-        "teammates": _teammates_of(match, player),
-        "opponents": _opponents_of(match, player),
+        "teammates": _get_teammates(match, player),
+        "opponents": _get_opponents(match, player),
     }
 
 
-def recent_win_rate(data: Aoe2Data) -> float | None:
+def get_recent_win_rate(data: Aoe2Data) -> float | None:
     results = [data.player_in(match).won for match in data.finished_matches()]
     known_results = [won for won in results if won is not None]
     if not known_results:
         return None
-    return _as_percentage(known_results.count(True) / len(known_results))
+    return _get_percentage(known_results.count(True) / len(known_results))
 
 
-def recent_rating_change(data: Aoe2Data) -> int | None:
+def get_recent_rating_change(data: Aoe2Data) -> int | None:
     changes = [data.player_in(match).rating_change for match in data.finished_matches()]
     known_changes = [change for change in changes if change is not None]
     return sum(known_changes) if known_changes else None
@@ -167,31 +167,31 @@ PLAYER_SENSORS: tuple[Aoe2PlayerSensorEntityDescription, ...] = (
         translation_key="last_match_result",
         device_class=SensorDeviceClass.ENUM,
         options=[RESULT_WIN, RESULT_LOSS],
-        value_fn=last_match_result,
-        attributes_fn=last_match_details,
+        value_fn=get_last_match_result,
+        attributes_fn=get_last_match_details,
     ),
     Aoe2PlayerSensorEntityDescription(
         key="last_match_rating_change",
         translation_key="last_match_rating_change",
-        value_fn=last_match_rating_change,
+        value_fn=get_last_match_rating_change,
     ),
     Aoe2PlayerSensorEntityDescription(
         key="last_played",
         translation_key="last_played",
         device_class=SensorDeviceClass.TIMESTAMP,
-        value_fn=last_played,
+        value_fn=get_last_played,
     ),
     Aoe2PlayerSensorEntityDescription(
         key="last_match_map",
         translation_key="last_match_map",
         entity_registry_enabled_default=False,
-        value_fn=last_match_map,
+        value_fn=get_last_match_map,
     ),
     Aoe2PlayerSensorEntityDescription(
         key="last_match_civ",
         translation_key="last_match_civ",
         entity_registry_enabled_default=False,
-        value_fn=last_match_civ,
+        value_fn=get_last_match_civ,
     ),
     Aoe2PlayerSensorEntityDescription(
         key="recent_win_rate",
@@ -199,13 +199,13 @@ PLAYER_SENSORS: tuple[Aoe2PlayerSensorEntityDescription, ...] = (
         native_unit_of_measurement=PERCENTAGE,
         suggested_display_precision=0,
         entity_registry_enabled_default=False,
-        value_fn=recent_win_rate,
+        value_fn=get_recent_win_rate,
     ),
     Aoe2PlayerSensorEntityDescription(
         key="recent_rating_change",
         translation_key="recent_rating_change",
         entity_registry_enabled_default=False,
-        value_fn=recent_rating_change,
+        value_fn=get_recent_rating_change,
     ),
 )
 
@@ -289,11 +289,11 @@ class RatingSensorsPerLeaderboard:
 
     @callback
     def add_for_new_leaderboards(self) -> None:
-        new_leaderboards = self._leaderboards_without_sensors()
+        new_leaderboards = self._get_leaderboards_without_sensors()
         self._leaderboards_with_sensors.update(new_leaderboards)
-        self._async_add_entities(self._sensors_for(new_leaderboards))
+        self._async_add_entities(self._get_sensors_for(new_leaderboards))
 
-    def _leaderboards_without_sensors(self) -> list[Leaderboard]:
+    def _get_leaderboards_without_sensors(self) -> list[Leaderboard]:
         return [
             rating.leaderboard
             for rating in self._coordinator.data.profile.ratings
@@ -301,7 +301,7 @@ class RatingSensorsPerLeaderboard:
             and rating.leaderboard not in self._leaderboards_with_sensors
         ]
 
-    def _sensors_for(self, leaderboards: list[Leaderboard]) -> list[Aoe2RatingSensor]:
+    def _get_sensors_for(self, leaderboards: list[Leaderboard]) -> list[Aoe2RatingSensor]:
         return [
             Aoe2RatingSensor(self._coordinator, description, leaderboard)
             for leaderboard in leaderboards
@@ -309,18 +309,18 @@ class RatingSensorsPerLeaderboard:
         ]
 
 
-def _from_last_match[Value](data: Aoe2Data, value_of: Callable[[Match], Value]) -> Value | None:
+def _get_from_last_match[Value](data: Aoe2Data, value_of: Callable[[Match], Value]) -> Value | None:
     match = data.last_finished_match()
     return None if match is None else value_of(match)
 
 
-def _result(player: MatchPlayer) -> str | None:
+def _get_result(player: MatchPlayer) -> str | None:
     if player.won is None:
         return None
     return RESULT_WIN if player.won else RESULT_LOSS
 
 
-def _teammates_of(match: Match, player: MatchPlayer) -> list[str]:
+def _get_teammates(match: Match, player: MatchPlayer) -> list[str]:
     return [
         other.name
         for other in match.players
@@ -328,9 +328,9 @@ def _teammates_of(match: Match, player: MatchPlayer) -> list[str]:
     ]
 
 
-def _opponents_of(match: Match, player: MatchPlayer) -> list[str]:
+def _get_opponents(match: Match, player: MatchPlayer) -> list[str]:
     return [other.name for other in match.players if other.team != player.team]
 
 
-def _as_percentage(fraction: float | None) -> float | None:
+def _get_percentage(fraction: float | None) -> float | None:
     return None if fraction is None else round(fraction * 100, 1)
