@@ -8,7 +8,6 @@ from homeassistant.config_entries import (
     OptionsFlowWithReload,
 )
 from homeassistant.core import callback
-from homeassistant.helpers import device_registry
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.selector import (
     NumberSelector,
@@ -16,6 +15,7 @@ from homeassistant.helpers.selector import (
     NumberSelectorMode,
 )
 
+from . import async_forget_player
 from .api import (
     AoeClient,
     AoeClientError,
@@ -35,7 +35,6 @@ from .const import (
     MIN_IN_MATCH_UPDATE_MINUTES,
     MIN_UPDATE_MINUTES,
 )
-from .recorded_matches import RecordedMatches
 from .user_agent import async_user_agent
 
 FORM_ERROR = "base"
@@ -105,7 +104,7 @@ class Aoe2ConfigFlow(ConfigFlow, domain=DOMAIN):
         match await _get_profile_or_form_errors(client, profile_id):
             case Profile() as profile:
                 if is_new_player:
-                    await self._forget_previous_player(entry)
+                    await async_forget_player(self.hass, entry)
                 return self._update_player_entry(entry, profile_id, profile.name)
             case errors:
                 return self._show_profile_form("reconfigure", client, user_input, errors)
@@ -119,13 +118,6 @@ class Aoe2ConfigFlow(ConfigFlow, domain=DOMAIN):
             title=player_name,
             data={CONF_CLIENT: DEFAULT_CLIENT, CONF_PROFILE_ID: profile_id},
         )
-
-    async def _forget_previous_player(self, entry: ConfigEntry) -> None:
-        await RecordedMatches(self.hass, entry.entry_id).async_remove()
-        devices = device_registry.async_get(self.hass)
-        previous_player = (DOMAIN, str(entry.data[CONF_PROFILE_ID]))
-        if device := devices.async_get_device_by_identifier(previous_player, entry.entry_id):
-            devices.async_update_device(device.id, remove_config_entry_id=entry.entry_id)
 
     async def _get_client(self) -> AoeClient:
         return create_client(
