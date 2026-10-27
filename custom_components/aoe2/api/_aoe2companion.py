@@ -4,7 +4,7 @@ from typing import Any
 
 import aiohttp
 
-from ._http import get_json
+from ._http import BACKGROUND_REQUESTS, RequestPolicy, get_json
 from ._parsing import number_teams_from_one, response_parser
 from .models import Leaderboard, Match, MatchPlayer, Profile, Rating
 
@@ -31,9 +31,15 @@ LEADERBOARDS_BY_ID: dict[str, Leaderboard] = {
 
 
 class Aoe2CompanionClient:
-    def __init__(self, session: aiohttp.ClientSession, user_agent: str) -> None:
+    def __init__(
+        self,
+        session: aiohttp.ClientSession,
+        user_agent: str,
+        policy: RequestPolicy = BACKGROUND_REQUESTS,
+    ) -> None:
         self._session = session
         self._user_agent = user_agent
+        self._policy = policy
 
     @property
     def attribution(self) -> str:
@@ -56,7 +62,11 @@ class Aoe2CompanionClient:
 
     async def _get(self, path: str, **params: Any) -> dict[str, Any]:
         return await get_json(
-            self._session, f"{BASE_URL}/{path}", params, user_agent=self._user_agent
+            self._session,
+            f"{BASE_URL}/{path}",
+            params,
+            user_agent=self._user_agent,
+            policy=self._policy,
         )
 
 

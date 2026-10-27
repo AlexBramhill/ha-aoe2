@@ -16,6 +16,7 @@ from homeassistant.helpers.selector import (
 )
 
 from .api import (
+    INTERACTIVE_REQUESTS,
     AoeClient,
     AoeClientError,
     AoeClientNotFoundError,
@@ -123,7 +124,10 @@ class Aoe2ConfigFlow(ConfigFlow, domain=DOMAIN):
 
     async def _get_client(self) -> AoeClient:
         return create_client(
-            DEFAULT_CLIENT, async_get_clientsession(self.hass), await async_user_agent(self.hass)
+            DEFAULT_CLIENT,
+            async_get_clientsession(self.hass),
+            await async_user_agent(self.hass),
+            INTERACTIVE_REQUESTS,
         )
 
     def _show_profile_form(

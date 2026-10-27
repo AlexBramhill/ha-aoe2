@@ -11,11 +11,13 @@ from homeassistant.helpers import device_registry, entity_registry
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.aoe2.api import (
+    INTERACTIVE_REQUESTS,
     AoeClientConnectionError,
     AoeClientError,
     AoeClientNotFoundError,
     AoeClientRateLimitError,
     AoeClientResponseError,
+    RequestPolicy,
 )
 from custom_components.aoe2.config_flow import (
     ERROR_CANNOT_CONNECT,
@@ -121,6 +123,21 @@ async def test_client_error_shows_form_with_error(
     # Then
     assert result.get("type") is FlowResultType.FORM
     assert result.get("errors") == expected_errors
+
+
+@pytest.mark.usefixtures("created_client_names")
+async def test_add_player_checks_profile_without_retrying(
+    hass: HomeAssistant, created_client_policies: list[RequestPolicy]
+):
+    # Given
+    flow_id = await start_flow(hass)
+
+    # When
+    await submit_profile_id(hass, flow_id)
+
+    # Then
+    showing_form, checking_profile, *_setting_up_entry = created_client_policies
+    assert showing_form == checking_profile == INTERACTIVE_REQUESTS
 
 
 @pytest.mark.usefixtures("created_client_names")
@@ -300,6 +317,25 @@ async def test_reconfigure_to_same_player_keeps_entities(hass: HomeAssistant):
     assert result.get("type") is FlowResultType.ABORT
     assert result.get("reason") == "reconfigure_successful"
     assert state_of(hass, Platform.SENSOR, "last_updated") is not None
+
+
+@pytest.mark.usefixtures("created_client_names")
+async def test_reconfigure_checks_profile_without_retrying(
+    hass: HomeAssistant, created_client_policies: list[RequestPolicy]
+):
+    # Given
+    entry = await set_up_integration(hass)
+    created_client_policies.clear()
+    flow_id = await start_reconfigure_flow(hass, entry)
+
+    # When
+    await hass.config_entries.flow.async_configure(
+        flow_id, user_input={CONF_PROFILE_ID: SET_UP_PROFILE_ID}
+    )
+
+    # Then
+    showing_form, checking_profile, *_reloading_entry = created_client_policies
+    assert showing_form == checking_profile == INTERACTIVE_REQUESTS
 
 
 @pytest.mark.usefixtures("created_client_names")

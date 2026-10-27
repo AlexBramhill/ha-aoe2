@@ -1,6 +1,13 @@
 import pytest
 
-from custom_components.aoe2.api import AoeClientResponseError, Leaderboard, _aoe2companion
+from custom_components.aoe2.api import (
+    BACKGROUND_REQUESTS,
+    INTERACTIVE_REQUESTS,
+    AoeClientResponseError,
+    Leaderboard,
+    RequestPolicy,
+    _aoe2companion,
+)
 from custom_components.aoe2.api._aoe2companion import (
     LEADERBOARDS_BY_ID,
     Aoe2CompanionClient,
@@ -181,7 +188,7 @@ async def test_requests_send_the_client_user_agent(monkeypatch: pytest.MonkeyPat
     # Given
     sent_user_agents: list[str] = []
 
-    async def recording_get_json(*_args: object, user_agent: str) -> Body:
+    async def recording_get_json(*_args: object, user_agent: str, **_options: object) -> Body:
         sent_user_agents.append(user_agent)
         return {"profileId": VIPER.profile_id, "name": "Viper", "leaderboards": []}
 
@@ -193,3 +200,34 @@ async def test_requests_send_the_client_user_agent(monkeypatch: pytest.MonkeyPat
 
     # Then
     assert sent_user_agents == [TEST_USER_AGENT]
+
+
+@pytest.mark.parametrize(
+    ("given_policy", "expected_policy"),
+    [(None, BACKGROUND_REQUESTS), (INTERACTIVE_REQUESTS, INTERACTIVE_REQUESTS)],
+    ids=["default", "interactive"],
+)
+async def test_requests_use_the_client_policy(
+    monkeypatch: pytest.MonkeyPatch,
+    given_policy: RequestPolicy | None,
+    expected_policy: RequestPolicy,
+):
+    # Given
+    sent_policies: list[RequestPolicy] = []
+
+    async def recording_get_json(*_args: object, policy: RequestPolicy, **_options: object) -> Body:
+        sent_policies.append(policy)
+        return {"profileId": VIPER.profile_id, "name": "Viper", "leaderboards": []}
+
+    monkeypatch.setattr(_aoe2companion, "get_json", recording_get_json)
+    client = (
+        Aoe2CompanionClient(UNUSED_SESSION, TEST_USER_AGENT)
+        if given_policy is None
+        else Aoe2CompanionClient(UNUSED_SESSION, TEST_USER_AGENT, given_policy)
+    )
+
+    # When
+    await client.get_profile(VIPER.profile_id)
+
+    # Then
+    assert sent_policies == [expected_policy]

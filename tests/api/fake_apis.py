@@ -6,6 +6,7 @@ from typing import Any, Self
 from custom_components.aoe2.api import (
     AoeClientNotFoundError,
     ClientName,
+    RequestPolicy,
     _aoe2companion,
 )
 from tests.api.api_json import Body
@@ -48,7 +49,13 @@ class FakeApi:
         return replace(self, responses_by_path={**self.responses_by_path, path: body})
 
     async def get_json(
-        self, _session: Any, url: str, params: Params | None = None, *, user_agent: str
+        self,
+        _session: Any,
+        url: str,
+        params: Params | None = None,
+        *,
+        user_agent: str,
+        policy: RequestPolicy,
     ) -> Body:
         path = url.removeprefix(f"{self.module.BASE_URL}/")
         if path not in self.responses_by_path:

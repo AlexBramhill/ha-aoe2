@@ -5,7 +5,12 @@ from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry
 
-from custom_components.aoe2.api import AoeClientConnectionError, ClientName
+from custom_components.aoe2.api import (
+    BACKGROUND_REQUESTS,
+    AoeClientConnectionError,
+    ClientName,
+    RequestPolicy,
+)
 from custom_components.aoe2.const import DOMAIN
 from custom_components.aoe2.coordinator import Aoe2Coordinator
 from tests.fake_client import FakeAoeClient
@@ -28,6 +33,20 @@ async def test_setup_uses_configured_client(
     assert entry.state is ConfigEntryState.LOADED
     assert created_client_names == [client_name]
     assert isinstance(entry.runtime_data, Aoe2Coordinator)
+
+
+@pytest.mark.usefixtures("created_client_names")
+async def test_setup_polls_with_retries(
+    hass: HomeAssistant, created_client_policies: list[RequestPolicy]
+):
+    # Given
+    entry = config_entry_for("aoe2companion")
+
+    # When
+    await set_up(hass, entry)
+
+    # Then
+    assert created_client_policies == [BACKGROUND_REQUESTS]
 
 
 @pytest.mark.usefixtures("created_client_names")

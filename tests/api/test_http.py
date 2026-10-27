@@ -14,8 +14,10 @@ from custom_components.aoe2.api import (
     _backoff,
 )
 from custom_components.aoe2.api._http import (
+    BACKGROUND_REQUESTS,
+    INTERACTIVE_REQUESTS,
     LONGEST_RETRY_WAIT_SECONDS,
-    MAX_RETRIES,
+    RequestPolicy,
     _raise_for_status,
     get_json,
 )
@@ -40,10 +42,12 @@ class FakeJsonResponse(FakeResponse):
 @dataclass
 class RecordingSession:
     sent_headers: list[dict[str, str]] = field(default_factory=list)
+    sent_timeouts: list[aiohttp.ClientTimeout] = field(default_factory=list)
 
     @asynccontextmanager
     async def get(self, url: str, **kwargs: Any) -> AsyncIterator[FakeJsonResponse]:
         self.sent_headers.append(kwargs.get("headers", {}))
+        self.sent_timeouts.append(kwargs["timeout"])
         yield FakeJsonResponse(status=200, url=url, body={"ok": True})
 
 
@@ -70,9 +74,14 @@ def no_backoff_sleep(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(_backoff.asyncio, "sleep", skip_sleep)
 
 
-async def get_from(session: FlakySession) -> dict[str, Any]:
+async def get_from(
+    session: FlakySession | RecordingSession, policy: RequestPolicy = BACKGROUND_REQUESTS
+) -> dict[str, Any]:
     return await get_json(
-        cast(aiohttp.ClientSession, session), "https://example.test/api", user_agent=TEST_USER_AGENT
+        cast(aiohttp.ClientSession, session),
+        "https://example.test/api",
+        user_agent=TEST_USER_AGENT,
+        policy=policy,
     )
 
 
@@ -155,25 +164,48 @@ async def test_requests_send_the_given_user_agent():
     session = RecordingSession()
 
     # When
-    await get_json(
-        cast(aiohttp.ClientSession, session), "https://example.test/api", user_agent=TEST_USER_AGENT
-    )
+    await get_from(session)
 
     # Then
     assert session.sent_headers == [{"User-Agent": TEST_USER_AGENT}]
 
 
+@pytest.mark.parametrize("policy", [BACKGROUND_REQUESTS, INTERACTIVE_REQUESTS])
+async def test_requests_use_the_policy_timeout(policy: RequestPolicy):
+    # Given
+    session = RecordingSession()
+
+    # When
+    await get_from(session, policy)
+
+    # Then
+    assert session.sent_timeouts == [aiohttp.ClientTimeout(total=policy.timeout_seconds)]
+
+
 @pytest.mark.usefixtures("no_backoff_sleep")
 async def test_server_errors_are_retried_until_success():
     # Given
-    session = FlakySession(statuses=[503] * MAX_RETRIES)
+    session = FlakySession(statuses=[503] * BACKGROUND_REQUESTS.max_retries)
 
     # When
     body = await get_from(session)
 
     # Then
     assert body == {"ok": True}
-    assert session.attempts == MAX_RETRIES + 1
+    assert session.attempts == BACKGROUND_REQUESTS.max_retries + 1
+
+
+@pytest.mark.usefixtures("no_backoff_sleep")
+async def test_interactive_requests_fail_on_first_server_error():
+    # Given
+    session = FlakySession(statuses=[503])
+
+    # When
+    with pytest.raises(AoeClientConnectionError):
+        await get_from(session, INTERACTIVE_REQUESTS)
+
+    # Then
+    assert session.attempts == 1
 
 
 @pytest.mark.parametrize(

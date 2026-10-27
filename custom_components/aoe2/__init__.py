@@ -3,7 +3,7 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import device_registry
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from .api import create_client
+from .api import BACKGROUND_REQUESTS, create_client
 from .const import CONF_CLIENT, CONF_PROFILE_ID, DOMAIN
 from .coordinator import Aoe2ConfigEntry, Aoe2Coordinator
 from .recorded_matches import RecordedMatches
@@ -14,7 +14,10 @@ PLATFORMS: list[Platform] = [Platform.BINARY_SENSOR, Platform.EVENT, Platform.SE
 
 async def async_setup_entry(hass: HomeAssistant, entry: Aoe2ConfigEntry) -> bool:
     client = create_client(
-        entry.data[CONF_CLIENT], async_get_clientsession(hass), await async_user_agent(hass)
+        entry.data[CONF_CLIENT],
+        async_get_clientsession(hass),
+        await async_user_agent(hass),
+        BACKGROUND_REQUESTS,
     )
     coordinator = Aoe2Coordinator(hass, entry, client)
     await coordinator.async_config_entry_first_refresh()
