@@ -24,7 +24,7 @@ asyncio_mode = "auto"
 line-length = 100
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "B", "UP", "SIM", "RUF"]
+select = ["E", "F", "I", "B", "UP", "SIM", "RUF", "ASYNC", "PT", "C4", "RET", "PIE"]
 
 [tool.pyright]
 include = ["custom_components", "scripts", "tests"]

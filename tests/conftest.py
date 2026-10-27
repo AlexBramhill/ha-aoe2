@@ -1,5 +1,3 @@
-from collections.abc import Iterator
-
 import pytest
 
 from custom_components.aoe2.api import AoeClient, ClientName
@@ -9,8 +7,8 @@ MODULES_CREATING_CLIENTS = ["custom_components.aoe2", "custom_components.aoe2.co
 
 
 @pytest.fixture(autouse=True)
-def auto_enable_custom_integrations(enable_custom_integrations: None) -> Iterator[None]:
-    yield
+def auto_enable_custom_integrations(enable_custom_integrations: None) -> None:
+    return
 
 
 @pytest.fixture
