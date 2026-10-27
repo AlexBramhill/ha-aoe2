@@ -124,6 +124,23 @@ async def test_client_error_shows_form_with_error(
 
 
 @pytest.mark.usefixtures("created_client_names")
+async def test_unexpected_client_error_is_logged_with_traceback(
+    hass: HomeAssistant, fake_client: FakeAoeClient, caplog: pytest.LogCaptureFixture
+):
+    # Given
+    fake_client.error = AoeClientResponseError("unexpected")
+    flow_id = await start_flow(hass)
+
+    # When
+    await submit_profile_id(hass, flow_id)
+
+    # Then
+    (record,) = [r for r in caplog.records if r.message == "Unexpected error checking profile"]
+    assert record.exc_info is not None
+    assert record.exc_info[1] is fake_client.error
+
+
+@pytest.mark.usefixtures("created_client_names")
 async def test_form_can_be_resubmitted_after_error(hass: HomeAssistant, fake_client: FakeAoeClient):
     # Given
     fake_client.error = AoeClientConnectionError("unreachable")

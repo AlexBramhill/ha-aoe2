@@ -173,16 +173,10 @@ async def _get_profile_or_form_errors(
 ) -> Profile | dict[str, str]:
     try:
         return await client.get_profile(profile_id)
-    except AoeClientError as error:
-        return _get_form_errors(error)
-
-
-def _get_form_errors(error: AoeClientError) -> dict[str, str]:
-    match error:
-        case AoeClientNotFoundError():
-            return {CONF_PROFILE_ID: ERROR_PLAYER_NOT_FOUND}
-        case AoeClientRetryError():
-            return {FORM_ERROR: ERROR_CANNOT_CONNECT}
-        case _:
-            LOGGER.exception("Unexpected error checking profile")
-            return {FORM_ERROR: ERROR_UNKNOWN}
+    except AoeClientNotFoundError:
+        return {CONF_PROFILE_ID: ERROR_PLAYER_NOT_FOUND}
+    except AoeClientRetryError:
+        return {FORM_ERROR: ERROR_CANNOT_CONNECT}
+    except AoeClientError:
+        LOGGER.exception("Unexpected error checking profile")
+        return {FORM_ERROR: ERROR_UNKNOWN}
