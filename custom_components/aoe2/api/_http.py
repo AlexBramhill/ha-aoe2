@@ -12,6 +12,7 @@ from .errors import (
     AoeClientNotFoundError,
     AoeClientRateLimitError,
     AoeClientResponseError,
+    AoeClientRetryError,
 )
 
 FIRST_RETRY_DELAY_SECONDS = 1.0
@@ -39,7 +40,7 @@ async def get_json(
     request_timeout = aiohttp.ClientTimeout(total=policy.timeout_seconds)
     return await with_exponential_backoff(
         lambda: _request_json(session, url, params, user_agent, request_timeout),
-        retry_on=AoeClientConnectionError,
+        retry_on=AoeClientRetryError,
         max_retries=policy.max_retries,
         first_delay_seconds=FIRST_RETRY_DELAY_SECONDS,
         get_requested_delay=lambda error: error.retry_after,

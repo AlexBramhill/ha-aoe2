@@ -182,10 +182,11 @@ async def test_requests_use_the_policy_timeout(policy: RequestPolicy):
     assert session.sent_timeouts == [aiohttp.ClientTimeout(total=policy.timeout_seconds)]
 
 
+@pytest.mark.parametrize("status", [429, 503])
 @pytest.mark.usefixtures("no_backoff_sleep")
-async def test_server_errors_are_retried_until_success():
+async def test_transient_errors_are_retried_until_success(status: int):
     # Given
-    session = FlakySession(statuses=[503] * BACKGROUND_REQUESTS.max_retries)
+    session = FlakySession(statuses=[status] * BACKGROUND_REQUESTS.max_retries)
 
     # When
     body = await get_from(session)
@@ -213,7 +214,6 @@ async def test_interactive_requests_fail_on_first_server_error():
     [
         (404, AoeClientNotFoundError),
         (400, AoeClientResponseError),
-        (429, AoeClientRateLimitError),
     ],
 )
 @pytest.mark.usefixtures("no_backoff_sleep")
@@ -229,14 +229,38 @@ async def test_non_transient_failure_is_not_retried(status: int, expected_error:
     assert session.attempts == 1
 
 
-@pytest.mark.usefixtures("no_backoff_sleep")
-async def test_long_retry_after_is_left_to_the_caller():
+async def test_rate_limited_request_waits_for_retry_after(monkeypatch: pytest.MonkeyPatch):
     # Given
-    retry_after = LONGEST_RETRY_WAIT_SECONDS + 1
-    session = FlakySession(statuses=[503], headers={"Retry-After": str(retry_after)})
+    waits: list[float] = []
+
+    async def record_sleep(delay: float) -> None:
+        waits.append(delay)
+
+    monkeypatch.setattr(_backoff.asyncio, "sleep", record_sleep)
+    session = FlakySession(statuses=[429], headers={"Retry-After": "3"})
 
     # When
-    with pytest.raises(AoeClientConnectionError) as raised:
+    body = await get_from(session)
+
+    # Then
+    assert body == {"ok": True}
+    assert waits == [3]
+
+
+@pytest.mark.parametrize(
+    ("status", "expected_error"),
+    [(429, AoeClientRateLimitError), (503, AoeClientConnectionError)],
+)
+@pytest.mark.usefixtures("no_backoff_sleep")
+async def test_long_retry_after_is_left_to_the_caller(
+    status: int, expected_error: type[AoeClientRateLimitError | AoeClientConnectionError]
+):
+    # Given
+    retry_after = LONGEST_RETRY_WAIT_SECONDS + 1
+    session = FlakySession(statuses=[status], headers={"Retry-After": str(retry_after)})
+
+    # When
+    with pytest.raises(expected_error) as raised:
         await get_from(session)
 
     # Then
