@@ -1,6 +1,5 @@
-from collections.abc import AsyncIterator, Awaitable, Callable
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from functools import partial
 from http import HTTPStatus
 from typing import Any
 
@@ -17,6 +16,7 @@ from .errors import (
 REQUEST_TIMEOUT = aiohttp.ClientTimeout(total=15)
 MAX_RETRIES = 2
 FIRST_RETRY_DELAY_SECONDS = 1.0
+LONGEST_RETRY_WAIT_SECONDS = 10
 
 
 async def get_json(
@@ -26,19 +26,13 @@ async def get_json(
     *,
     user_agent: str,
 ) -> dict[str, Any]:
-    request = partial(_request_json, session, url, params, user_agent)
-    return await _retry_transient_failures(request)
-
-
-async def _retry_transient_failures(
-    request: Callable[[], Awaitable[dict[str, Any]]],
-) -> dict[str, Any]:
-    """Rate limits aren't retried here; the coordinator honours their Retry-After."""
     return await with_exponential_backoff(
-        request,
+        lambda: _request_json(session, url, params, user_agent),
         retry_on=AoeClientConnectionError,
         max_retries=MAX_RETRIES,
         first_delay_seconds=FIRST_RETRY_DELAY_SECONDS,
+        get_requested_delay=lambda error: error.retry_after,
+        longest_wait_seconds=LONGEST_RETRY_WAIT_SECONDS,
     )
 
 
@@ -72,8 +66,9 @@ def _raise_for_status(response: aiohttp.ClientResponse) -> None:
         case HTTPStatus.NOT_FOUND:
             raise AoeClientNotFoundError(url)
         case HTTPStatus.TOO_MANY_REQUESTS:
-            retry_after = _parse_retry_after(response.headers.get("Retry-After"))
-            raise AoeClientRateLimitError(f"{url} rate limited", retry_after)
+            raise AoeClientRateLimitError(f"{url} rate limited", _get_retry_after(response))
+        case HTTPStatus.SERVICE_UNAVAILABLE:
+            raise AoeClientConnectionError(f"{url} is unavailable", _get_retry_after(response))
         case status if status >= HTTPStatus.INTERNAL_SERVER_ERROR:
             raise AoeClientConnectionError(f"{url} returned HTTP {status}")
         case status:
@@ -93,6 +88,6 @@ def _ensure_object(url: str, body: Any) -> dict[str, Any]:
     return body
 
 
-def _parse_retry_after(value: str | None) -> int | None:
-    """Only the delta-seconds form; the rarely used HTTP-date form is ignored."""
-    return int(value) if value and value.isdigit() else None
+def _get_retry_after(response: aiohttp.ClientResponse) -> int | None:
+    value = response.headers.get("Retry-After", "")
+    return int(value) if value.isdecimal() else None

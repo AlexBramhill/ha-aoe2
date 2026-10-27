@@ -13,7 +13,12 @@ from custom_components.aoe2.api import (
     AoeClientResponseError,
     _backoff,
 )
-from custom_components.aoe2.api._http import MAX_RETRIES, _raise_for_status, get_json
+from custom_components.aoe2.api._http import (
+    LONGEST_RETRY_WAIT_SECONDS,
+    MAX_RETRIES,
+    _raise_for_status,
+    get_json,
+)
 from tests.api.helpers import TEST_USER_AGENT
 
 
@@ -47,13 +52,14 @@ class FlakySession:
     """Answers with the given statuses in order, then 200 once they run out."""
 
     statuses: list[int]
+    headers: dict[str, str] = field(default_factory=dict)
     attempts: int = 0
 
     @asynccontextmanager
     async def get(self, url: str, **kwargs: Any) -> AsyncIterator[FakeJsonResponse]:
         status = self.statuses[self.attempts] if self.attempts < len(self.statuses) else 200
         self.attempts += 1
-        yield FakeJsonResponse(status=status, url=url, body={"ok": True})
+        yield FakeJsonResponse(status=status, headers=self.headers, url=url, body={"ok": True})
 
 
 @pytest.fixture
@@ -75,9 +81,9 @@ def fake_response(status: int, headers: dict[str, str] | None = None) -> aiohttp
     return cast(aiohttp.ClientResponse, FakeResponse(status, headers or {}))
 
 
-def rate_limited_response(retry_after: str | None) -> aiohttp.ClientResponse:
+def response_with_retry_after(status: int, retry_after: str | None) -> aiohttp.ClientResponse:
     headers = {"Retry-After": retry_after} if retry_after else {}
-    return fake_response(429, headers)
+    return fake_response(status, headers)
 
 
 def test_success_status_does_not_raise():
@@ -107,21 +113,41 @@ def test_error_status_raises(status: int, expected_error: type[Exception]):
 
 
 @pytest.mark.parametrize(
-    ("retry_after_header", "retry_after_seconds"),
-    [("30", 30), (None, None), ("Wed, 21 Oct 2026 07:28:00 GMT", None)],
+    ("status", "expected_error"),
+    [(429, AoeClientRateLimitError), (503, AoeClientConnectionError)],
 )
-def test_rate_limit_reads_retry_after(
-    retry_after_header: str | None, retry_after_seconds: int | None
+@pytest.mark.parametrize(
+    ("retry_after_header", "retry_after_seconds"),
+    [("30", 30), (None, None), ("Wed, 21 Oct 2026 07:28:00 GMT", None), ("²", None)],
+)
+def test_error_reads_retry_after(
+    status: int,
+    expected_error: type[AoeClientRateLimitError | AoeClientConnectionError],
+    retry_after_header: str | None,
+    retry_after_seconds: int | None,
 ):
     # Given
-    response = rate_limited_response(retry_after_header)
+    response = response_with_retry_after(status, retry_after_header)
 
     # When
-    with pytest.raises(AoeClientRateLimitError) as raised:
+    with pytest.raises(expected_error) as raised:
         _raise_for_status(response)
 
     # Then
     assert raised.value.retry_after == retry_after_seconds
+
+
+@pytest.mark.parametrize("status", [500, 502, 504])
+def test_other_server_errors_ignore_retry_after(status: int):
+    # Given
+    response = response_with_retry_after(status, "30")
+
+    # When
+    with pytest.raises(AoeClientConnectionError) as raised:
+        _raise_for_status(response)
+
+    # Then
+    assert raised.value.retry_after is None
 
 
 async def test_requests_send_the_given_user_agent():
@@ -169,3 +195,18 @@ async def test_non_transient_failure_is_not_retried(status: int, expected_error:
 
     # Then
     assert session.attempts == 1
+
+
+@pytest.mark.usefixtures("no_backoff_sleep")
+async def test_long_retry_after_is_left_to_the_caller():
+    # Given
+    retry_after = LONGEST_RETRY_WAIT_SECONDS + 1
+    session = FlakySession(statuses=[503], headers={"Retry-After": str(retry_after)})
+
+    # When
+    with pytest.raises(AoeClientConnectionError) as raised:
+        await get_from(session)
+
+    # Then
+    assert session.attempts == 1
+    assert raised.value.retry_after == retry_after

@@ -17,10 +17,9 @@ from homeassistant.helpers.selector import (
 
 from .api import (
     AoeClient,
-    AoeClientConnectionError,
     AoeClientError,
     AoeClientNotFoundError,
-    AoeClientRateLimitError,
+    AoeClientRetryError,
     create_client,
 )
 from .const import (
@@ -136,7 +135,7 @@ def _form_errors_for(error: AoeClientError) -> dict[str, str]:
     match error:
         case AoeClientNotFoundError():
             return {CONF_PROFILE_ID: ERROR_PLAYER_NOT_FOUND}
-        case AoeClientConnectionError() | AoeClientRateLimitError():
+        case AoeClientRetryError():
             return {FORM_ERROR: ERROR_CANNOT_CONNECT}
         case _:
             LOGGER.exception("Unexpected error checking profile")

@@ -11,7 +11,7 @@ from homeassistant.helpers.update_coordinator import TimestampDataUpdateCoordina
 from .api import (
     AoeClient,
     AoeClientError,
-    AoeClientRateLimitError,
+    AoeClientRetryError,
     Leaderboard,
     Match,
     MatchPlayer,
@@ -128,7 +128,7 @@ class Aoe2Coordinator(TimestampDataUpdateCoordinator[Aoe2Data]):
                 self._client.get_profile(self._profile_id),
                 self._client.get_recent_matches(self._profile_id, RECENT_MATCH_COUNT),
             )
-        except AoeClientRateLimitError as error:
+        except AoeClientRetryError as error:
             raise UpdateFailed(str(error), retry_after=error.retry_after) from error
         except AoeClientError as error:
             raise UpdateFailed(str(error)) from error

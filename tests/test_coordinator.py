@@ -67,11 +67,22 @@ async def test_refresh_provides_profile_and_matches(
     assert coordinator.data == expected
 
 
-async def test_rate_limit_fails_update_with_retry_after(
-    hass: HomeAssistant, coordinator: Aoe2Coordinator, fake_client: FakeAoeClient
+@pytest.mark.parametrize(
+    "error",
+    [
+        AoeClientRateLimitError("slow down", retry_after=30),
+        AoeClientConnectionError("unavailable", retry_after=30),
+    ],
+    ids=["rate-limit", "connection"],
+)
+async def test_retry_after_is_passed_to_failed_update(
+    hass: HomeAssistant,
+    coordinator: Aoe2Coordinator,
+    fake_client: FakeAoeClient,
+    error: AoeClientError,
 ):
     # Given
-    fake_client.error = AoeClientRateLimitError("slow down", retry_after=30)
+    fake_client.error = error
 
     # When
     await refresh(hass, coordinator)

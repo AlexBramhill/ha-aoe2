@@ -13,6 +13,7 @@ from .errors import (
     AoeClientNotFoundError,
     AoeClientRateLimitError,
     AoeClientResponseError,
+    AoeClientRetryError,
 )
 from .models import Leaderboard, Match, MatchPlayer, Profile, Rating
 
@@ -37,6 +38,7 @@ __all__ = [
     "AoeClientNotFoundError",
     "AoeClientRateLimitError",
     "AoeClientResponseError",
+    "AoeClientRetryError",
     "ClientName",
     "Leaderboard",
     "Match",
