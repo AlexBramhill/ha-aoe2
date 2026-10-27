@@ -1,9 +1,6 @@
 {
   "domain": "aoe2",
   "name": "Age of Empires II",
-  "categories": [
-    "media_entertainment.gaming"
-  ],
   "codeowners": [
     "@AlexBramhill"
   ],
