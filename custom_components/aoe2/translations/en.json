@@ -10,6 +10,16 @@
         "data_description": {
           "profile_id": "The number at the end of the player's profile address on [aoe2companion]({data_source_url}), for example 196240."
         }
+      },
+      "reconfigure": {
+        "title": "Change player",
+        "description": "Track a different player with this entry. Data is provided by [aoe2companion]({data_source_url}).\n\nChanging the player replaces this entry's entities with ones for the new player.",
+        "data": {
+          "profile_id": "Profile ID"
+        },
+        "data_description": {
+          "profile_id": "The number at the end of the player's profile address on [aoe2companion]({data_source_url}), for example 196240."
+        }
       }
     },
     "error": {

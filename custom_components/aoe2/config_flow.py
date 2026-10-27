@@ -8,6 +8,7 @@ from homeassistant.config_entries import (
     OptionsFlowWithReload,
 )
 from homeassistant.core import callback
+from homeassistant.helpers import device_registry
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.selector import (
     NumberSelector,
@@ -33,6 +34,7 @@ from .const import (
     MIN_IN_MATCH_UPDATE_MINUTES,
     MIN_UPDATE_MINUTES,
 )
+from .recorded_matches import RecordedMatches
 from .user_agent import async_user_agent
 
 FORM_ERROR = "base"
@@ -75,7 +77,7 @@ class Aoe2ConfigFlow(ConfigFlow, domain=DOMAIN):
     async def async_step_user(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         client = await self._client()
         if user_input is None:
-            return self._show_user_form(client)
+            return self._show_profile_form("user", client)
 
         profile_id: int = user_input[CONF_PROFILE_ID]
         await self._abort_if_player_already_added(profile_id)
@@ -83,8 +85,36 @@ class Aoe2ConfigFlow(ConfigFlow, domain=DOMAIN):
         try:
             profile = await client.get_profile(profile_id)
         except AoeClientError as error:
-            return self._show_user_form(client, user_input, errors=_form_errors_for(error))
+            return self._show_profile_form("user", client, user_input, _form_errors_for(error))
         return self._create_player_entry(profile_id, profile.name)
+
+    async def async_step_reconfigure(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        entry = self._get_reconfigure_entry()
+        client = await self._client()
+        if user_input is None:
+            return self._show_profile_form("reconfigure", client, dict(entry.data))
+
+        profile_id: int = user_input[CONF_PROFILE_ID]
+        is_new_player = profile_id != entry.data[CONF_PROFILE_ID]
+        if is_new_player:
+            await self._abort_if_player_already_added(profile_id)
+
+        try:
+            profile = await client.get_profile(profile_id)
+        except AoeClientError as error:
+            return self._show_profile_form(
+                "reconfigure", client, user_input, _form_errors_for(error)
+            )
+        if is_new_player:
+            await self._forget_previous_player(entry)
+        return self.async_update_reload_and_abort(
+            entry,
+            unique_id=str(profile_id),
+            title=profile.name,
+            data_updates={CONF_PROFILE_ID: profile_id},
+        )
 
     async def _abort_if_player_already_added(self, profile_id: int) -> None:
         await self.async_set_unique_id(str(profile_id))
@@ -101,15 +131,23 @@ class Aoe2ConfigFlow(ConfigFlow, domain=DOMAIN):
             data={CONF_CLIENT: DEFAULT_CLIENT, CONF_PROFILE_ID: profile_id},
         )
 
-    def _show_user_form(
+    async def _forget_previous_player(self, entry: ConfigEntry) -> None:
+        await RecordedMatches(self.hass, entry.entry_id).async_remove()
+        devices = device_registry.async_get(self.hass)
+        previous_player = (DOMAIN, str(entry.data[CONF_PROFILE_ID]))
+        if device := devices.async_get_device_by_identifier(previous_player, entry.entry_id):
+            devices.async_update_device(device.id, remove_config_entry_id=entry.entry_id)
+
+    def _show_profile_form(
         self,
+        step_id: str,
         client: AoeClient,
-        user_input: dict[str, Any] | None = None,
+        suggested_values: dict[str, Any] | None = None,
         errors: dict[str, str] | None = None,
     ) -> ConfigFlowResult:
         return self.async_show_form(
-            step_id="user",
-            data_schema=self.add_suggested_values_to_schema(USER_SCHEMA, user_input),
+            step_id=step_id,
+            data_schema=self.add_suggested_values_to_schema(USER_SCHEMA, suggested_values),
             errors=errors,
             description_placeholders={"data_source_url": client.website_url},
         )

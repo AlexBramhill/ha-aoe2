@@ -4,8 +4,10 @@ from pathlib import Path
 
 import pytest
 from homeassistant.config_entries import SOURCE_USER, ConfigFlowResult
+from homeassistant.const import STATE_UNKNOWN, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType, InvalidData
+from homeassistant.helpers import device_registry, entity_registry
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.aoe2.api import (
@@ -30,10 +32,13 @@ from custom_components.aoe2.const import (
     MIN_IN_MATCH_UPDATE_MINUTES,
     MIN_UPDATE_MINUTES,
 )
+from tests.api.builders import MatchBuilder, ProfileBuilder, build_match_player
 from tests.fake_client import FakeAoeClient
-from tests.integration import set_up_integration
+from tests.integration import PROFILE_ID as SET_UP_PROFILE_ID
+from tests.integration import set_up_integration, state_of
 
 PROFILE_ID = 196240
+NEW_PLAYER = ProfileBuilder().with_profile_id(PROFILE_ID).with_name("New player")
 TRANSLATIONS = Path(__file__).parents[1] / "custom_components/aoe2/translations/en.json"
 
 
@@ -154,6 +159,165 @@ def test_every_form_error_has_text(error_key: str):
 
     # Then
     assert error_key in translations["config"]["error"]
+
+
+async def start_reconfigure_flow(hass: HomeAssistant, entry: MockConfigEntry) -> str:
+    result = await entry.start_reconfigure_flow(hass)
+    flow_id = result.get("flow_id")
+    assert flow_id is not None
+    return flow_id
+
+
+def switch_to_new_player(fake_client: FakeAoeClient) -> None:
+    fake_client.profile = NEW_PLAYER.build().expected
+    fake_client.matches = [
+        MatchBuilder().with_match_id(2).with_player(build_match_player(PROFILE_ID)).build()
+    ]
+
+
+@pytest.mark.usefixtures("created_client_names")
+async def test_reconfigure_form_suggests_current_profile_id(hass: HomeAssistant):
+    # Given
+    entry = await set_up_integration(hass)
+
+    # When
+    result = await entry.start_reconfigure_flow(hass)
+
+    # Then
+    assert result.get("type") is FlowResultType.FORM
+    assert result.get("step_id") == "reconfigure"
+    data_schema = result.get("data_schema")
+    assert data_schema is not None
+    (profile_id_key,) = data_schema.schema
+    assert profile_id_key.description == {"suggested_value": SET_UP_PROFILE_ID}
+
+
+@pytest.mark.usefixtures("created_client_names")
+async def test_reconfigure_to_new_player_updates_entry(
+    hass: HomeAssistant, fake_client: FakeAoeClient
+):
+    # Given
+    entry = await set_up_integration(hass)
+    flow_id = await start_reconfigure_flow(hass, entry)
+    switch_to_new_player(fake_client)
+
+    # When
+    result = await submit_profile_id(hass, flow_id)
+    await hass.async_block_till_done()
+
+    # Then
+    assert result.get("type") is FlowResultType.ABORT
+    assert result.get("reason") == "reconfigure_successful"
+    assert entry.data == {CONF_CLIENT: DEFAULT_CLIENT, CONF_PROFILE_ID: PROFILE_ID}
+    assert entry.unique_id == str(PROFILE_ID)
+    assert entry.title == "New player"
+    assert entry.runtime_data.profile_id == PROFILE_ID
+
+
+@pytest.mark.usefixtures("created_client_names")
+async def test_reconfigure_to_new_player_removes_previous_players_device(
+    hass: HomeAssistant, fake_client: FakeAoeClient
+):
+    # Given
+    entry = await set_up_integration(hass)
+    flow_id = await start_reconfigure_flow(hass, entry)
+    switch_to_new_player(fake_client)
+
+    # When
+    await submit_profile_id(hass, flow_id)
+    await hass.async_block_till_done()
+
+    # Then
+    devices = device_registry.async_get(hass)
+    assert (
+        devices.async_get_device_by_identifier((DOMAIN, str(SET_UP_PROFILE_ID)), entry.entry_id)
+        is None
+    )
+    assert (
+        devices.async_get_device_by_identifier((DOMAIN, str(PROFILE_ID)), entry.entry_id)
+        is not None
+    )
+    entities = entity_registry.async_entries_for_config_entry(
+        entity_registry.async_get(hass), entry.entry_id
+    )
+    assert entities
+    assert all(entity.unique_id.startswith(f"{PROFILE_ID}_") for entity in entities)
+
+
+@pytest.mark.usefixtures("created_client_names")
+async def test_reconfigure_to_new_player_does_not_report_their_past_matches(
+    hass: HomeAssistant, fake_client: FakeAoeClient
+):
+    # Given
+    entry = await set_up_integration(hass)
+    flow_id = await start_reconfigure_flow(hass, entry)
+    switch_to_new_player(fake_client)
+
+    # When
+    await submit_profile_id(hass, flow_id)
+    await hass.async_block_till_done()
+
+    # Then
+    match_finished_id = entity_registry.async_get(hass).async_get_entity_id(
+        Platform.EVENT, DOMAIN, f"{PROFILE_ID}_match_finished"
+    )
+    assert match_finished_id is not None
+    match_finished = hass.states.get(match_finished_id)
+    assert match_finished is not None
+    assert match_finished.state == STATE_UNKNOWN
+
+
+@pytest.mark.usefixtures("created_client_names")
+async def test_reconfigure_to_same_player_keeps_entities(hass: HomeAssistant):
+    # Given
+    entry = await set_up_integration(hass)
+    flow_id = await start_reconfigure_flow(hass, entry)
+
+    # When
+    result = await hass.config_entries.flow.async_configure(
+        flow_id, user_input={CONF_PROFILE_ID: SET_UP_PROFILE_ID}
+    )
+    await hass.async_block_till_done()
+
+    # Then
+    assert result.get("type") is FlowResultType.ABORT
+    assert result.get("reason") == "reconfigure_successful"
+    assert state_of(hass, Platform.SENSOR, "last_updated") is not None
+
+
+@pytest.mark.usefixtures("created_client_names")
+async def test_reconfigure_to_already_added_player_aborts(hass: HomeAssistant):
+    # Given
+    MockConfigEntry(domain=DOMAIN, unique_id=str(PROFILE_ID)).add_to_hass(hass)
+    entry = await set_up_integration(hass)
+    flow_id = await start_reconfigure_flow(hass, entry)
+
+    # When
+    result = await submit_profile_id(hass, flow_id)
+
+    # Then
+    assert result.get("type") is FlowResultType.ABORT
+    assert result.get("reason") == "already_configured"
+    assert entry.data[CONF_PROFILE_ID] == SET_UP_PROFILE_ID
+
+
+@pytest.mark.usefixtures("created_client_names")
+async def test_reconfigure_client_error_shows_form_with_error(
+    hass: HomeAssistant, fake_client: FakeAoeClient
+):
+    # Given
+    entry = await set_up_integration(hass)
+    flow_id = await start_reconfigure_flow(hass, entry)
+    fake_client.error = AoeClientNotFoundError("gone")
+
+    # When
+    result = await submit_profile_id(hass, flow_id)
+
+    # Then
+    assert result.get("type") is FlowResultType.FORM
+    assert result.get("step_id") == "reconfigure"
+    assert result.get("errors") == {CONF_PROFILE_ID: ERROR_PLAYER_NOT_FOUND}
+    assert entry.data[CONF_PROFILE_ID] == SET_UP_PROFILE_ID
 
 
 async def start_options_flow(hass: HomeAssistant, entry: MockConfigEntry) -> str:
