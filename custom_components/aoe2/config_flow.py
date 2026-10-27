@@ -64,6 +64,11 @@ OPTIONS_SCHEMA = probatio.Schema(
     }
 )
 
+MINIMUM_INTERVAL_PLACEHOLDERS = {
+    "min_update_minutes": str(MIN_UPDATE_MINUTES),
+    "min_in_match_update_minutes": str(MIN_IN_MATCH_UPDATE_MINUTES),
+}
+
 
 class Aoe2ConfigFlow(ConfigFlow, domain=DOMAIN):
     VERSION = 1
@@ -155,6 +160,7 @@ class Aoe2OptionsFlow(OptionsFlowWithReload):
             data_schema=self.add_suggested_values_to_schema(
                 OPTIONS_SCHEMA, self.config_entry.options
             ),
+            description_placeholders=MINIMUM_INTERVAL_PLACEHOLDERS,
         )
 
 

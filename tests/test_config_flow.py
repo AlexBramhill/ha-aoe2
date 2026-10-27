@@ -320,6 +320,39 @@ async def test_reconfigure_client_error_shows_form_with_error(
     assert entry.data[CONF_PROFILE_ID] == SET_UP_PROFILE_ID
 
 
+@pytest.mark.usefixtures("created_client_names")
+async def test_options_form_shows_minimum_intervals(hass: HomeAssistant):
+    # Given
+    entry = await set_up_integration(hass)
+
+    # When
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+
+    # Then
+    assert result.get("description_placeholders") == {
+        "min_update_minutes": str(MIN_UPDATE_MINUTES),
+        "min_in_match_update_minutes": str(MIN_IN_MATCH_UPDATE_MINUTES),
+    }
+
+
+@pytest.mark.parametrize(
+    ("field", "placeholder"),
+    [
+        (CONF_UPDATE_MINUTES, "{min_update_minutes}"),
+        (CONF_IN_MATCH_UPDATE_MINUTES, "{min_in_match_update_minutes}"),
+    ],
+)
+def test_interval_descriptions_use_minimum_placeholders(field: str, placeholder: str):
+    # Given
+    translations = json.loads(TRANSLATIONS.read_text())
+
+    # When
+    description = translations["options"]["step"]["init"]["data_description"][field]
+
+    # Then
+    assert placeholder in description
+
+
 async def start_options_flow(hass: HomeAssistant, entry: MockConfigEntry) -> str:
     result = await hass.config_entries.options.async_init(entry.entry_id)
     flow_id = result.get("flow_id")

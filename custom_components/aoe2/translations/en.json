@@ -41,8 +41,8 @@
           "in_match_update_minutes": "Update interval during a match"
         },
         "data_description": {
-          "update_minutes": "Minutes between checks when the player is not in a match. Minimum 10.",
-          "in_match_update_minutes": "Minutes between checks while the player is in a match. Minimum 3."
+          "update_minutes": "Minutes between checks when the player is not in a match. Minimum {min_update_minutes}.",
+          "in_match_update_minutes": "Minutes between checks while the player is in a match. Minimum {min_in_match_update_minutes}."
         }
       }
     }
