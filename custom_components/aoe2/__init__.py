@@ -1,6 +1,5 @@
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import device_registry
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
@@ -20,6 +19,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: Aoe2ConfigEntry) -> bool
     coordinator = Aoe2Coordinator(hass, entry, client)
     await coordinator.async_config_entry_first_refresh()
     entry.runtime_data = coordinator
+    _remove_previous_players_devices(hass, entry)
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
 
@@ -29,12 +29,13 @@ async def async_unload_entry(hass: HomeAssistant, entry: Aoe2ConfigEntry) -> boo
 
 
 async def async_remove_entry(hass: HomeAssistant, entry: Aoe2ConfigEntry) -> None:
-    await RecordedMatches(hass, entry.entry_id).async_remove()
+    await RecordedMatches(hass, entry.entry_id, entry.data[CONF_PROFILE_ID]).async_remove()
 
 
-async def async_forget_player(hass: HomeAssistant, entry: ConfigEntry) -> None:
-    await RecordedMatches(hass, entry.entry_id).async_remove()
+@callback
+def _remove_previous_players_devices(hass: HomeAssistant, entry: Aoe2ConfigEntry) -> None:
     devices = device_registry.async_get(hass)
-    player = (DOMAIN, str(entry.data[CONF_PROFILE_ID]))
-    if device := devices.async_get_device_by_identifier(player, entry.entry_id):
-        devices.async_update_device(device.id, remove_config_entry_id=entry.entry_id)
+    current_player = (DOMAIN, str(entry.data[CONF_PROFILE_ID]))
+    for device in device_registry.async_entries_for_config_entry(devices, entry.entry_id):
+        if current_player not in device.identifiers:
+            devices.async_update_device(device.id, remove_config_entry_id=entry.entry_id)

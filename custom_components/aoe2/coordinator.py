@@ -97,7 +97,7 @@ class Aoe2Coordinator(TimestampDataUpdateCoordinator[Aoe2Data]):
         )
         self._client = client
         self._profile_id: int = entry.data[CONF_PROFILE_ID]
-        self._recorded_matches = RecordedMatches(hass, entry.entry_id)
+        self._recorded_matches = RecordedMatches(hass, entry.entry_id, self._profile_id)
         self._newly_recorded_matches: list[Match] = []
 
     @property

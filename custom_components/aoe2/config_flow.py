@@ -15,7 +15,6 @@ from homeassistant.helpers.selector import (
     NumberSelectorMode,
 )
 
-from . import async_forget_player
 from .api import (
     AoeClient,
     AoeClientError,
@@ -103,8 +102,6 @@ class Aoe2ConfigFlow(ConfigFlow, domain=DOMAIN):
 
         match await _get_profile_or_form_errors(client, profile_id):
             case Profile() as profile:
-                if is_new_player:
-                    await async_forget_player(self.hass, entry)
                 return self._update_player_entry(entry, profile_id, profile.name)
             case errors:
                 return self._show_profile_form("reconfigure", client, user_input, errors)

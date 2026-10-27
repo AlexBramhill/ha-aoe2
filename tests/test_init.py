@@ -3,12 +3,15 @@ from typing import Any, get_args
 import pytest
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import device_registry
 
 from custom_components.aoe2.api import AoeClientConnectionError, ClientName
 from custom_components.aoe2.const import DOMAIN
 from custom_components.aoe2.coordinator import Aoe2Coordinator
 from tests.fake_client import FakeAoeClient
-from tests.integration import config_entry_for, set_up
+from tests.integration import PROFILE_ID, config_entry_for, set_up
+
+PREVIOUS_PROFILE_ID = 2
 
 
 @pytest.mark.parametrize("client_name", get_args(ClientName))
@@ -40,6 +43,24 @@ async def test_setup_retries_when_client_is_unreachable(
 
     # Then
     assert entry.state is ConfigEntryState.SETUP_RETRY
+
+
+@pytest.mark.usefixtures("created_client_names")
+async def test_setup_removes_previous_players_device(hass: HomeAssistant):
+    # Given
+    entry = config_entry_for("aoe2companion")
+    entry.add_to_hass(hass)
+    devices = device_registry.async_get(hass)
+    devices.async_get_or_create(
+        config_entry_id=entry.entry_id, identifiers={(DOMAIN, str(PREVIOUS_PROFILE_ID))}
+    )
+
+    # When
+    await set_up(hass, entry)
+
+    # Then
+    remaining = device_registry.async_entries_for_config_entry(devices, entry.entry_id)
+    assert [device.identifiers for device in remaining] == [{(DOMAIN, str(PROFILE_ID))}]
 
 
 @pytest.mark.usefixtures("created_client_names")

@@ -233,7 +233,7 @@ async def test_first_refresh_records_existing_matches(
 
     # Then
     stored = hass_storage[storage_key(coordinator)]["data"]
-    assert stored == {"match_ids": [1]}
+    assert stored["match_ids"] == [1]
 
 
 async def test_restart_does_not_announce_matches_again(

@@ -6,17 +6,20 @@ from custom_components.aoe2.const import DOMAIN
 from custom_components.aoe2.recorded_matches import MAX_RECORDED_MATCHES, RecordedMatches
 
 ENTRY_ID = "entry"
+PROFILE_ID = 1
+OTHER_PROFILE_ID = 2
+STORAGE_KEY = f"{DOMAIN}.{ENTRY_ID}.recorded_matches"
 
 
-async def loaded(hass: HomeAssistant) -> RecordedMatches:
-    recorded = RecordedMatches(hass, ENTRY_ID)
+async def loaded(hass: HomeAssistant, profile_id: int = PROFILE_ID) -> RecordedMatches:
+    recorded = RecordedMatches(hass, ENTRY_ID, profile_id)
     await recorded.async_load()
     return recorded
 
 
 async def test_load_reports_nothing_saved_for_new_entry(hass: HomeAssistant):
     # Given
-    recorded = RecordedMatches(hass, ENTRY_ID)
+    recorded = RecordedMatches(hass, ENTRY_ID, PROFILE_ID)
 
     # When
     found = await recorded.async_load()
@@ -62,4 +65,17 @@ async def test_recording_an_id_twice_saves_one_copy(
     await recorded.async_record([1])
 
     # Then
-    assert hass_storage[f"{DOMAIN}.{ENTRY_ID}.recorded_matches"]["data"] == {"match_ids": [1]}
+    assert hass_storage[STORAGE_KEY]["data"] == {"match_ids": [1], "profile_id": PROFILE_ID}
+
+
+async def test_ids_recorded_for_another_player_are_not_loaded(hass: HomeAssistant):
+    # Given
+    await (await loaded(hass, OTHER_PROFILE_ID)).async_record([1])
+    recorded = RecordedMatches(hass, ENTRY_ID, PROFILE_ID)
+
+    # When
+    found = await recorded.async_load()
+
+    # Then
+    assert not found
+    assert 1 not in recorded
