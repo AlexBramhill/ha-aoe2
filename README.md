@@ -62,11 +62,17 @@ automation:
 
 ## Credits
 
-Player data comes from [aoe2companion](https://www.aoe2companion.com), created by [denniske](https://github.com/denniske). If you find this useful, consider supporting them: get the app on the [App Store](https://apps.apple.com/app/id1518463195) or [Google Play](https://play.google.com/store/apps/details?id=com.aoe2companion), join the [Discord](https://discord.gg/gCunWKx) or [buy denniske a coffee](https://www.buymeacoffee.com/denniskeil).
+Player data comes from [aoe2companion](https://www.aoe2companion.com), created by [denniske](https://github.com/denniske). 
+
+If you find this useful, consider supporting them: get the app on the [App Store](https://apps.apple.com/app/id1518463195) or [Google Play](https://play.google.com/store/apps/details?id=com.aoe2companion), join the [Discord](https://discord.gg/gCunWKx) or [buy denniske a coffee](https://www.buymeacoffee.com/denniskeil).
 
 ## Disclaimer
 
-This is an unofficial community project. aoe2companion is an independent project that provides the data but doesn't endorse or support this integration, so please report problems here. Age of Empires is a trademark of Microsoft Corporation; neither this integration nor aoe2companion is made, endorsed or supported by Microsoft, Xbox Game Studios, World's Edge or Forgotten Empires.
+This is an unofficial community project. 
+
+aoe2companion is an independent project that provides the data but doesn't endorse or support this integration, so please report problems here.
+
+Age of Empires is a trademark of Microsoft Corporation; neither this integration nor aoe2companion is made, endorsed or supported by Microsoft, Xbox Game Studios, World's Edge or Forgotten Empires.
 
 ## Development
 
