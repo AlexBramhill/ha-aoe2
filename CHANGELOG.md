@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1](https://github.com/AlexBramhill/ha-aoe2/compare/v0.3.0...v0.3.1) (2026-10-27)
+
+
+### Bug Fixes
+
+* add prerelease by default to release please ([e1f1926](https://github.com/AlexBramhill/ha-aoe2/commit/e1f1926b8eaaad01f29ac94d8e6d79d8ab7f42b1))
+
 ## [0.3.0](https://github.com/AlexBramhill/ha-aoe2/compare/v0.2.1...v0.3.0) (2026-10-27)
 
 
