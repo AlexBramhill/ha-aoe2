@@ -4,7 +4,8 @@ from homeassistant.core import HomeAssistant
 from custom_components.aoe2.api import BACKGROUND_REQUESTS
 from custom_components.aoe2.const import CONF_CLIENT
 from custom_components.aoe2.ha_internals.client import async_create_client
-from custom_components.aoe2.ha_internals.coordinator import Aoe2ConfigEntry, Aoe2Coordinator
+from custom_components.aoe2.ha_internals.config_entry import Aoe2ConfigEntry
+from custom_components.aoe2.ha_internals.coordinator import Aoe2Coordinator
 from custom_components.aoe2.ha_internals.devices import remove_previous_players_devices
 
 PLATFORMS: list[Platform] = [Platform.BINARY_SENSOR, Platform.EVENT, Platform.SENSOR]

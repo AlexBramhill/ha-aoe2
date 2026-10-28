@@ -15,7 +15,8 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.typing import StateType
 
 from custom_components.aoe2.api import Leaderboard, Rating
-from custom_components.aoe2.ha_internals.coordinator import Aoe2ConfigEntry, Aoe2Coordinator
+from custom_components.aoe2.ha_internals.config_entry import Aoe2ConfigEntry
+from custom_components.aoe2.ha_internals.coordinator import Aoe2Coordinator
 from custom_components.aoe2.ha_internals.entity import Aoe2Entity
 from custom_components.aoe2.logic import (
     MatchResult,

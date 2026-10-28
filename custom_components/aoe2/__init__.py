@@ -1,7 +1,7 @@
 from homeassistant.core import HomeAssistant
 
 from custom_components.aoe2.const import CONF_PROFILE_ID
-from custom_components.aoe2.ha_internals.coordinator import Aoe2ConfigEntry
+from custom_components.aoe2.ha_internals.config_entry import Aoe2ConfigEntry
 from custom_components.aoe2.ha_internals.recorded_matches import RecordedMatches
 from custom_components.aoe2.ha_internals.setup import PLATFORMS, async_set_up_player
 

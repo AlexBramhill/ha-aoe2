@@ -216,7 +216,9 @@ async def test_viper_lost_match_reports_result_rating_and_team(viper_client: Aoe
     matches = await viper_client.get_recent_matches(VIPER.profile_id, count=len(VIPER_MATCH_IDS))
 
     # Then
-    viper = match_with_id(matches, VIPER_LOST_UNRANKED_MATCH_ID).get_player_with_id(VIPER.profile_id)
+    viper = match_with_id(matches, VIPER_LOST_UNRANKED_MATCH_ID).get_player_with_id(
+        VIPER.profile_id
+    )
     assert viper.won is False
     assert viper.rating_change == -20
     assert viper.rating_after_match == 1695

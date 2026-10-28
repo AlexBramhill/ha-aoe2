@@ -2,9 +2,8 @@ import asyncio
 from collections.abc import Mapping
 from dataclasses import asdict
 from datetime import timedelta
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.update_coordinator import TimestampDataUpdateCoordinator, UpdateFailed
 
@@ -33,9 +32,11 @@ from custom_components.aoe2.logic import (
     get_unrecorded_matches,
 )
 
-RECENT_MATCH_COUNT = 5
+if TYPE_CHECKING:
+    # Annotations only, because the alias module imports this one.
+    from custom_components.aoe2.ha_internals.config_entry import Aoe2ConfigEntry
 
-type Aoe2ConfigEntry = ConfigEntry[Aoe2Coordinator]
+RECENT_MATCH_COUNT = 5
 
 
 class Aoe2Coordinator(TimestampDataUpdateCoordinator[PlayerData]):
