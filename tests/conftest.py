@@ -3,8 +3,6 @@ import pytest
 from custom_components.aoe2.api import AoeClient, ClientName, RequestPolicy
 from tests.fake_client import FakeAoeClient
 
-MODULES_CREATING_CLIENTS = ["custom_components.aoe2", "custom_components.aoe2.config_flow"]
-
 
 @pytest.fixture(autouse=True)
 def auto_enable_custom_integrations(enable_custom_integrations: None) -> None:
@@ -36,6 +34,7 @@ def created_client_names(
         created_client_policies.append(policy)
         return fake_client
 
-    for module in MODULES_CREATING_CLIENTS:
-        monkeypatch.setattr(f"{module}.create_client", create_fake_client)
+    monkeypatch.setattr(
+        "custom_components.aoe2.ha_internals.client.create_client", create_fake_client
+    )
     return names

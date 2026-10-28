@@ -8,7 +8,6 @@ from homeassistant.config_entries import (
     OptionsFlowWithReload,
 )
 from homeassistant.core import callback
-from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.selector import (
     NumberSelector,
     NumberSelectorConfig,
@@ -22,7 +21,6 @@ from custom_components.aoe2.api import (
     AoeClientNotFoundError,
     AoeClientRetryError,
     Profile,
-    create_client,
 )
 from custom_components.aoe2.const import (
     CONF_CLIENT,
@@ -35,7 +33,7 @@ from custom_components.aoe2.const import (
     MIN_IN_MATCH_UPDATE_MINUTES,
     MIN_UPDATE_MINUTES,
 )
-from custom_components.aoe2.ha_internals.user_agent import async_user_agent
+from custom_components.aoe2.ha_internals.client import async_create_client
 
 FORM_ERROR = "base"
 ERROR_PLAYER_NOT_FOUND = "player_not_found"
@@ -124,12 +122,7 @@ class Aoe2ConfigFlow(ConfigFlow, domain=DOMAIN):
         )
 
     async def _get_client(self) -> AoeClient:
-        return create_client(
-            DEFAULT_CLIENT,
-            async_get_clientsession(self.hass),
-            await async_user_agent(self.hass),
-            INTERACTIVE_REQUESTS,
-        )
+        return await async_create_client(self.hass, DEFAULT_CLIENT, INTERACTIVE_REQUESTS)
 
     def _show_profile_form(
         self,
