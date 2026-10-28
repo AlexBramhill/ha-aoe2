@@ -7,7 +7,7 @@ from homeassistant.components.diagnostics import async_redact_data
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.json import json_dumps
 
-from .coordinator import Aoe2ConfigEntry
+from custom_components.aoe2.ha_internals.coordinator import Aoe2ConfigEntry
 
 IDENTIFYING_KEYS = {"profile_id", "name", "title", "unique_id", "country", "match_id"}
 

@@ -35,7 +35,7 @@ from .const import (
     MIN_IN_MATCH_UPDATE_MINUTES,
     MIN_UPDATE_MINUTES,
 )
-from .user_agent import async_user_agent
+from custom_components.aoe2.ha_internals.user_agent import async_user_agent
 
 FORM_ERROR = "base"
 ERROR_PLAYER_NOT_FOUND = "player_not_found"
@@ -43,6 +43,7 @@ ERROR_CANNOT_CONNECT = "cannot_connect"
 ERROR_UNKNOWN = "unknown"
 
 POSITIVE_INTEGER = probatio.All(probatio.Coerce(int), probatio.Range(min=1))
+
 PROFILE_SCHEMA = probatio.Schema({probatio.Required(CONF_PROFILE_ID): POSITIVE_INTEGER})
 
 
@@ -94,7 +95,7 @@ class Aoe2ConfigFlow(ConfigFlow, domain=DOMAIN):
                 return self._show_profile_form("user", client, user_input, errors)
 
     async def async_step_reconfigure(
-        self, user_input: dict[str, Any] | None = None
+            self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         entry = self._get_reconfigure_entry()
         client = await self._get_client()
@@ -131,11 +132,11 @@ class Aoe2ConfigFlow(ConfigFlow, domain=DOMAIN):
         )
 
     def _show_profile_form(
-        self,
-        step_id: str,
-        client: AoeClient,
-        suggested_values: dict[str, Any] | None = None,
-        errors: dict[str, str] | None = None,
+            self,
+            step_id: str,
+            client: AoeClient,
+            suggested_values: dict[str, Any] | None = None,
+            errors: dict[str, str] | None = None,
     ) -> ConfigFlowResult:
         return self.async_show_form(
             step_id=step_id,
@@ -145,7 +146,7 @@ class Aoe2ConfigFlow(ConfigFlow, domain=DOMAIN):
         )
 
     def _update_player_entry(
-        self, entry: ConfigEntry, profile_id: int, player_name: str
+            self, entry: ConfigEntry, profile_id: int, player_name: str
     ) -> ConfigFlowResult:
         return self.async_update_reload_and_abort(
             entry,
@@ -173,7 +174,7 @@ def _get_whole_minutes(options: dict[str, Any]) -> dict[str, int]:
 
 
 async def _get_profile_or_form_errors(
-    client: AoeClient, profile_id: int
+        client: AoeClient, profile_id: int
 ) -> Profile | dict[str, str]:
     try:
         return await client.get_profile(profile_id)

@@ -5,9 +5,9 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import BACKGROUND_REQUESTS, create_client
 from .const import CONF_CLIENT, CONF_PROFILE_ID, DOMAIN
-from .coordinator import Aoe2ConfigEntry, Aoe2Coordinator
-from .recorded_matches import RecordedMatches
-from .user_agent import async_user_agent
+from custom_components.aoe2.ha_internals.coordinator import Aoe2ConfigEntry, Aoe2Coordinator
+from custom_components.aoe2.ha_internals.recorded_matches import RecordedMatches
+from custom_components.aoe2.ha_internals.user_agent import async_user_agent
 
 PLATFORMS: list[Platform] = [Platform.BINARY_SENSOR, Platform.EVENT, Platform.SENSOR]
 

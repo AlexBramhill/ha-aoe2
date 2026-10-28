@@ -4,7 +4,7 @@ from typing import TypedDict
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.storage import Store
 
-from .const import DOMAIN
+from custom_components.aoe2.const import DOMAIN
 
 STORAGE_VERSION = 1
 MAX_RECORDED_MATCHES = 1000

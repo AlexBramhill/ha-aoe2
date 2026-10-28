@@ -7,8 +7,8 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.update_coordinator import TimestampDataUpdateCoordinator, UpdateFailed
 
-from .api import AoeClient, AoeClientError, AoeClientRetryError, Leaderboard, Match
-from .const import (
+from custom_components.aoe2.api import AoeClient, AoeClientError, AoeClientRetryError, Leaderboard, Match
+from custom_components.aoe2.const import (
     CONF_IN_MATCH_UPDATE_MINUTES,
     CONF_PROFILE_ID,
     CONF_UPDATE_MINUTES,
@@ -18,7 +18,7 @@ from .const import (
     MIN_IN_MATCH_UPDATE_MINUTES,
     MIN_UPDATE_MINUTES,
 )
-from .logic import (
+from custom_components.aoe2.logic import (
     MatchFinishedEvent,
     PlayerData,
     UpdateIntervals,

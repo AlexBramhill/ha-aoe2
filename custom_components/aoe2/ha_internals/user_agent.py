@@ -1,7 +1,7 @@
 from homeassistant.core import HomeAssistant
 from homeassistant.loader import async_get_integration
 
-from .const import DOMAIN
+from custom_components.aoe2.const import DOMAIN
 
 
 async def async_user_agent(hass: HomeAssistant) -> str:

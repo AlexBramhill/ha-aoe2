@@ -3,7 +3,7 @@ from typing import Any
 from homeassistant.core import HomeAssistant
 
 from custom_components.aoe2.const import DOMAIN
-from custom_components.aoe2.recorded_matches import MAX_RECORDED_MATCHES, RecordedMatches
+from custom_components.aoe2.ha_internals.recorded_matches import MAX_RECORDED_MATCHES, RecordedMatches
 
 ENTRY_ID = "entry"
 PROFILE_ID = 1

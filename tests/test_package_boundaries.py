@@ -7,9 +7,12 @@ import pytest
 INTEGRATION = Path(__file__).parents[1] / "custom_components" / "aoe2"
 INTEGRATION_PACKAGE = "custom_components.aoe2"
 
+HOME_ASSISTANT_FREE_PACKAGES = ["api", "logic"]
+
 ALLOWED_IMPORTS = {
     "api": {"api"},
     "logic": {"api", "logic"},
+    "ha_internals": {"api", "logic", "const", "ha_internals"},
 }
 
 IMPORT_WITHOUT_INTEGRATION_SETUP = """
@@ -55,7 +58,7 @@ def get_integration_parts(modules: list[str]) -> set[str]:
     }
 
 
-@pytest.mark.parametrize("package", ALLOWED_IMPORTS)
+@pytest.mark.parametrize("package", HOME_ASSISTANT_FREE_PACKAGES)
 def test_package_does_not_import_home_assistant(package: str):
     # When
     loaded = get_modules_loaded_by(package)

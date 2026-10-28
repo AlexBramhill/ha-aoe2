@@ -3,7 +3,7 @@ from pathlib import Path
 
 from homeassistant.core import HomeAssistant
 
-from custom_components.aoe2.user_agent import async_user_agent
+from custom_components.aoe2.ha_internals.user_agent import async_user_agent
 
 MANIFEST = Path(__file__).parents[1] / "custom_components/aoe2/manifest.json"
 

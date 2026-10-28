@@ -4,8 +4,8 @@ from homeassistant.components.binary_sensor import BinarySensorEntity
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
-from .coordinator import Aoe2ConfigEntry, Aoe2Coordinator
-from .entity import Aoe2Entity
+from custom_components.aoe2.ha_internals.coordinator import Aoe2ConfigEntry, Aoe2Coordinator
+from custom_components.aoe2.ha_internals.entity import Aoe2Entity
 
 PARALLEL_UPDATES = 0
 
