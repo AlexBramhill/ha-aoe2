@@ -8,6 +8,7 @@ from custom_components.aoe2.api import (
     ClientName,
     RequestPolicy,
 )
+from custom_components.aoe2.api._aoe2companion import Aoe2CompanionClient
 from custom_components.aoe2.ha_internals import client
 from custom_components.aoe2.ha_internals.client import async_create_client
 from tests.fake_client import FakeAoeClient
@@ -34,3 +35,11 @@ async def test_client_is_created_with_the_integration_version(
 
     # Then
     assert created == [("aoe2companion", read_manifest_version(), policy)]
+
+
+async def test_configured_client_is_created(hass: HomeAssistant):
+    # When
+    created = await async_create_client(hass, "aoe2companion", BACKGROUND_REQUESTS)
+
+    # Then
+    assert isinstance(created, Aoe2CompanionClient)

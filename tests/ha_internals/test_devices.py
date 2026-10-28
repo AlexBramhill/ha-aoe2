@@ -37,21 +37,14 @@ async def test_previous_players_device_is_removed(hass: HomeAssistant):
     assert [device.identifiers for device in remaining] == [{(DOMAIN, str(PROFILE_ID))}]
 
 
-async def test_previous_players_device_is_kept_for_other_entries(hass: HomeAssistant):
+async def test_previous_players_device_is_deleted_from_the_registry(hass: HomeAssistant):
     # Given
     entry = config_entry_for()
     entry.add_to_hass(hass)
-    other_entry = MockConfigEntry(domain=DOMAIN)
-    other_entry.add_to_hass(hass)
     device_id = add_player_device(hass, entry, PREVIOUS_PROFILE_ID)
-    device_registry.async_get(hass).async_update_device(
-        device_id, add_config_entry_id=other_entry.entry_id
-    )
 
     # When
     remove_previous_players_devices(hass, entry)
 
     # Then
-    device = device_registry.async_get(hass).async_get(device_id)
-    assert device is not None
-    assert device.config_entries == {other_entry.entry_id}
+    assert device_registry.async_get(hass).async_get(device_id) is None

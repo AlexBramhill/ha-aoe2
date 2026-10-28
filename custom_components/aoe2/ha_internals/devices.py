@@ -11,4 +11,4 @@ def remove_previous_players_devices(hass: HomeAssistant, config_entry: Aoe2Confi
     current_player = (DOMAIN, str(config_entry.data[CONF_PROFILE_ID]))
     for device in device_registry.async_entries_for_config_entry(devices, config_entry.entry_id):
         if current_player not in device.identifiers:
-            devices.async_update_device(device.id, remove_config_entry_id=config_entry.entry_id)
+            devices.async_remove_device(device.id)
