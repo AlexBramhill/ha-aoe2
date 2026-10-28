@@ -1,7 +1,7 @@
 from collections.abc import Container
 
-from ..api import Match
-from ._player_data import PlayerData
+from custom_components.aoe2.api import Match
+from custom_components.aoe2.logic._player_data import PlayerData
 
 
 def get_unrecorded_matches(data: PlayerData, recorded_ids: Container[int]) -> list[Match]:

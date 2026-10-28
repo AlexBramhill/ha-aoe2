@@ -1,6 +1,6 @@
 import logging
 
-from .api import ClientName
+from custom_components.aoe2.api import ClientName
 
 DOMAIN = "aoe2"
 LOGGER = logging.getLogger(__package__)

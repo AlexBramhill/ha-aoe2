@@ -3,8 +3,8 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import device_registry
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from .api import BACKGROUND_REQUESTS, create_client
-from .const import CONF_CLIENT, CONF_PROFILE_ID, DOMAIN
+from custom_components.aoe2.api import BACKGROUND_REQUESTS, create_client
+from custom_components.aoe2.const import CONF_CLIENT, CONF_PROFILE_ID, DOMAIN
 from custom_components.aoe2.ha_internals.coordinator import Aoe2ConfigEntry, Aoe2Coordinator
 from custom_components.aoe2.ha_internals.recorded_matches import RecordedMatches
 from custom_components.aoe2.ha_internals.user_agent import async_user_agent
@@ -32,7 +32,9 @@ async def async_unload_entry(hass: HomeAssistant, config_entry: Aoe2ConfigEntry)
 
 
 async def async_remove_entry(hass: HomeAssistant, config_entry: Aoe2ConfigEntry) -> None:
-    await RecordedMatches(hass, config_entry.entry_id, config_entry.data[CONF_PROFILE_ID]).async_remove()
+    await RecordedMatches(
+        hass, config_entry.entry_id, config_entry.data[CONF_PROFILE_ID]
+    ).async_remove()
 
 
 @callback

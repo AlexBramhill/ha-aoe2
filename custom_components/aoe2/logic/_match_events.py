@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from ..api import Leaderboard, Match, MatchPlayer
+from custom_components.aoe2.api import Leaderboard, Match, MatchPlayer
 
 
 @dataclass(frozen=True, slots=True)

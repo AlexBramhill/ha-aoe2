@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from datetime import timedelta
 
-from ._player_data import PlayerData
+from custom_components.aoe2.logic._player_data import PlayerData
 
 
 @dataclass(frozen=True, slots=True)

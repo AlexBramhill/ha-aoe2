@@ -5,10 +5,14 @@ from typing import Literal
 
 import aiohttp
 
-from ._aoe2companion import Aoe2CompanionClient
-from ._http import BACKGROUND_REQUESTS, INTERACTIVE_REQUESTS, RequestPolicy
-from .client import AoeClient
-from .errors import (
+from custom_components.aoe2.api._aoe2companion import Aoe2CompanionClient
+from custom_components.aoe2.api._http import (
+    BACKGROUND_REQUESTS,
+    INTERACTIVE_REQUESTS,
+    RequestPolicy,
+)
+from custom_components.aoe2.api.client import AoeClient
+from custom_components.aoe2.api.errors import (
     AoeClientConnectionError,
     AoeClientError,
     AoeClientNotFoundError,
@@ -16,7 +20,7 @@ from .errors import (
     AoeClientResponseError,
     AoeClientRetryError,
 )
-from .models import Leaderboard, Match, MatchPlayer, Profile, Rating
+from custom_components.aoe2.api.models import Leaderboard, Match, MatchPlayer, Profile, Rating
 
 ClientName = Literal["aoe2companion"]
 

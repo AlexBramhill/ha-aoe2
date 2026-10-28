@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from ..api import Match, MatchPlayer, Profile
+from custom_components.aoe2.api import Match, MatchPlayer, Profile
 
 
 @dataclass(frozen=True, slots=True)
