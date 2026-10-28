@@ -17,5 +17,8 @@ class PlayerData:
     def current_match(self) -> Match | None:
         return next((match for match in self.matches if match.finished is None), None)
 
+    def is_in_current_match(self) -> bool:
+        return self.current_match() is not None
+
     def player_in(self, match: Match) -> MatchPlayer:
         return match.player_with_id(self.profile.profile_id)

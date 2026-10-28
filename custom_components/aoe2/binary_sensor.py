@@ -26,7 +26,7 @@ class Aoe2InMatchSensor(Aoe2Entity, BinarySensorEntity):
 
     @property
     def is_on(self) -> bool:
-        return self.coordinator.data.current_match() is not None
+        return self.coordinator.data.is_in_current_match()
 
     @property
     def extra_state_attributes(self) -> dict[str, Any] | None:

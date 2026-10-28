@@ -12,33 +12,33 @@ from .user_agent import async_user_agent
 PLATFORMS: list[Platform] = [Platform.BINARY_SENSOR, Platform.EVENT, Platform.SENSOR]
 
 
-async def async_setup_entry(hass: HomeAssistant, entry: Aoe2ConfigEntry) -> bool:
+async def async_setup_entry(hass: HomeAssistant, config_entry: Aoe2ConfigEntry) -> bool:
     client = create_client(
-        entry.data[CONF_CLIENT],
+        config_entry.data[CONF_CLIENT],
         async_get_clientsession(hass),
         await async_user_agent(hass),
         BACKGROUND_REQUESTS,
     )
-    coordinator = Aoe2Coordinator(hass, entry, client)
+    coordinator = Aoe2Coordinator(hass, config_entry, client)
     await coordinator.async_config_entry_first_refresh()
-    entry.runtime_data = coordinator
-    _remove_previous_players_devices(hass, entry)
-    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+    config_entry.runtime_data = coordinator
+    _remove_previous_players_devices(hass, config_entry)
+    await hass.config_entries.async_forward_entry_setups(config_entry, PLATFORMS)
     return True
 
 
-async def async_unload_entry(hass: HomeAssistant, entry: Aoe2ConfigEntry) -> bool:
-    return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+async def async_unload_entry(hass: HomeAssistant, config_entry: Aoe2ConfigEntry) -> bool:
+    return await hass.config_entries.async_unload_platforms(config_entry, PLATFORMS)
 
 
-async def async_remove_entry(hass: HomeAssistant, entry: Aoe2ConfigEntry) -> None:
-    await RecordedMatches(hass, entry.entry_id, entry.data[CONF_PROFILE_ID]).async_remove()
+async def async_remove_entry(hass: HomeAssistant, config_entry: Aoe2ConfigEntry) -> None:
+    await RecordedMatches(hass, config_entry.entry_id, config_entry.data[CONF_PROFILE_ID]).async_remove()
 
 
 @callback
-def _remove_previous_players_devices(hass: HomeAssistant, entry: Aoe2ConfigEntry) -> None:
+def _remove_previous_players_devices(hass: HomeAssistant, config_entry: Aoe2ConfigEntry) -> None:
     devices = device_registry.async_get(hass)
-    current_player = (DOMAIN, str(entry.data[CONF_PROFILE_ID]))
-    for device in device_registry.async_entries_for_config_entry(devices, entry.entry_id):
+    current_player = (DOMAIN, str(config_entry.data[CONF_PROFILE_ID]))
+    for device in device_registry.async_entries_for_config_entry(devices, config_entry.entry_id):
         if current_player not in device.identifiers:
-            devices.async_update_device(device.id, remove_config_entry_id=entry.entry_id)
+            devices.async_update_device(device.id, remove_config_entry_id=config_entry.entry_id)
