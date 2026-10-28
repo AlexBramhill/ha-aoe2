@@ -21,7 +21,7 @@ from custom_components.aoe2.api._http import (
     _raise_for_status,
     get_json,
 )
-from tests.api.helpers import TEST_USER_AGENT
+from tests.api.helpers import TEST_VERSION
 
 
 @dataclass
@@ -76,7 +76,7 @@ async def get_from(
     return await get_json(
         cast(aiohttp.ClientSession, session),
         "https://example.test/api",
-        user_agent=TEST_USER_AGENT,
+        version=TEST_VERSION,
         policy=policy,
     )
 
@@ -155,7 +155,7 @@ def test_other_server_errors_ignore_retry_after(status: int):
     assert raised.value.retry_after is None
 
 
-async def test_requests_send_the_given_user_agent():
+async def test_requests_send_a_user_agent_naming_the_version():
     # Given
     session = RecordingSession()
 
@@ -163,7 +163,9 @@ async def test_requests_send_the_given_user_agent():
     await get_from(session)
 
     # Then
-    assert session.sent_headers == [{"User-Agent": TEST_USER_AGENT}]
+    assert session.sent_headers == [
+        {"User-Agent": f"ha-aoe2/{TEST_VERSION} (+https://github.com/AlexBramhill/ha-aoe2)"}
+    ]
 
 
 @pytest.mark.parametrize("policy", [BACKGROUND_REQUESTS, INTERACTIVE_REQUESTS])

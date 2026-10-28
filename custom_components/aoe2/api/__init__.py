@@ -32,10 +32,10 @@ CLIENTS: dict[ClientName, Callable[[aiohttp.ClientSession, str, RequestPolicy], 
 def create_client(
     client_name: ClientName,
     session: aiohttp.ClientSession,
-    user_agent: str,
+    version: str,
     policy: RequestPolicy = BACKGROUND_REQUESTS,
 ) -> AoeClient:
-    return CLIENTS[client_name](session, user_agent, policy)
+    return CLIENTS[client_name](session, version, policy)
 
 
 __all__ = [

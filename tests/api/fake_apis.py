@@ -54,7 +54,7 @@ class FakeApi:
         url: str,
         params: Params | None = None,
         *,
-        user_agent: str,
+        version: str,
         policy: RequestPolicy,
     ) -> Body:
         path = url.removeprefix(f"{self.module.BASE_URL}/")

@@ -34,11 +34,11 @@ class Aoe2CompanionClient:
     def __init__(
         self,
         session: aiohttp.ClientSession,
-        user_agent: str,
+        version: str,
         policy: RequestPolicy = BACKGROUND_REQUESTS,
     ) -> None:
         self._session = session
-        self._user_agent = user_agent
+        self._version = version
         self._policy = policy
 
     @property
@@ -65,7 +65,7 @@ class Aoe2CompanionClient:
             self._session,
             f"{BASE_URL}/{path}",
             params,
-            user_agent=self._user_agent,
+            version=self._version,
             policy=self._policy,
         )
 

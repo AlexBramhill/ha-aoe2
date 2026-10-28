@@ -17,6 +17,7 @@ from custom_components.aoe2.api.errors import (
 
 FIRST_RETRY_DELAY_SECONDS = 1.0
 LONGEST_RETRY_WAIT_SECONDS = 10
+USER_AGENT = "ha-aoe2/{version} (+https://github.com/AlexBramhill/ha-aoe2)"
 
 
 @dataclass(frozen=True, slots=True)
@@ -34,9 +35,10 @@ async def get_json(
     url: str,
     params: dict[str, Any] | None = None,
     *,
-    user_agent: str,
+    version: str,
     policy: RequestPolicy,
 ) -> dict[str, Any]:
+    user_agent = USER_AGENT.format(version=version)
     request_timeout = aiohttp.ClientTimeout(total=policy.timeout_seconds)
     return await with_exponential_backoff(
         lambda: _request_json(session, url, params, user_agent, request_timeout),

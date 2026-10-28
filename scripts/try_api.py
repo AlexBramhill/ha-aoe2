@@ -30,13 +30,13 @@ MANIFEST = Path(__file__).resolve().parents[1] / "custom_components/aoe2/manifes
 
 async def main(args: argparse.Namespace) -> None:
     async with aiohttp.ClientSession() as session:
-        client = create_client(args.client, session, script_user_agent())
+        client = create_client(args.client, session, script_version())
         await print_player(client, args.profile_id, args.count)
 
 
-def script_user_agent() -> str:
+def script_version() -> str:
     version = json.loads(MANIFEST.read_text())["version"]
-    return f"ha-aoe2/{version}+try_api (+https://github.com/AlexBramhill/ha-aoe2)"
+    return f"{version}+try_api"
 
 
 async def print_player(client: AoeClient, profile_id: int, match_count: int) -> None:

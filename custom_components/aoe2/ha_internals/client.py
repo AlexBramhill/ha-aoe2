@@ -2,7 +2,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from custom_components.aoe2.api import AoeClient, ClientName, RequestPolicy, create_client
-from custom_components.aoe2.ha_internals.user_agent import async_get_user_agent
+from custom_components.aoe2.ha_internals.version import async_get_version
 
 
 async def async_create_client(
@@ -11,6 +11,6 @@ async def async_create_client(
     return create_client(
         client_name,
         async_get_clientsession(hass),
-        await async_get_user_agent(hass),
+        await async_get_version(hass),
         policy,
     )

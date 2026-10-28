@@ -14,7 +14,7 @@ from custom_components.aoe2.api import (
 from tests.api.fake_apis import FAKE_API_FOR_CLIENT, FakeApi
 from tests.api.helpers import (
     RECORDED_PLAYERS,
-    TEST_USER_AGENT,
+    TEST_VERSION,
     UNUSED_SESSION,
     VIPER,
     VIPER_LOST_UNRANKED_MATCH_ID,
@@ -76,7 +76,7 @@ def recorded_player(request: pytest.FixtureRequest) -> RecordedPlayer:
 def connect(monkeypatch: pytest.MonkeyPatch) -> Connect:
     def connect_to(fake_api: FakeApi) -> AoeClient:
         monkeypatch.setattr(fake_api.module, "get_json", fake_api.get_json)
-        return create_client(fake_api.name, session=UNUSED_SESSION, user_agent=TEST_USER_AGENT)
+        return create_client(fake_api.name, session=UNUSED_SESSION, version=TEST_VERSION)
 
     return connect_to
 
