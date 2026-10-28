@@ -21,4 +21,4 @@ class PlayerData:
         return self.current_match() is not None
 
     def player_in(self, match: Match) -> MatchPlayer:
-        return match.player_with_id(self.profile.profile_id)
+        return match.get_player_with_id(self.profile.profile_id)

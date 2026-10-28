@@ -18,8 +18,7 @@ from custom_components.aoe2.api import Leaderboard, Rating
 from custom_components.aoe2.ha_internals.coordinator import Aoe2ConfigEntry, Aoe2Coordinator
 from custom_components.aoe2.ha_internals.entity import Aoe2Entity
 from custom_components.aoe2.logic import (
-    RESULT_LOSS,
-    RESULT_WIN,
+    MatchResult,
     PlayerData,
     get_last_match_civ,
     get_last_match_details,
@@ -128,7 +127,7 @@ PLAYER_SENSORS: tuple[Aoe2PlayerSensorEntityDescription, ...] = (
         key="last_match_result",
         translation_key="last_match_result",
         device_class=SensorDeviceClass.ENUM,
-        options=[RESULT_WIN, RESULT_LOSS],
+        options=[MatchResult.WIN, MatchResult.LOSS],
         value_fn=get_last_match_result,
         attributes_fn=get_last_match_details,
     ),

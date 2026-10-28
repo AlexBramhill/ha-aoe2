@@ -62,7 +62,7 @@ def format_rating(rating: Rating) -> str:
 
 
 def format_match(match: Match, profile_id: int) -> str:
-    player = match.player_with_id(profile_id)
+    player = match.get_player_with_id(profile_id)
     columns = [
         f"{match.started:%Y-%m-%d %H:%M}",
         format_result(player),

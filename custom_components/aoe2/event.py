@@ -1,20 +1,16 @@
+from collections.abc import Mapping
+from typing import Any
+
 from homeassistant.components.event import EventEntity
 from homeassistant.core import Event, HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from custom_components.aoe2.const import EVENT_MATCH_FINISHED
-from custom_components.aoe2.ha_internals.coordinator import (
-    Aoe2ConfigEntry,
-    Aoe2Coordinator,
-    MatchFinishedEventData,
-)
+from custom_components.aoe2.ha_internals.coordinator import Aoe2ConfigEntry, Aoe2Coordinator
 from custom_components.aoe2.ha_internals.entity import Aoe2Entity
+from custom_components.aoe2.logic import MatchResult, get_match_result
 
 PARALLEL_UPDATES = 0
-
-EVENT_WIN = "win"
-EVENT_LOSS = "loss"
-EVENT_UNKNOWN_RESULT = "unknown"
 
 
 async def async_setup_entry(
@@ -30,7 +26,7 @@ class Aoe2MatchFinishedEvent(Aoe2Entity, EventEntity):
 
     def __init__(self, coordinator: Aoe2Coordinator) -> None:
         super().__init__(coordinator, "match_finished")
-        self._attr_event_types = [EVENT_WIN, EVENT_LOSS, EVENT_UNKNOWN_RESULT]
+        self._attr_event_types = list(MatchResult)
 
     async def async_added_to_hass(self) -> None:
         await super().async_added_to_hass()
@@ -39,18 +35,8 @@ class Aoe2MatchFinishedEvent(Aoe2Entity, EventEntity):
         )
 
     @callback
-    def _handle_match_finished(self, event: Event[MatchFinishedEventData]) -> None:
+    def _handle_match_finished(self, event: Event[Mapping[str, Any]]) -> None:
         if event.data["profile_id"] != self.coordinator.profile_id:
             return
-        self._trigger_event(_get_event_type(event.data["won"]), dict(event.data))
+        self._trigger_event(get_match_result(event.data["won"]), dict(event.data))
         self.async_write_ha_state()
-
-
-def _get_event_type(won: bool | None) -> str:
-    match won:
-        case True:
-            return EVENT_WIN
-        case False:
-            return EVENT_LOSS
-        case None:
-            return EVENT_UNKNOWN_RESULT

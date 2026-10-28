@@ -1,7 +1,8 @@
 import asyncio
 from collections.abc import Mapping
+from dataclasses import asdict
 from datetime import timedelta
-from typing import Any, TypedDict
+from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
@@ -11,7 +12,6 @@ from custom_components.aoe2.api import (
     AoeClient,
     AoeClientError,
     AoeClientRetryError,
-    Leaderboard,
     Match,
 )
 from custom_components.aoe2.const import (
@@ -26,7 +26,6 @@ from custom_components.aoe2.const import (
 )
 from custom_components.aoe2.ha_internals.recorded_matches import RecordedMatches
 from custom_components.aoe2.logic import (
-    MatchFinishedEvent,
     PlayerData,
     UpdateIntervals,
     get_match_finished_event,
@@ -37,18 +36,6 @@ from custom_components.aoe2.logic import (
 RECENT_MATCH_COUNT = 5
 
 type Aoe2ConfigEntry = ConfigEntry[Aoe2Coordinator]
-
-
-class MatchFinishedEventData(TypedDict):
-    """Flat, because automations read these fields as event entity attributes."""
-
-    profile_id: int
-    match_id: int
-    leaderboard: Leaderboard
-    map_name: str
-    won: bool | None
-    rating_after_match: int | None
-    rating_change: int | None
 
 
 class Aoe2Coordinator(TimestampDataUpdateCoordinator[PlayerData]):
@@ -88,7 +75,7 @@ class Aoe2Coordinator(TimestampDataUpdateCoordinator[PlayerData]):
         super().async_update_listeners()
         for match in self._newly_recorded_matches:
             event = get_match_finished_event(match, self._profile_id)
-            self.hass.bus.async_fire(EVENT_MATCH_FINISHED, get_event_data(event))
+            self.hass.bus.async_fire(EVENT_MATCH_FINISHED, asdict(event))
         self._newly_recorded_matches = []
 
     async def _fetch_player_data(self) -> PlayerData:
@@ -117,18 +104,6 @@ class Aoe2Coordinator(TimestampDataUpdateCoordinator[PlayerData]):
             return False
         found_saved_record = await self._recorded_matches.async_load()
         return not found_saved_record
-
-
-def get_event_data(event: MatchFinishedEvent) -> MatchFinishedEventData:
-    return MatchFinishedEventData(
-        profile_id=event.profile_id,
-        match_id=event.match_id,
-        leaderboard=event.leaderboard,
-        map_name=event.map_name,
-        won=event.result.won,
-        rating_after_match=event.result.rating_after_match,
-        rating_change=event.result.rating_change,
-    )
 
 
 def get_update_intervals(options: Mapping[str, Any]) -> UpdateIntervals:

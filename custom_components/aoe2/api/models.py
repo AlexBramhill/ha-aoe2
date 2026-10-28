@@ -71,7 +71,7 @@ class Match:
     map_name: str
     players: tuple[MatchPlayer, ...]
 
-    def player_with_id(self, profile_id: int) -> MatchPlayer:
+    def get_player_with_id(self, profile_id: int) -> MatchPlayer:
         for player in self.players:
             if player.profile_id == profile_id:
                 return player

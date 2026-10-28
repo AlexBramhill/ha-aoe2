@@ -39,7 +39,7 @@ def test_match_player_includes_civ_name(matches_response: Body):
     newest_match = parse_matches(matches_response)[0]
 
     # Then
-    kingstone = newest_match.player_with_id(KINGSTONE_PROFILE_ID)
+    kingstone = newest_match.get_player_with_id(KINGSTONE_PROFILE_ID)
     assert kingstone.civ == "Persians"
 
 
@@ -91,7 +91,7 @@ def test_ai_player_has_name_team_and_civ_but_no_result():
     match = parse_matches(ai_match_response())[0]
 
     # Then
-    ai = match.player_with_id(-1)
+    ai = match.get_player_with_id(-1)
     assert (ai.name, ai.team, ai.civ) == ("AI", 2, "Malians")
     assert (ai.won, ai.rating_after_match, ai.rating_change) == (None, None, None)
 
@@ -106,7 +106,7 @@ def test_rating_after_match_is_unknown_without_rating_change():
     match = parse_matches(response)[0]
 
     # Then
-    player = match.player_with_id(1241154)
+    player = match.get_player_with_id(1241154)
     assert player.rating_after_match is None
 
 
