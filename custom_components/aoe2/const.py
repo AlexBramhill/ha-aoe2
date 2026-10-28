@@ -7,6 +7,7 @@ LOGGER = logging.getLogger(__package__)
 
 CONF_CLIENT = "client"
 CONF_PROFILE_ID = "profile_id"
+CONF_IS_BACKFILL_ENABLED = "is_backfill_enabled"
 
 DEFAULT_CLIENT: ClientName = "aoe2companion"
 
