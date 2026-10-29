@@ -7,7 +7,7 @@ import aiohttp
 
 FIXTURES = Path(__file__).parent / "fixtures"
 UNUSED_SESSION = cast(aiohttp.ClientSession, None)
-TEST_USER_AGENT = "ha-aoe2-tests"
+TEST_VERSION = "1.2.3-tests"
 
 
 @dataclass(frozen=True)

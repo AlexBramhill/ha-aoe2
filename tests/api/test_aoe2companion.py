@@ -15,7 +15,7 @@ from custom_components.aoe2.api._aoe2companion import (
     parse_profile,
 )
 from tests.api.api_json import Body
-from tests.api.helpers import TEST_USER_AGENT, UNUSED_SESSION, VIPER, VIPER_WON_RANKED_MATCH_ID
+from tests.api.helpers import TEST_VERSION, UNUSED_SESSION, VIPER, VIPER_WON_RANKED_MATCH_ID
 
 KINGSTONE_PROFILE_ID = 2776293
 RATING_JSON = {
@@ -39,7 +39,7 @@ def test_match_player_includes_civ_name(matches_response: Body):
     newest_match = parse_matches(matches_response)[0]
 
     # Then
-    kingstone = newest_match.player_with_id(KINGSTONE_PROFILE_ID)
+    kingstone = newest_match.get_player_with_id(KINGSTONE_PROFILE_ID)
     assert kingstone.civ == "Persians"
 
 
@@ -91,7 +91,7 @@ def test_ai_player_has_name_team_and_civ_but_no_result():
     match = parse_matches(ai_match_response())[0]
 
     # Then
-    ai = match.player_with_id(-1)
+    ai = match.get_player_with_id(-1)
     assert (ai.name, ai.team, ai.civ) == ("AI", 2, "Malians")
     assert (ai.won, ai.rating_after_match, ai.rating_change) == (None, None, None)
 
@@ -106,7 +106,7 @@ def test_rating_after_match_is_unknown_without_rating_change():
     match = parse_matches(response)[0]
 
     # Then
-    player = match.player_with_id(1241154)
+    player = match.get_player_with_id(1241154)
     assert player.rating_after_match is None
 
 
@@ -151,7 +151,7 @@ def test_malformed_profile_raises_response_error():
 
 def test_profile_url_links_to_aoe2companion_profile():
     # Given
-    client = Aoe2CompanionClient(UNUSED_SESSION, TEST_USER_AGENT)
+    client = Aoe2CompanionClient(UNUSED_SESSION, TEST_VERSION)
 
     # When
     url = client.profile_url(VIPER.profile_id)
@@ -162,7 +162,7 @@ def test_profile_url_links_to_aoe2companion_profile():
 
 def test_attribution_credits_aoe2companion():
     # Given
-    client = Aoe2CompanionClient(UNUSED_SESSION, TEST_USER_AGENT)
+    client = Aoe2CompanionClient(UNUSED_SESSION, TEST_VERSION)
 
     # Then
     assert "aoe2companion" in client.attribution
@@ -178,28 +178,28 @@ def test_every_leaderboard_except_other_has_an_aoe2companion_id():
 
 def test_website_url_is_aoe2companion():
     # Given
-    client = Aoe2CompanionClient(UNUSED_SESSION, TEST_USER_AGENT)
+    client = Aoe2CompanionClient(UNUSED_SESSION, TEST_VERSION)
 
     # Then
     assert client.website_url == "https://www.aoe2companion.com"
 
 
-async def test_requests_send_the_client_user_agent(monkeypatch: pytest.MonkeyPatch):
+async def test_requests_send_the_client_version(monkeypatch: pytest.MonkeyPatch):
     # Given
-    sent_user_agents: list[str] = []
+    sent_versions: list[str] = []
 
-    async def recording_get_json(*_args: object, user_agent: str, **_options: object) -> Body:
-        sent_user_agents.append(user_agent)
+    async def recording_get_json(*_args: object, version: str, **_options: object) -> Body:
+        sent_versions.append(version)
         return {"profileId": VIPER.profile_id, "name": "Viper", "leaderboards": []}
 
     monkeypatch.setattr(_aoe2companion, "get_json", recording_get_json)
-    client = Aoe2CompanionClient(UNUSED_SESSION, TEST_USER_AGENT)
+    client = Aoe2CompanionClient(UNUSED_SESSION, TEST_VERSION)
 
     # When
     await client.get_profile(VIPER.profile_id)
 
     # Then
-    assert sent_user_agents == [TEST_USER_AGENT]
+    assert sent_versions == [TEST_VERSION]
 
 
 @pytest.mark.parametrize(
@@ -221,9 +221,9 @@ async def test_requests_use_the_client_policy(
 
     monkeypatch.setattr(_aoe2companion, "get_json", recording_get_json)
     client = (
-        Aoe2CompanionClient(UNUSED_SESSION, TEST_USER_AGENT)
+        Aoe2CompanionClient(UNUSED_SESSION, TEST_VERSION)
         if given_policy is None
-        else Aoe2CompanionClient(UNUSED_SESSION, TEST_USER_AGENT, given_policy)
+        else Aoe2CompanionClient(UNUSED_SESSION, TEST_VERSION, given_policy)
     )
 
     # When

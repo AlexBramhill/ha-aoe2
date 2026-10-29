@@ -4,8 +4,10 @@ from homeassistant.components.binary_sensor import BinarySensorEntity
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
-from custom_components.aoe2.ha_internals.coordinator import Aoe2ConfigEntry, Aoe2Coordinator
+from custom_components.aoe2.ha_internals.config_entry import Aoe2ConfigEntry
+from custom_components.aoe2.ha_internals.coordinator import Aoe2Coordinator
 from custom_components.aoe2.ha_internals.entity import Aoe2Entity
+from custom_components.aoe2.logic import get_current_match_details
 
 PARALLEL_UPDATES = 0
 
@@ -29,8 +31,5 @@ class Aoe2InMatchSensor(Aoe2Entity, BinarySensorEntity):
         return self.coordinator.data.is_in_current_match()
 
     @property
-    def extra_state_attributes(self) -> dict[str, Any] | None:
-        match = self.coordinator.data.current_match()
-        if match is None:
-            return None
-        return {"leaderboard": match.leaderboard, "map": match.map_name, "started": match.started}
+    def extra_state_attributes(self) -> dict[str, Any]:
+        return get_current_match_details(self.coordinator.data)

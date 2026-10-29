@@ -2,15 +2,14 @@ from collections.abc import Callable
 from datetime import datetime
 from typing import Any
 
-from ..api import Match, MatchPlayer
-from ._player_data import PlayerData
-
-RESULT_WIN = "win"
-RESULT_LOSS = "loss"
+from custom_components.aoe2.api import Match, MatchPlayer
+from custom_components.aoe2.logic._match_result import MatchResult, get_match_result
+from custom_components.aoe2.logic._player_data import PlayerData
 
 
-def get_last_match_result(data: PlayerData) -> str | None:
-    return _get_from_last_match(data, lambda match: _get_result(data.player_in(match)))
+def get_last_match_result(data: PlayerData) -> MatchResult | None:
+    result = _get_from_last_match(data, lambda match: get_match_result(data.player_in(match).won))
+    return None if result is MatchResult.UNKNOWN else result
 
 
 def get_last_match_rating_change(data: PlayerData) -> int | None:
@@ -44,6 +43,13 @@ def get_last_match_details(data: PlayerData) -> dict[str, Any]:
     }
 
 
+def get_current_match_details(data: PlayerData) -> dict[str, Any]:
+    match = data.current_match()
+    if match is None:
+        return {}
+    return {"leaderboard": match.leaderboard, "map": match.map_name, "started": match.started}
+
+
 def get_recent_win_rate(data: PlayerData) -> float | None:
     results = [data.player_in(match).won for match in data.finished_matches()]
     known_results = [won for won in results if won is not None]
@@ -67,12 +73,6 @@ def _get_from_last_match[Value](
 ) -> Value | None:
     match = data.last_finished_match()
     return None if match is None else value_of(match)
-
-
-def _get_result(player: MatchPlayer) -> str | None:
-    if player.won is None:
-        return None
-    return RESULT_WIN if player.won else RESULT_LOSS
 
 
 def _get_teammates(match: Match, player: MatchPlayer) -> list[str]:

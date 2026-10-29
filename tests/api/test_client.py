@@ -14,7 +14,7 @@ from custom_components.aoe2.api import (
 from tests.api.fake_apis import FAKE_API_FOR_CLIENT, FakeApi
 from tests.api.helpers import (
     RECORDED_PLAYERS,
-    TEST_USER_AGENT,
+    TEST_VERSION,
     UNUSED_SESSION,
     VIPER,
     VIPER_LOST_UNRANKED_MATCH_ID,
@@ -76,7 +76,7 @@ def recorded_player(request: pytest.FixtureRequest) -> RecordedPlayer:
 def connect(monkeypatch: pytest.MonkeyPatch) -> Connect:
     def connect_to(fake_api: FakeApi) -> AoeClient:
         monkeypatch.setattr(fake_api.module, "get_json", fake_api.get_json)
-        return create_client(fake_api.name, session=UNUSED_SESSION, user_agent=TEST_USER_AGENT)
+        return create_client(fake_api.name, session=UNUSED_SESSION, version=TEST_VERSION)
 
     return connect_to
 
@@ -154,7 +154,7 @@ async def test_matches_include_requested_player(client: AoeClient, recorded_play
     # Then
     assert matches
     for match in matches:
-        match.player_with_id(recorded_player.profile_id)
+        match.get_player_with_id(recorded_player.profile_id)
 
 
 async def test_match_times_are_timezone_aware(client: AoeClient, recorded_player: RecordedPlayer):
@@ -216,7 +216,9 @@ async def test_viper_lost_match_reports_result_rating_and_team(viper_client: Aoe
     matches = await viper_client.get_recent_matches(VIPER.profile_id, count=len(VIPER_MATCH_IDS))
 
     # Then
-    viper = match_with_id(matches, VIPER_LOST_UNRANKED_MATCH_ID).player_with_id(VIPER.profile_id)
+    viper = match_with_id(matches, VIPER_LOST_UNRANKED_MATCH_ID).get_player_with_id(
+        VIPER.profile_id
+    )
     assert viper.won is False
     assert viper.rating_change == -20
     assert viper.rating_after_match == 1695
@@ -229,7 +231,7 @@ async def test_viper_ranked_match_reports_leaderboard_rating_and_team(viper_clie
 
     # Then
     ranked_match = match_with_id(matches, VIPER_WON_RANKED_MATCH_ID)
-    viper = ranked_match.player_with_id(VIPER.profile_id)
+    viper = ranked_match.get_player_with_id(VIPER.profile_id)
     assert ranked_match.leaderboard is Leaderboard.RM_1V1
     assert viper.won is True
     assert viper.rating_change == 4

@@ -4,9 +4,9 @@ from typing import Any
 
 import aiohttp
 
-from ._http import BACKGROUND_REQUESTS, RequestPolicy, get_json
-from ._parsing import number_teams_from_one, response_parser
-from .models import Leaderboard, Match, MatchPlayer, Profile, Rating
+from custom_components.aoe2.api._http import BACKGROUND_REQUESTS, RequestPolicy, get_json
+from custom_components.aoe2.api._parsing import number_teams_from_one, response_parser
+from custom_components.aoe2.api.models import Leaderboard, Match, MatchPlayer, Profile, Rating
 
 BASE_URL = "https://data.aoe2companion.com/api"
 WEBSITE_URL = "https://www.aoe2companion.com"
@@ -34,11 +34,11 @@ class Aoe2CompanionClient:
     def __init__(
         self,
         session: aiohttp.ClientSession,
-        user_agent: str,
+        version: str,
         policy: RequestPolicy = BACKGROUND_REQUESTS,
     ) -> None:
         self._session = session
-        self._user_agent = user_agent
+        self._version = version
         self._policy = policy
 
     @property
@@ -65,7 +65,7 @@ class Aoe2CompanionClient:
             self._session,
             f"{BASE_URL}/{path}",
             params,
-            user_agent=self._user_agent,
+            version=self._version,
             policy=self._policy,
         )
 
