@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/AlexBramhill/ha-aoe2/compare/v0.3.1...v0.4.0) (2026-10-29)
+
+
+### Features
+
+* add logo ([f62df6e](https://github.com/AlexBramhill/ha-aoe2/commit/f62df6e2a74ee3cae845a3af6a3c053becea3163))
+
 ## [0.3.1](https://github.com/AlexBramhill/ha-aoe2/compare/v0.3.0...v0.3.1) (2026-10-27)
 
 
