@@ -1,11 +1,11 @@
 import asyncio
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from dataclasses import asdict
 from datetime import timedelta
 from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant, callback
+from homeassistant.core import CALLBACK_TYPE, HomeAssistant, callback
 from homeassistant.helpers.update_coordinator import TimestampDataUpdateCoordinator, UpdateFailed
 
 from custom_components.aoe2.api import AoeClient, AoeClientError, AoeClientRetryError
@@ -21,6 +21,7 @@ from custom_components.aoe2.const import (
 )
 from custom_components.aoe2.ha.recorded_matches import RecordedMatches
 from custom_components.aoe2.logic import (
+    MatchFinishedEvent,
     MatchLedger,
     UpdateIntervals,
     get_match_finished_event,
@@ -29,6 +30,8 @@ from custom_components.aoe2.logic import (
 from custom_components.aoe2.models import Match, PlayerData
 
 RECENT_MATCH_COUNT = 5
+
+type MatchFinishedListener = Callable[[MatchFinishedEvent], None]
 
 
 class Aoe2Coordinator(TimestampDataUpdateCoordinator[PlayerData]):
@@ -50,6 +53,7 @@ class Aoe2Coordinator(TimestampDataUpdateCoordinator[PlayerData]):
         self._recorded_matches = RecordedMatches(hass, entry.entry_id)
         self._ledger: MatchLedger | None = None
         self._matches_to_announce: list[Match] = []
+        self._match_finished_listeners: list[MatchFinishedListener] = []
 
     @property
     def profile_id(self) -> int:
@@ -58,6 +62,16 @@ class Aoe2Coordinator(TimestampDataUpdateCoordinator[PlayerData]):
     @property
     def client(self) -> AoeClient:
         return self._client
+
+    @callback
+    def async_add_match_finished_listener(self, listener: MatchFinishedListener) -> CALLBACK_TYPE:
+        self._match_finished_listeners.append(listener)
+
+        @callback
+        def remove_listener() -> None:
+            self._match_finished_listeners.remove(listener)
+
+        return remove_listener
 
     async def _async_setup(self) -> None:
         self._ledger = await self._recorded_matches.async_load()
@@ -74,6 +88,8 @@ class Aoe2Coordinator(TimestampDataUpdateCoordinator[PlayerData]):
         super().async_update_listeners()
         for match in self._matches_to_announce:
             event = get_match_finished_event(match, self._profile_id)
+            for listener in self._match_finished_listeners:
+                listener(event)
             self.hass.bus.async_fire(EVENT_MATCH_FINISHED, asdict(event))
         self._matches_to_announce = []
 

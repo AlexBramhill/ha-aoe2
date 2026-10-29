@@ -1,7 +1,7 @@
 from dataclasses import asdict
 
 from custom_components.aoe2.logic import get_match_finished_event
-from custom_components.aoe2.models import Leaderboard
+from custom_components.aoe2.models import Leaderboard, MatchResult
 from tests.builders import MatchBuilder, build_match_player
 
 
@@ -14,7 +14,8 @@ def test_event_is_for_the_requested_player():
 
     # Then
     assert event.profile_id == 2
-    assert event.won is False
+    assert event.is_winner is False
+    assert event.result is MatchResult.LOSS
 
 
 def test_event_is_flat_for_automations():
@@ -37,7 +38,7 @@ def test_event_is_flat_for_automations():
         "match_id": 7,
         "leaderboard": Leaderboard.RM_1V1,
         "map_name": "Arabia",
-        "won": False,
+        "is_winner": False,
         "rating_after_match": 1496,
         "rating_change": -14,
     }

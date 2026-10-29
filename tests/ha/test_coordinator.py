@@ -25,6 +25,7 @@ from custom_components.aoe2.const import (
     MIN_UPDATE_MINUTES,
 )
 from custom_components.aoe2.ha.coordinator import Aoe2Coordinator, get_update_intervals
+from custom_components.aoe2.logic import MatchFinishedEvent
 from custom_components.aoe2.models import Leaderboard, PlayerData
 from tests.builders import TYPICAL_START, MatchBuilder
 from tests.fake_client import FakeAoeClient
@@ -154,11 +155,44 @@ async def test_newly_finished_match_is_announced(
             "match_id": 2,
             "leaderboard": Leaderboard.RM_1V1,
             "map_name": "Arabia",
-            "won": True,
+            "is_winner": True,
             "rating_after_match": 1510,
             "rating_change": 10,
         }
     ]
+
+
+async def test_match_finished_listeners_hear_newly_finished_match(
+    hass: HomeAssistant, coordinator: Aoe2Coordinator, fake_client: FakeAoeClient
+):
+    # Given
+    await refresh(hass, coordinator)
+    heard: list[MatchFinishedEvent] = []
+    coordinator.async_add_match_finished_listener(heard.append)
+    fake_client.matches = [NEWER_MATCH.build(), EARLIER_MATCH.build()]
+
+    # When
+    await refresh(hass, coordinator)
+
+    # Then
+    assert [event.match_id for event in heard] == [2]
+
+
+async def test_removed_match_finished_listener_hears_nothing(
+    hass: HomeAssistant, coordinator: Aoe2Coordinator, fake_client: FakeAoeClient
+):
+    # Given
+    await refresh(hass, coordinator)
+    heard: list[MatchFinishedEvent] = []
+    remove_listener = coordinator.async_add_match_finished_listener(heard.append)
+    remove_listener()
+    fake_client.matches = [NEWER_MATCH.build(), EARLIER_MATCH.build()]
+
+    # When
+    await refresh(hass, coordinator)
+
+    # Then
+    assert heard == []
 
 
 async def test_unfinished_match_is_not_announced(

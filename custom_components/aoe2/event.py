@@ -1,14 +1,13 @@
-from collections.abc import Mapping
-from typing import Any
+from dataclasses import asdict
 
 from homeassistant.components.event import EventEntity
-from homeassistant.core import Event, HomeAssistant, callback
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
-from custom_components.aoe2.const import EVENT_MATCH_FINISHED
 from custom_components.aoe2.ha.config_entry import Aoe2ConfigEntry
 from custom_components.aoe2.ha.coordinator import Aoe2Coordinator
 from custom_components.aoe2.ha.entity import Aoe2Entity
+from custom_components.aoe2.logic import MatchFinishedEvent
 from custom_components.aoe2.models import MatchResult
 
 PARALLEL_UPDATES = 0
@@ -32,12 +31,10 @@ class Aoe2MatchFinishedEvent(Aoe2Entity, EventEntity):
     async def async_added_to_hass(self) -> None:
         await super().async_added_to_hass()
         self.async_on_remove(
-            self.hass.bus.async_listen(EVENT_MATCH_FINISHED, self._handle_match_finished)
+            self.coordinator.async_add_match_finished_listener(self._handle_match_finished)
         )
 
     @callback
-    def _handle_match_finished(self, event: Event[Mapping[str, Any]]) -> None:
-        if event.data["profile_id"] != self.coordinator.profile_id:
-            return
-        self._trigger_event(MatchResult.from_is_winner(event.data["won"]), dict(event.data))
+    def _handle_match_finished(self, event: MatchFinishedEvent) -> None:
+        self._trigger_event(event.result, asdict(event))
         self.async_write_ha_state()
