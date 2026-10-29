@@ -2,6 +2,8 @@
 
 [![CI](https://github.com/AlexBramhill/ha-aoe2/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/AlexBramhill/ha-aoe2/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/AlexBramhill/ha-aoe2?include_prereleases)](https://github.com/AlexBramhill/ha-aoe2/releases)
+[![License](https://img.shields.io/github/license/AlexBramhill/ha-aoe2)](LICENSE)
+[![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2026.10%2B-41BDF5)](https://www.home-assistant.io)
 [![HACS Custom](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://hacs.xyz)
 
 Home Assistant integration that tracks Age of Empires II: Definitive Edition player ratings and matches.
