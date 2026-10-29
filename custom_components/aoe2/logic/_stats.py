@@ -2,9 +2,9 @@ from collections.abc import Callable
 from datetime import datetime
 from typing import Any
 
-from custom_components.aoe2.api import Match, MatchPlayer
 from custom_components.aoe2.logic._match_result import MatchResult, get_match_result
 from custom_components.aoe2.logic._player_data import PlayerData
+from custom_components.aoe2.models import Match, MatchPlayer
 
 
 def get_last_match_result(data: PlayerData) -> MatchResult | None:

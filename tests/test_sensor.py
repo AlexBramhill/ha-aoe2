@@ -5,7 +5,8 @@ from homeassistant.const import STATE_UNAVAILABLE, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry
 
-from custom_components.aoe2.api import AoeClientConnectionError, Leaderboard
+from custom_components.aoe2.api import AoeClientConnectionError
+from custom_components.aoe2.models import Leaderboard
 from tests.builders import ProfileBuilder, build_rating
 from tests.fake_client import FakeAoeClient
 from tests.integration import (

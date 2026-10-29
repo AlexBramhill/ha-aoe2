@@ -7,12 +7,13 @@ import pytest
 INTEGRATION = Path(__file__).parents[1] / "custom_components" / "aoe2"
 INTEGRATION_PACKAGE = "custom_components.aoe2"
 
-HOME_ASSISTANT_FREE_PACKAGES = ["api", "logic"]
+HOME_ASSISTANT_FREE_PACKAGES = ["models", "api", "logic"]
 
 ALLOWED_IMPORTS = {
-    "api": {"api"},
-    "logic": {"api", "logic"},
-    "ha": {"api", "logic", "const", "ha"},
+    "models": {"models"},
+    "api": {"api", "models"},
+    "logic": {"logic", "models"},
+    "ha": {"api", "logic", "models", "const", "ha"},
 }
 
 IMPORT_WITHOUT_INTEGRATION_SETUP = """

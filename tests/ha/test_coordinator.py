@@ -13,7 +13,6 @@ from custom_components.aoe2.api import (
     AoeClientNotFoundError,
     AoeClientRateLimitError,
     AoeClientResponseError,
-    Leaderboard,
 )
 from custom_components.aoe2.const import (
     CONF_CLIENT,
@@ -27,6 +26,7 @@ from custom_components.aoe2.const import (
 )
 from custom_components.aoe2.ha.coordinator import Aoe2Coordinator, get_update_intervals
 from custom_components.aoe2.logic import PlayerData
+from custom_components.aoe2.models import Leaderboard
 from tests.builders import TYPICAL_START, MatchBuilder
 from tests.fake_client import FakeAoeClient
 

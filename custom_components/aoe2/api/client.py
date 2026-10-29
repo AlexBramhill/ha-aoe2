@@ -1,6 +1,6 @@
 from typing import Protocol
 
-from custom_components.aoe2.api.models import Match, Profile
+from custom_components.aoe2.models import Match, Profile
 
 
 class AoeClient(Protocol):

@@ -1,4 +1,3 @@
-from custom_components.aoe2.api import Leaderboard
 from custom_components.aoe2.logic import (
     PlayerData,
     get_current_match_details,
@@ -7,6 +6,7 @@ from custom_components.aoe2.logic import (
     get_recent_rating_change,
     get_recent_win_rate,
 )
+from custom_components.aoe2.models import Leaderboard
 from tests.builders import TYPICAL_START, MatchBuilder, ProfileBuilder, build_match_player
 from tests.integration import PROFILE_ID
 

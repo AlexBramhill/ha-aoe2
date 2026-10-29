@@ -2,7 +2,7 @@ from typing import Any
 
 import pytest
 
-from custom_components.aoe2.api import Leaderboard
+from custom_components.aoe2.models import Leaderboard
 from tests.api.helpers import RECORDED_PLAYERS, RecordedPlayer
 from tests.builders import MatchBuilder, ProfileBuilder, build_match_history, build_rating
 

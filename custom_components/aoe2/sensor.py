@@ -14,7 +14,6 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.typing import StateType
 
-from custom_components.aoe2.api import Leaderboard, Rating
 from custom_components.aoe2.ha.config_entry import Aoe2ConfigEntry
 from custom_components.aoe2.ha.coordinator import Aoe2Coordinator
 from custom_components.aoe2.ha.entity import Aoe2Entity
@@ -31,6 +30,7 @@ from custom_components.aoe2.logic import (
     get_recent_rating_change,
     get_recent_win_rate,
 )
+from custom_components.aoe2.models import Leaderboard, Rating
 
 PARALLEL_UPDATES = 0
 

@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 
-from custom_components.aoe2.api import AoeClientError, Match, Profile
+from custom_components.aoe2.api import AoeClientError
+from custom_components.aoe2.models import Match, Profile
 from tests.builders import MatchBuilder, ProfileBuilder
 
 

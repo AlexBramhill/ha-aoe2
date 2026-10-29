@@ -3,7 +3,7 @@ from dataclasses import dataclass, replace
 from datetime import UTC, datetime, timedelta
 from typing import Any, Self
 
-from custom_components.aoe2.api import Leaderboard, Match, MatchPlayer, Profile, Rating
+from custom_components.aoe2.models import Leaderboard, Match, MatchPlayer, Profile, Rating
 from tests.api.api_json import (
     Body,
     aoe2companion_matches_json,

@@ -15,15 +15,8 @@ import aiohttp
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from custom_components.aoe2.api import (
-    AoeClient,
-    ClientName,
-    Match,
-    MatchPlayer,
-    Profile,
-    Rating,
-    create_client,
-)
+from custom_components.aoe2.api import AoeClient, ClientName, create_client
+from custom_components.aoe2.models import Match, MatchPlayer, Profile, Rating
 
 MANIFEST = Path(__file__).resolve().parents[1] / "custom_components/aoe2/manifest.json"
 

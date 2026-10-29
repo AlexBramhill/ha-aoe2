@@ -3,14 +3,8 @@ from typing import get_args
 
 import pytest
 
-from custom_components.aoe2.api import (
-    AoeClient,
-    AoeClientNotFoundError,
-    ClientName,
-    Leaderboard,
-    Match,
-    create_client,
-)
+from custom_components.aoe2.api import AoeClient, AoeClientNotFoundError, ClientName, create_client
+from custom_components.aoe2.models import Leaderboard, Match
 from tests.api.fake_apis import FAKE_API_FOR_CLIENT, FakeApi
 from tests.api.helpers import (
     RECORDED_PLAYERS,

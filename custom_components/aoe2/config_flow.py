@@ -20,7 +20,6 @@ from custom_components.aoe2.api import (
     AoeClientError,
     AoeClientNotFoundError,
     AoeClientRetryError,
-    Profile,
 )
 from custom_components.aoe2.const import (
     CONF_CLIENT,
@@ -34,6 +33,7 @@ from custom_components.aoe2.const import (
     MIN_UPDATE_MINUTES,
 )
 from custom_components.aoe2.ha.client import async_create_client
+from custom_components.aoe2.models import Profile
 
 FORM_ERROR = "base"
 ERROR_PLAYER_NOT_FOUND = "player_not_found"

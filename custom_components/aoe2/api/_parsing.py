@@ -3,7 +3,7 @@ from dataclasses import replace
 from functools import wraps
 
 from custom_components.aoe2.api.errors import AoeClientResponseError
-from custom_components.aoe2.api.models import MatchPlayer
+from custom_components.aoe2.models import MatchPlayer
 
 
 def response_parser[**Params, Result](

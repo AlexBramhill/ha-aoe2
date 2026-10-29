@@ -2,8 +2,8 @@ from datetime import datetime
 from itertools import groupby
 from typing import Any
 
-from custom_components.aoe2.api import Leaderboard, Match, MatchPlayer, Profile, Rating
 from custom_components.aoe2.api._aoe2companion import LEADERBOARDS_BY_ID
+from custom_components.aoe2.models import Leaderboard, Match, MatchPlayer, Profile, Rating
 
 type Body = dict[str, Any]
 

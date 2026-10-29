@@ -8,12 +8,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.update_coordinator import TimestampDataUpdateCoordinator, UpdateFailed
 
-from custom_components.aoe2.api import (
-    AoeClient,
-    AoeClientError,
-    AoeClientRetryError,
-    Match,
-)
+from custom_components.aoe2.api import AoeClient, AoeClientError, AoeClientRetryError
 from custom_components.aoe2.const import (
     CONF_IN_MATCH_UPDATE_MINUTES,
     CONF_PROFILE_ID,
@@ -32,6 +27,7 @@ from custom_components.aoe2.logic import (
     get_match_finished_event,
     get_new_matches,
 )
+from custom_components.aoe2.models import Match
 
 RECENT_MATCH_COUNT = 5
 

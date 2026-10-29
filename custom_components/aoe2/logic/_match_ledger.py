@@ -2,8 +2,8 @@ from collections.abc import Iterable
 from dataclasses import dataclass, replace
 from typing import Self
 
-from custom_components.aoe2.api import Match
 from custom_components.aoe2.logic._player_data import PlayerData
+from custom_components.aoe2.models import Match
 
 MAX_RECORDED_MATCHES = 1000
 

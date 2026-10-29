@@ -1,7 +1,7 @@
 from dataclasses import asdict
 
-from custom_components.aoe2.api import Leaderboard
 from custom_components.aoe2.logic import get_match_finished_event
+from custom_components.aoe2.models import Leaderboard
 from tests.builders import MatchBuilder, build_match_player
 
 

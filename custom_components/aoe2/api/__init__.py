@@ -20,7 +20,6 @@ from custom_components.aoe2.api.errors import (
     AoeClientResponseError,
     AoeClientRetryError,
 )
-from custom_components.aoe2.api.models import Leaderboard, Match, MatchPlayer, Profile, Rating
 
 ClientName = Literal["aoe2companion"]
 
@@ -50,11 +49,6 @@ __all__ = [
     "AoeClientResponseError",
     "AoeClientRetryError",
     "ClientName",
-    "Leaderboard",
-    "Match",
-    "MatchPlayer",
-    "Profile",
-    "Rating",
     "RequestPolicy",
     "create_client",
 ]

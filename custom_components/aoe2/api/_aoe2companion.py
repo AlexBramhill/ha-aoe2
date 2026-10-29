@@ -6,7 +6,7 @@ import aiohttp
 
 from custom_components.aoe2.api._http import BACKGROUND_REQUESTS, RequestPolicy, get_json
 from custom_components.aoe2.api._parsing import number_teams_from_one, response_parser
-from custom_components.aoe2.api.models import Leaderboard, Match, MatchPlayer, Profile, Rating
+from custom_components.aoe2.models import Leaderboard, Match, MatchPlayer, Profile, Rating
 
 BASE_URL = "https://data.aoe2companion.com/api"
 WEBSITE_URL = "https://www.aoe2companion.com"

@@ -4,8 +4,8 @@ import pytest
 from homeassistant.const import STATE_UNKNOWN, Platform
 from homeassistant.core import Event, HomeAssistant, callback
 
-from custom_components.aoe2.api import Leaderboard
 from custom_components.aoe2.const import EVENT_MATCH_FINISHED
+from custom_components.aoe2.models import Leaderboard
 from tests.builders import TYPICAL_START, MatchBuilder, ProfileBuilder, build_rating
 from tests.fake_client import FakeAoeClient
 from tests.integration import refresh, set_up_integration, state_of

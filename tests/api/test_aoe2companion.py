@@ -4,7 +4,6 @@ from custom_components.aoe2.api import (
     BACKGROUND_REQUESTS,
     INTERACTIVE_REQUESTS,
     AoeClientResponseError,
-    Leaderboard,
     RequestPolicy,
     _aoe2companion,
 )
@@ -14,6 +13,7 @@ from custom_components.aoe2.api._aoe2companion import (
     parse_matches,
     parse_profile,
 )
+from custom_components.aoe2.models import Leaderboard
 from tests.api.api_json import Body
 from tests.api.helpers import TEST_VERSION, UNUSED_SESSION, VIPER, VIPER_WON_RANKED_MATCH_ID
 
