@@ -6,9 +6,9 @@ from homeassistant.core import Event, HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from custom_components.aoe2.const import EVENT_MATCH_FINISHED
-from custom_components.aoe2.ha_internals.config_entry import Aoe2ConfigEntry
-from custom_components.aoe2.ha_internals.coordinator import Aoe2Coordinator
-from custom_components.aoe2.ha_internals.entity import Aoe2Entity
+from custom_components.aoe2.ha.config_entry import Aoe2ConfigEntry
+from custom_components.aoe2.ha.coordinator import Aoe2Coordinator
+from custom_components.aoe2.ha.entity import Aoe2Entity
 from custom_components.aoe2.logic import MatchResult, get_match_result
 
 PARALLEL_UPDATES = 0

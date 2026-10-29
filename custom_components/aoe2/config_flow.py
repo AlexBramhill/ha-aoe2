@@ -33,7 +33,7 @@ from custom_components.aoe2.const import (
     MIN_IN_MATCH_UPDATE_MINUTES,
     MIN_UPDATE_MINUTES,
 )
-from custom_components.aoe2.ha_internals.client import async_create_client
+from custom_components.aoe2.ha.client import async_create_client
 
 FORM_ERROR = "base"
 ERROR_PLAYER_NOT_FOUND = "player_not_found"

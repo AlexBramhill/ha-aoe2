@@ -1,7 +1,7 @@
 import pytest
 
 from custom_components.aoe2.api import AoeClient, ClientName, RequestPolicy
-from custom_components.aoe2.ha_internals import client
+from custom_components.aoe2.ha import client
 from tests.fake_client import FakeAoeClient
 
 

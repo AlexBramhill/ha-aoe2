@@ -24,7 +24,7 @@ from custom_components.aoe2.const import (
     MIN_IN_MATCH_UPDATE_MINUTES,
     MIN_UPDATE_MINUTES,
 )
-from custom_components.aoe2.ha_internals.recorded_matches import RecordedMatches
+from custom_components.aoe2.ha.recorded_matches import RecordedMatches
 from custom_components.aoe2.logic import (
     MatchLedger,
     PlayerData,

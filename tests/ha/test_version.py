@@ -1,7 +1,7 @@
 from homeassistant.core import HomeAssistant
 
-from custom_components.aoe2.ha_internals.version import async_get_version
-from tests.ha_internals.helpers import read_manifest_version
+from custom_components.aoe2.ha.version import async_get_version
+from tests.ha.helpers import read_manifest_version
 
 
 async def test_version_is_the_manifest_version(hass: HomeAssistant):

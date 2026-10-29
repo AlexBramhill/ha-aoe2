@@ -2,7 +2,7 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import device_registry
 
 from custom_components.aoe2.const import CONF_PROFILE_ID, DOMAIN
-from custom_components.aoe2.ha_internals.config_entry import Aoe2ConfigEntry
+from custom_components.aoe2.ha.config_entry import Aoe2ConfigEntry
 
 
 @callback

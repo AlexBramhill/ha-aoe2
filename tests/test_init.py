@@ -12,7 +12,7 @@ from custom_components.aoe2.api import (
     RequestPolicy,
 )
 from custom_components.aoe2.const import DOMAIN
-from custom_components.aoe2.ha_internals.coordinator import Aoe2Coordinator
+from custom_components.aoe2.ha.coordinator import Aoe2Coordinator
 from tests.fake_client import FakeAoeClient
 from tests.integration import PROFILE_ID, config_entry_for, set_up
 

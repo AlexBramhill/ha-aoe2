@@ -2,7 +2,7 @@ from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from custom_components.aoe2.const import DOMAIN
-from custom_components.aoe2.ha_internals.coordinator import Aoe2Coordinator
+from custom_components.aoe2.ha.coordinator import Aoe2Coordinator
 
 
 class Aoe2Entity(CoordinatorEntity[Aoe2Coordinator]):

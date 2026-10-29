@@ -9,10 +9,10 @@ from custom_components.aoe2.api import (
     RequestPolicy,
 )
 from custom_components.aoe2.api._aoe2companion import Aoe2CompanionClient
-from custom_components.aoe2.ha_internals import client
-from custom_components.aoe2.ha_internals.client import async_create_client
+from custom_components.aoe2.ha import client
+from custom_components.aoe2.ha.client import async_create_client
 from tests.fake_client import FakeAoeClient
-from tests.ha_internals.helpers import read_manifest_version
+from tests.ha.helpers import read_manifest_version
 
 
 @pytest.mark.parametrize("policy", [BACKGROUND_REQUESTS, INTERACTIVE_REQUESTS])

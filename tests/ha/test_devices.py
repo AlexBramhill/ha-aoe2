@@ -4,7 +4,7 @@ from homeassistant.helpers.device_registry import DeviceEntry
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.aoe2.const import DOMAIN
-from custom_components.aoe2.ha_internals.devices import remove_previous_players_devices
+from custom_components.aoe2.ha.devices import remove_previous_players_devices
 from tests.integration import PROFILE_ID, config_entry_for
 
 PREVIOUS_PROFILE_ID = 2

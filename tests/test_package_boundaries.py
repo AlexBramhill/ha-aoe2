@@ -12,7 +12,7 @@ HOME_ASSISTANT_FREE_PACKAGES = ["api", "logic"]
 ALLOWED_IMPORTS = {
     "api": {"api"},
     "logic": {"api", "logic"},
-    "ha_internals": {"api", "logic", "const", "ha_internals"},
+    "ha": {"api", "logic", "const", "ha"},
 }
 
 IMPORT_WITHOUT_INTEGRATION_SETUP = """
