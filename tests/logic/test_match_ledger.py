@@ -19,24 +19,22 @@ NEWEST_FIRST = PlayerData(profile=PLAYER, matches=(CURRENT_MATCH, NEWER_MATCH, O
 
 def test_new_player_records_finished_matches_without_announcing_them():
     # When
-    new_matches = get_new_matches(NEWEST_FIRST, match_ledger=None)
+    check = get_new_matches(NEWEST_FIRST, match_ledger=None)
 
     # Then
-    assert new_matches.ledger == MatchLedger(PLAYER.profile_id, (1, 2))
-    assert new_matches.to_announce == []
-    assert new_matches.needs_saving
+    assert check.ledger == MatchLedger(PLAYER.profile_id, (1, 2))
+    assert check.to_announce == []
 
 
-def test_new_player_with_no_matches_is_still_saved():
+def test_new_player_with_no_matches_still_gets_a_ledger():
     # Given
     data = PlayerData(profile=PLAYER, matches=())
 
     # When
-    new_matches = get_new_matches(data, match_ledger=None)
+    check = get_new_matches(data, match_ledger=None)
 
     # Then
-    assert new_matches.ledger == MatchLedger(PLAYER.profile_id)
-    assert new_matches.needs_saving
+    assert check.ledger == MatchLedger(PLAYER.profile_id)
 
 
 def test_unrecorded_matches_are_announced_oldest_first():
@@ -44,12 +42,11 @@ def test_unrecorded_matches_are_announced_oldest_first():
     saved = MatchLedger(PLAYER.profile_id)
 
     # When
-    new_matches = get_new_matches(NEWEST_FIRST, saved)
+    check = get_new_matches(NEWEST_FIRST, saved)
 
     # Then
-    assert new_matches.to_announce == [OLDER_MATCH, NEWER_MATCH]
-    assert new_matches.ledger == MatchLedger(PLAYER.profile_id, (1, 2))
-    assert new_matches.needs_saving
+    assert check.to_announce == [OLDER_MATCH, NEWER_MATCH]
+    assert check.ledger == MatchLedger(PLAYER.profile_id, (1, 2))
 
 
 def test_recorded_matches_are_not_announced_again():
@@ -57,12 +54,11 @@ def test_recorded_matches_are_not_announced_again():
     saved = MatchLedger(PLAYER.profile_id, (1, 2))
 
     # When
-    new_matches = get_new_matches(NEWEST_FIRST, saved)
+    check = get_new_matches(NEWEST_FIRST, saved)
 
     # Then
-    assert new_matches.to_announce == []
-    assert new_matches.ledger == saved
-    assert not new_matches.needs_saving
+    assert check.to_announce == []
+    assert check.ledger == saved
 
 
 def test_ledger_for_another_player_is_replaced_without_announcing():
@@ -70,12 +66,11 @@ def test_ledger_for_another_player_is_replaced_without_announcing():
     saved = MatchLedger(OTHER_PROFILE_ID, (99,))
 
     # When
-    new_matches = get_new_matches(NEWEST_FIRST, saved)
+    check = get_new_matches(NEWEST_FIRST, saved)
 
     # Then
-    assert new_matches.ledger == MatchLedger(PLAYER.profile_id, (1, 2))
-    assert new_matches.to_announce == []
-    assert new_matches.needs_saving
+    assert check.ledger == MatchLedger(PLAYER.profile_id, (1, 2))
+    assert check.to_announce == []
 
 
 def test_recording_an_id_twice_keeps_one_copy():

@@ -95,11 +95,11 @@ class Aoe2Coordinator(TimestampDataUpdateCoordinator[PlayerData]):
         saved = self._ledger
         if saved is None:
             saved = await self._recorded_matches.async_load()
-        new_matches = get_new_matches(latest, saved)
-        if new_matches.needs_saving:
-            await self._recorded_matches.async_save(new_matches.ledger)
-        self._ledger = new_matches.ledger
-        return new_matches.to_announce
+        check = get_new_matches(latest, saved)
+        if check.ledger != saved:
+            await self._recorded_matches.async_save(check.ledger)
+        self._ledger = check.ledger
+        return check.to_announce
 
 
 def get_update_intervals(options: Mapping[str, Any]) -> UpdateIntervals:

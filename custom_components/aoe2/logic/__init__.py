@@ -4,8 +4,8 @@ from custom_components.aoe2.logic._match_events import (
 )
 from custom_components.aoe2.logic._match_ledger import (
     MAX_RECORDED_MATCHES,
+    MatchCheck,
     MatchLedger,
-    NewMatches,
     get_new_matches,
 )
 from custom_components.aoe2.logic._match_result import MatchResult, get_match_result
@@ -26,10 +26,10 @@ from custom_components.aoe2.logic._update_intervals import UpdateIntervals
 
 __all__ = [
     "MAX_RECORDED_MATCHES",
+    "MatchCheck",
     "MatchFinishedEvent",
     "MatchLedger",
     "MatchResult",
-    "NewMatches",
     "PlayerData",
     "UpdateIntervals",
     "get_current_match_details",
