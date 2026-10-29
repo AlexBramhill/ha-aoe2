@@ -10,7 +10,6 @@ MAX_RECORDED_MATCHES = 1000
 
 @dataclass(frozen=True, slots=True)
 class MatchLedger:
-
     profile_id: int
     match_ids: tuple[int, ...] = ()
 
@@ -34,12 +33,10 @@ class MatchCheck:
 def get_new_matches(data: PlayerData, match_ledger: MatchLedger | None) -> MatchCheck:
     finished_oldest_first = list(reversed(data.finished_matches()))
 
-    is_newly_added_player = match_ledger is None or match_ledger.profile_id != data.profile.profile_id
-
-    if is_newly_added_player:
-        new_ledger = MatchLedger(data.profile.profile_id).record((
+    if match_ledger is None or match_ledger.profile_id != data.profile.profile_id:
+        new_ledger = MatchLedger(data.profile.profile_id).record(
             match.match_id for match in finished_oldest_first
-        ))
+        )
         return MatchCheck(ledger=new_ledger, to_announce=[])
 
     unrecorded = [match for match in finished_oldest_first if match.match_id not in match_ledger]
