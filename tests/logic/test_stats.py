@@ -1,12 +1,9 @@
 from custom_components.aoe2.logic import (
-    PlayerData,
     get_current_match_details,
     get_last_match_details,
     get_last_match_result,
-    get_recent_rating_change,
-    get_recent_win_rate,
 )
-from custom_components.aoe2.models import Leaderboard
+from custom_components.aoe2.models import Leaderboard, PlayerData
 from tests.builders import TYPICAL_START, MatchBuilder, ProfileBuilder, build_match_player
 from tests.integration import PROFILE_ID
 
@@ -15,7 +12,7 @@ WON_MATCH = MatchBuilder().with_match_id(1)
 LOST_MATCH = (
     MatchBuilder()
     .with_match_id(2)
-    .with_player(build_match_player(PROFILE_ID, rating_change=-14, won=False))
+    .with_player(build_match_player(PROFILE_ID, rating_change=-14, is_winner=False))
 )
 
 
@@ -47,7 +44,7 @@ def test_last_match_result_is_unknown_without_finished_matches():
 
 def test_last_match_result_is_unknown_when_the_outcome_is_unknown():
     # Given
-    data = data_with(MatchBuilder().with_player(build_match_player(PROFILE_ID, won=None)))
+    data = data_with(MatchBuilder().with_player(build_match_player(PROFILE_ID, is_winner=None)))
 
     # When
     result = get_last_match_result(data)
@@ -97,36 +94,3 @@ def test_last_match_details_list_teammates_and_opponents():
     # Then
     assert details["teammates"] == ["Ally"]
     assert details["opponents"] == ["Player 2", "Rival"]
-
-
-def test_recent_win_rate_counts_finished_matches():
-    # Given
-    data = data_with(WON_MATCH, LOST_MATCH, MatchBuilder().with_match_id(3).unfinished())
-
-    # When
-    win_rate = get_recent_win_rate(data)
-
-    # Then
-    assert win_rate == 50.0
-
-
-def test_recent_win_rate_is_unknown_without_finished_matches():
-    # Given
-    data = data_with(MatchBuilder().unfinished())
-
-    # When
-    win_rate = get_recent_win_rate(data)
-
-    # Then
-    assert win_rate is None
-
-
-def test_recent_rating_change_sums_finished_matches():
-    # Given
-    data = data_with(WON_MATCH, LOST_MATCH)
-
-    # When
-    change = get_recent_rating_change(data)
-
-    # Then
-    assert change == 10 - 14

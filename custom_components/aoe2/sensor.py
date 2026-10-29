@@ -18,8 +18,6 @@ from custom_components.aoe2.ha.config_entry import Aoe2ConfigEntry
 from custom_components.aoe2.ha.coordinator import Aoe2Coordinator
 from custom_components.aoe2.ha.entity import Aoe2Entity
 from custom_components.aoe2.logic import (
-    MatchResult,
-    PlayerData,
     get_last_match_civ,
     get_last_match_details,
     get_last_match_map,
@@ -27,10 +25,8 @@ from custom_components.aoe2.logic import (
     get_last_match_result,
     get_last_played,
     get_percentage,
-    get_recent_rating_change,
-    get_recent_win_rate,
 )
-from custom_components.aoe2.models import Leaderboard, Rating
+from custom_components.aoe2.models import Leaderboard, MatchResult, PlayerData, Rating
 
 PARALLEL_UPDATES = 0
 
@@ -161,13 +157,13 @@ PLAYER_SENSORS: tuple[Aoe2PlayerSensorEntityDescription, ...] = (
         native_unit_of_measurement=PERCENTAGE,
         suggested_display_precision=0,
         entity_registry_enabled_default=False,
-        value_fn=get_recent_win_rate,
+        value_fn=lambda data: get_percentage(data.recent_win_rate()),
     ),
     Aoe2PlayerSensorEntityDescription(
         key="recent_rating_change",
         translation_key="recent_rating_change",
         entity_registry_enabled_default=False,
-        value_fn=get_recent_rating_change,
+        value_fn=PlayerData.recent_rating_change,
     ),
 )
 

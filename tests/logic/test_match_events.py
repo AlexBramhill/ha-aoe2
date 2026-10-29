@@ -22,7 +22,9 @@ def test_event_is_flat_for_automations():
     match = (
         MatchBuilder()
         .with_match_id(7)
-        .with_player(build_match_player(3, rating_after_match=1496, rating_change=-14, won=False))
+        .with_player(
+            build_match_player(3, rating_after_match=1496, rating_change=-14, is_winner=False)
+        )
         .build()
     )
 

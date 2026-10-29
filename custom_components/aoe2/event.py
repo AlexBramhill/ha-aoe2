@@ -9,7 +9,7 @@ from custom_components.aoe2.const import EVENT_MATCH_FINISHED
 from custom_components.aoe2.ha.config_entry import Aoe2ConfigEntry
 from custom_components.aoe2.ha.coordinator import Aoe2Coordinator
 from custom_components.aoe2.ha.entity import Aoe2Entity
-from custom_components.aoe2.logic import MatchResult, get_match_result
+from custom_components.aoe2.models import MatchResult
 
 PARALLEL_UPDATES = 0
 
@@ -39,5 +39,5 @@ class Aoe2MatchFinishedEvent(Aoe2Entity, EventEntity):
     def _handle_match_finished(self, event: Event[Mapping[str, Any]]) -> None:
         if event.data["profile_id"] != self.coordinator.profile_id:
             return
-        self._trigger_event(get_match_result(event.data["won"]), dict(event.data))
+        self._trigger_event(MatchResult.from_is_winner(event.data["won"]), dict(event.data))
         self.async_write_ha_state()

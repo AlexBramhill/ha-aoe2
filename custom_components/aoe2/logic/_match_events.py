@@ -21,7 +21,7 @@ def get_match_finished_event(match: Match, profile_id: int) -> MatchFinishedEven
         match_id=match.match_id,
         leaderboard=match.leaderboard,
         map_name=match.map_name,
-        won=player.won,
+        won=player.is_winner,
         rating_after_match=player.rating_after_match,
         rating_change=player.rating_change,
     )

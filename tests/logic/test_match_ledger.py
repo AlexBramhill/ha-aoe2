@@ -1,11 +1,7 @@
 from datetime import timedelta
 
-from custom_components.aoe2.logic import (
-    MAX_RECORDED_MATCHES,
-    MatchLedger,
-    PlayerData,
-    get_new_matches,
-)
+from custom_components.aoe2.logic import MAX_RECORDED_MATCHES, MatchLedger, get_new_matches
+from custom_components.aoe2.models import PlayerData
 from tests.builders import TYPICAL_START, MatchBuilder, ProfileBuilder
 
 PLAYER = ProfileBuilder().build().expected

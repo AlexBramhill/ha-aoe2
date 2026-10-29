@@ -22,12 +22,11 @@ from custom_components.aoe2.const import (
 from custom_components.aoe2.ha.recorded_matches import RecordedMatches
 from custom_components.aoe2.logic import (
     MatchLedger,
-    PlayerData,
     UpdateIntervals,
     get_match_finished_event,
     get_new_matches,
 )
-from custom_components.aoe2.models import Match
+from custom_components.aoe2.models import Match, PlayerData
 
 RECENT_MATCH_COUNT = 5
 

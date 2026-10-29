@@ -46,7 +46,7 @@ TEAM_GAME_HISTORY = build_match_history(
     MatchBuilder()
     .with_leaderboard(Leaderboard.RM_TEAM)
     .with_player(build_match_player(3))
-    .with_player(build_match_player(4, team=2, rating_change=-12, won=False))
+    .with_player(build_match_player(4, team=2, rating_change=-12, is_winner=False))
 )
 
 type Connect = Callable[[FakeApi], AoeClient]
@@ -213,7 +213,7 @@ async def test_viper_lost_match_reports_result_rating_and_team(viper_client: Aoe
     viper = match_with_id(matches, VIPER_LOST_UNRANKED_MATCH_ID).get_player_with_id(
         VIPER.profile_id
     )
-    assert viper.won is False
+    assert viper.is_winner is False
     assert viper.rating_change == -20
     assert viper.rating_after_match == 1695
     assert viper.team == 2
@@ -227,7 +227,7 @@ async def test_viper_ranked_match_reports_leaderboard_rating_and_team(viper_clie
     ranked_match = match_with_id(matches, VIPER_WON_RANKED_MATCH_ID)
     viper = ranked_match.get_player_with_id(VIPER.profile_id)
     assert ranked_match.leaderboard is Leaderboard.RM_1V1
-    assert viper.won is True
+    assert viper.is_winner is True
     assert viper.rating_change == 4
     assert viper.rating_after_match == 2771
     assert viper.team == 1

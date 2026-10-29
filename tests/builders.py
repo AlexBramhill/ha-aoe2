@@ -108,14 +108,14 @@ def build_match_player(profile_id: int, **fields: Any) -> MatchPlayer:
         civ="Franks",
         rating_after_match=1510,
         rating_change=10,
-        won=True,
+        is_winner=True,
     )
     return replace(winner_on_team_one, **fields)
 
 
 TYPICAL_PLAYERS = (
     build_match_player(1),
-    build_match_player(2, team=2, rating_after_match=1490, rating_change=-10, won=False),
+    build_match_player(2, team=2, rating_after_match=1490, rating_change=-10, is_winner=False),
 )
 TYPICAL_START = datetime(2026, 10, 1, 18, 0, tzinfo=UTC)
 TYPICAL_DURATION = timedelta(minutes=35)

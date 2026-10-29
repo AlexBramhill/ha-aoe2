@@ -131,7 +131,7 @@ def _get_match_player(raw: dict[str, Any]) -> MatchPlayer:
         civ=raw["civName"],
         rating_after_match=_get_rating_after_match(raw),
         rating_change=raw.get("ratingDiff"),
-        won=raw.get("won"),
+        is_winner=raw.get("won"),
     )
 
 

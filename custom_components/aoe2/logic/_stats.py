@@ -2,13 +2,11 @@ from collections.abc import Callable
 from datetime import datetime
 from typing import Any
 
-from custom_components.aoe2.logic._match_result import MatchResult, get_match_result
-from custom_components.aoe2.logic._player_data import PlayerData
-from custom_components.aoe2.models import Match, MatchPlayer
+from custom_components.aoe2.models import Match, MatchResult, PlayerData
 
 
 def get_last_match_result(data: PlayerData) -> MatchResult | None:
-    result = _get_from_last_match(data, lambda match: get_match_result(data.player_in(match).won))
+    result = _get_from_last_match(data, lambda match: data.player_in(match).result)
     return None if result is MatchResult.UNKNOWN else result
 
 
@@ -38,8 +36,8 @@ def get_last_match_details(data: PlayerData) -> dict[str, Any]:
         "map": match.map_name,
         "civ": player.civ,
         "rating_after_match": player.rating_after_match,
-        "teammates": _get_teammates(match, player),
-        "opponents": _get_opponents(match, player),
+        "teammates": [teammate.name for teammate in match.teammates_of(player)],
+        "opponents": [opponent.name for opponent in match.opponents_of(player)],
     }
 
 
@@ -48,20 +46,6 @@ def get_current_match_details(data: PlayerData) -> dict[str, Any]:
     if match is None:
         return {}
     return {"leaderboard": match.leaderboard, "map": match.map_name, "started": match.started}
-
-
-def get_recent_win_rate(data: PlayerData) -> float | None:
-    results = [data.player_in(match).won for match in data.finished_matches()]
-    known_results = [won for won in results if won is not None]
-    if not known_results:
-        return None
-    return get_percentage(known_results.count(True) / len(known_results))
-
-
-def get_recent_rating_change(data: PlayerData) -> int | None:
-    changes = [data.player_in(match).rating_change for match in data.finished_matches()]
-    known_changes = [change for change in changes if change is not None]
-    return sum(known_changes) if known_changes else None
 
 
 def get_percentage(fraction: float | None) -> float | None:
@@ -73,15 +57,3 @@ def _get_from_last_match[Value](
 ) -> Value | None:
     match = data.last_finished_match()
     return None if match is None else value_of(match)
-
-
-def _get_teammates(match: Match, player: MatchPlayer) -> list[str]:
-    return [
-        other.name
-        for other in match.players
-        if other.team == player.team and other.profile_id != player.profile_id
-    ]
-
-
-def _get_opponents(match: Match, player: MatchPlayer) -> list[str]:
-    return [other.name for other in match.players if other.team != player.team]

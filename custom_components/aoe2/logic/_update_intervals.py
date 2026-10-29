@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from datetime import timedelta
 
-from custom_components.aoe2.logic._player_data import PlayerData
+from custom_components.aoe2.models import PlayerData
 
 
 @dataclass(frozen=True, slots=True)
@@ -10,4 +10,4 @@ class UpdateIntervals:
     in_match: timedelta
 
     def for_data(self, data: PlayerData) -> timedelta:
-        return self.usual if data.current_match() is None else self.in_match
+        return self.in_match if data.is_in_current_match() else self.usual

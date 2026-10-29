@@ -93,7 +93,7 @@ def test_ai_player_has_name_team_and_civ_but_no_result():
     # Then
     ai = match.get_player_with_id(-1)
     assert (ai.name, ai.team, ai.civ) == ("AI", 2, "Malians")
-    assert (ai.won, ai.rating_after_match, ai.rating_change) == (None, None, None)
+    assert (ai.is_winner, ai.rating_after_match, ai.rating_change) == (None, None, None)
 
 
 def test_rating_after_match_is_unknown_without_rating_change():

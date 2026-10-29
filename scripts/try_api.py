@@ -68,9 +68,9 @@ def format_match(match: Match, profile_id: int) -> str:
 
 
 def format_result(player: MatchPlayer) -> str:
-    if player.won is None:
+    if player.is_winner is None:
         return "?   "
-    return "WIN " if player.won else "LOSS"
+    return "WIN " if player.is_winner else "LOSS"
 
 
 def format_rating_change(player: MatchPlayer) -> str:

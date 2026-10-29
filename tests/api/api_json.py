@@ -61,7 +61,7 @@ def _aoe2companion_player(player: MatchPlayer) -> Body:
         "civName": player.civ,
         "rating": _rating_before_match(player),
         "ratingDiff": player.rating_change,
-        "won": player.won,
+        "won": player.is_winner,
     }
 
 
