@@ -64,6 +64,9 @@ class Aoe2Coordinator(TimestampDataUpdateCoordinator[PlayerData]):
     def client(self) -> AoeClient:
         return self._client
 
+    async def _async_setup(self) -> None:
+        self._ledger = await self._recorded_matches.async_load()
+
     async def _async_update_data(self) -> PlayerData:
         latest = await self._fetch_player_data()
         self._matches_to_announce = await self._record_new_matches(latest)
@@ -92,11 +95,9 @@ class Aoe2Coordinator(TimestampDataUpdateCoordinator[PlayerData]):
         return PlayerData(profile=profile, matches=tuple(matches))
 
     async def _record_new_matches(self, latest: PlayerData) -> list[Match]:
-        saved = self._ledger
-        if saved is None:
-            saved = await self._recorded_matches.async_load()
-        check = get_new_matches(latest, saved)
-        if check.ledger != saved:
+        # Todo: refactor this nicer
+        check = get_new_matches(latest, self._ledger)
+        if check.ledger != self._ledger:
             await self._recorded_matches.async_save(check.ledger)
         self._ledger = check.ledger
         return check.to_announce

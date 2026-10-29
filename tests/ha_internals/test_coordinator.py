@@ -2,6 +2,7 @@ from datetime import timedelta
 from typing import Any
 
 import pytest
+from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import UpdateFailed
 from pytest_homeassistant_custom_component.common import MockConfigEntry, async_capture_events
@@ -50,6 +51,12 @@ def coordinator(hass: HomeAssistant, fake_client: FakeAoeClient) -> Aoe2Coordina
 
 async def refresh(hass: HomeAssistant, coordinator: Aoe2Coordinator) -> None:
     await coordinator.async_refresh()
+    await hass.async_block_till_done()
+
+
+async def start(hass: HomeAssistant, coordinator: Aoe2Coordinator) -> None:
+    coordinator.config_entry.mock_state(hass, ConfigEntryState.SETUP_IN_PROGRESS)
+    await coordinator.async_config_entry_first_refresh()
     await hass.async_block_till_done()
 
 
@@ -244,7 +251,7 @@ async def test_restart_does_not_announce_matches_again(
     events = async_capture_events(hass, EVENT_MATCH_FINISHED)
 
     # When
-    await refresh(hass, restarted)
+    await start(hass, restarted)
 
     # Then
     assert events == []
@@ -260,7 +267,7 @@ async def test_restart_announces_match_that_finished_while_stopped(
     events = async_capture_events(hass, EVENT_MATCH_FINISHED)
 
     # When
-    await refresh(hass, restarted)
+    await start(hass, restarted)
 
     # Then
     assert [event.data["match_id"] for event in events] == [2]
