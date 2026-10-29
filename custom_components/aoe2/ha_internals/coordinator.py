@@ -26,11 +26,11 @@ from custom_components.aoe2.const import (
 )
 from custom_components.aoe2.ha_internals.recorded_matches import RecordedMatches
 from custom_components.aoe2.logic import (
+    MatchLedger,
     PlayerData,
     UpdateIntervals,
     get_match_finished_event,
-    get_matches_to_announce,
-    get_unrecorded_matches,
+    get_new_matches,
 )
 
 RECENT_MATCH_COUNT = 5
@@ -52,8 +52,9 @@ class Aoe2Coordinator(TimestampDataUpdateCoordinator[PlayerData]):
         )
         self._client = client
         self._profile_id: int = entry.data[CONF_PROFILE_ID]
-        self._recorded_matches = RecordedMatches(hass, entry.entry_id, self._profile_id)
-        self._newly_recorded_matches: list[Match] = []
+        self._recorded_matches = RecordedMatches(hass, entry.entry_id)
+        self._ledger: MatchLedger | None = None
+        self._matches_to_announce: list[Match] = []
 
     @property
     def profile_id(self) -> int:
@@ -65,7 +66,7 @@ class Aoe2Coordinator(TimestampDataUpdateCoordinator[PlayerData]):
 
     async def _async_update_data(self) -> PlayerData:
         latest = await self._fetch_player_data()
-        self._newly_recorded_matches = await self._record_new_matches(latest)
+        self._matches_to_announce = await self._record_new_matches(latest)
         self.update_interval = self._update_intervals.for_data(latest)
         return latest
 
@@ -73,10 +74,10 @@ class Aoe2Coordinator(TimestampDataUpdateCoordinator[PlayerData]):
     def async_update_listeners(self) -> None:
         """Announce after entities update, so automations see the new ratings."""
         super().async_update_listeners()
-        for match in self._newly_recorded_matches:
+        for match in self._matches_to_announce:
             event = get_match_finished_event(match, self._profile_id)
             self.hass.bus.async_fire(EVENT_MATCH_FINISHED, asdict(event))
-        self._newly_recorded_matches = []
+        self._matches_to_announce = []
 
     async def _fetch_player_data(self) -> PlayerData:
         try:
@@ -91,19 +92,14 @@ class Aoe2Coordinator(TimestampDataUpdateCoordinator[PlayerData]):
         return PlayerData(profile=profile, matches=tuple(matches))
 
     async def _record_new_matches(self, latest: PlayerData) -> list[Match]:
-        is_first_update = await self._player_was_just_added()
-        unrecorded = get_unrecorded_matches(latest, self._recorded_matches)
-        # Saving on the first update, even with nothing to record, marks the player as added.
-        if unrecorded or is_first_update:
-            await self._recorded_matches.async_record(match.match_id for match in unrecorded)
-        return get_matches_to_announce(unrecorded, is_first_update)
-
-    async def _player_was_just_added(self) -> bool:
-        """A new entry has no saved record yet; one restarted after a reboot does."""
-        if self._recorded_matches.is_loaded:
-            return False
-        found_saved_record = await self._recorded_matches.async_load()
-        return not found_saved_record
+        saved = self._ledger
+        if saved is None:
+            saved = await self._recorded_matches.async_load()
+        new_matches = get_new_matches(latest, saved)
+        if new_matches.needs_saving:
+            await self._recorded_matches.async_save(new_matches.ledger)
+        self._ledger = new_matches.ledger
+        return new_matches.to_announce
 
 
 def get_update_intervals(options: Mapping[str, Any]) -> UpdateIntervals:
