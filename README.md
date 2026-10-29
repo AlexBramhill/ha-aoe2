@@ -1,6 +1,8 @@
 # ha-aoe2
 
 [![CI](https://github.com/AlexBramhill/ha-aoe2/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/AlexBramhill/ha-aoe2/actions/workflows/ci.yml)
+[![Hassfest](https://github.com/AlexBramhill/ha-aoe2/actions/workflows/hassfest.yml/badge.svg?branch=main)](https://github.com/AlexBramhill/ha-aoe2/actions/workflows/hassfest.yml)
+[![HACS](https://github.com/AlexBramhill/ha-aoe2/actions/workflows/hacs.yml/badge.svg?branch=main)](https://github.com/AlexBramhill/ha-aoe2/actions/workflows/hacs.yml)
 [![Release](https://img.shields.io/github/v/release/AlexBramhill/ha-aoe2?include_prereleases)](https://github.com/AlexBramhill/ha-aoe2/releases)
 [![License](https://img.shields.io/github/license/AlexBramhill/ha-aoe2)](LICENSE)
 [![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2026.10%2B-41BDF5)](https://www.home-assistant.io)

@@ -19,6 +19,3 @@ jobs:
 
   test:
     uses: ./.github/workflows/tests.yml
-
-  validate:
-    uses: ./.github/workflows/validate.yml
