@@ -2,8 +2,8 @@ from collections.abc import Callable, Iterable
 from dataclasses import replace
 from functools import wraps
 
-from .errors import AoeClientResponseError
-from .models import MatchPlayer
+from custom_components.aoe2.api.errors import AoeClientResponseError
+from custom_components.aoe2.api.models import MatchPlayer
 
 
 def response_parser[**Params, Result](

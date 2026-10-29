@@ -1,12 +1,13 @@
 from custom_components.aoe2.api import Leaderboard
 from custom_components.aoe2.logic import (
     PlayerData,
+    get_current_match_details,
     get_last_match_details,
     get_last_match_result,
     get_recent_rating_change,
     get_recent_win_rate,
 )
-from tests.builders import MatchBuilder, ProfileBuilder, build_match_player
+from tests.builders import TYPICAL_START, MatchBuilder, ProfileBuilder, build_match_player
 from tests.integration import PROFILE_ID
 
 PLAYER = ProfileBuilder().with_profile_id(PROFILE_ID).build().expected
@@ -42,6 +43,43 @@ def test_last_match_result_is_unknown_without_finished_matches():
 
     # Then
     assert result is None
+
+
+def test_last_match_result_is_unknown_when_the_outcome_is_unknown():
+    # Given
+    data = data_with(MatchBuilder().with_player(build_match_player(PROFILE_ID, won=None)))
+
+    # When
+    result = get_last_match_result(data)
+
+    # Then
+    assert result is None
+
+
+def test_current_match_details_describe_the_unfinished_match():
+    # Given
+    data = data_with(MatchBuilder().with_match_id(2).with_map_name("Arena").unfinished(), WON_MATCH)
+
+    # When
+    details = get_current_match_details(data)
+
+    # Then
+    assert details == {
+        "leaderboard": Leaderboard.RM_1V1,
+        "map": "Arena",
+        "started": TYPICAL_START,
+    }
+
+
+def test_current_match_details_are_empty_between_matches():
+    # Given
+    data = data_with(WON_MATCH)
+
+    # When
+    details = get_current_match_details(data)
+
+    # Then
+    assert details == {}
 
 
 def test_last_match_details_list_teammates_and_opponents():

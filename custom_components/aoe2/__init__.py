@@ -1,30 +1,12 @@
-from homeassistant.const import Platform
-from homeassistant.core import HomeAssistant, callback
-from homeassistant.helpers import device_registry
-from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.core import HomeAssistant
 
-from .api import BACKGROUND_REQUESTS, create_client
-from .const import CONF_CLIENT, CONF_PROFILE_ID, DOMAIN
-from custom_components.aoe2.ha_internals.coordinator import Aoe2ConfigEntry, Aoe2Coordinator
+from custom_components.aoe2.ha_internals.config_entry import Aoe2ConfigEntry
 from custom_components.aoe2.ha_internals.recorded_matches import RecordedMatches
-from custom_components.aoe2.ha_internals.user_agent import async_user_agent
-
-PLATFORMS: list[Platform] = [Platform.BINARY_SENSOR, Platform.EVENT, Platform.SENSOR]
+from custom_components.aoe2.ha_internals.setup import PLATFORMS, async_set_up_player
 
 
 async def async_setup_entry(hass: HomeAssistant, config_entry: Aoe2ConfigEntry) -> bool:
-    client = create_client(
-        config_entry.data[CONF_CLIENT],
-        async_get_clientsession(hass),
-        await async_user_agent(hass),
-        BACKGROUND_REQUESTS,
-    )
-    coordinator = Aoe2Coordinator(hass, config_entry, client)
-    await coordinator.async_config_entry_first_refresh()
-    config_entry.runtime_data = coordinator
-    _remove_previous_players_devices(hass, config_entry)
-    await hass.config_entries.async_forward_entry_setups(config_entry, PLATFORMS)
-    return True
+    return await async_set_up_player(hass, config_entry)
 
 
 async def async_unload_entry(hass: HomeAssistant, config_entry: Aoe2ConfigEntry) -> bool:
@@ -32,13 +14,4 @@ async def async_unload_entry(hass: HomeAssistant, config_entry: Aoe2ConfigEntry)
 
 
 async def async_remove_entry(hass: HomeAssistant, config_entry: Aoe2ConfigEntry) -> None:
-    await RecordedMatches(hass, config_entry.entry_id, config_entry.data[CONF_PROFILE_ID]).async_remove()
-
-
-@callback
-def _remove_previous_players_devices(hass: HomeAssistant, config_entry: Aoe2ConfigEntry) -> None:
-    devices = device_registry.async_get(hass)
-    current_player = (DOMAIN, str(config_entry.data[CONF_PROFILE_ID]))
-    for device in device_registry.async_entries_for_config_entry(devices, config_entry.entry_id):
-        if current_player not in device.identifiers:
-            devices.async_update_device(device.id, remove_config_entry_id=config_entry.entry_id)
+    await RecordedMatches(hass, config_entry.entry_id).async_remove()
