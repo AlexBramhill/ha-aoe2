@@ -19,7 +19,7 @@ NEWEST_FIRST = PlayerData(profile=PLAYER, matches=(CURRENT_MATCH, NEWER_MATCH, O
 
 def test_new_player_records_finished_matches_without_announcing_them():
     # When
-    new_matches = get_new_matches(NEWEST_FIRST, saved=None)
+    new_matches = get_new_matches(NEWEST_FIRST, match_ledger=None)
 
     # Then
     assert new_matches.ledger == MatchLedger(PLAYER.profile_id, (1, 2))
@@ -32,7 +32,7 @@ def test_new_player_with_no_matches_is_still_saved():
     data = PlayerData(profile=PLAYER, matches=())
 
     # When
-    new_matches = get_new_matches(data, saved=None)
+    new_matches = get_new_matches(data, match_ledger=None)
 
     # Then
     assert new_matches.ledger == MatchLedger(PLAYER.profile_id)

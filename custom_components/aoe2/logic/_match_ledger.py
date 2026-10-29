@@ -10,7 +10,6 @@ MAX_RECORDED_MATCHES = 1000
 
 @dataclass(frozen=True, slots=True)
 class MatchLedger:
-    """Finished matches already handled for a player, oldest first."""
 
     profile_id: int
     match_ids: tuple[int, ...] = ()
@@ -33,18 +32,20 @@ class NewMatches:
     needs_saving: bool
 
 
-def get_new_matches(data: PlayerData, saved: MatchLedger | None) -> NewMatches:
+def get_new_matches(data: PlayerData, match_ledger: MatchLedger | None) -> NewMatches:
     finished_oldest_first = list(reversed(data.finished_matches()))
-    if saved is None or saved.profile_id != data.profile.profile_id:
-        # A newly added player: their existing matches are recorded, not announced.
-        ledger = MatchLedger(data.profile.profile_id).record(
-            match.match_id for match in finished_oldest_first
-        )
-        return NewMatches(ledger=ledger, to_announce=[], needs_saving=True)
 
-    unrecorded = [match for match in finished_oldest_first if match.match_id not in saved]
+    is_newly_added_player = match_ledger is None or match_ledger.profile_id != data.profile.profile_id
+
+    if is_newly_added_player:
+        new_ledger = MatchLedger(data.profile.profile_id).record((
+            match.match_id for match in finished_oldest_first
+        ))
+        return NewMatches(ledger=new_ledger, to_announce=[], needs_saving=True)
+
+    unrecorded = [match for match in finished_oldest_first if match.match_id not in match_ledger]
     return NewMatches(
-        ledger=saved.record(match.match_id for match in unrecorded),
+        ledger=match_ledger.record(match.match_id for match in unrecorded),
         to_announce=unrecorded,
         needs_saving=bool(unrecorded),
     )
