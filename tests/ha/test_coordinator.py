@@ -55,7 +55,9 @@ async def refresh(hass: HomeAssistant, coordinator: Aoe2Coordinator) -> None:
 
 
 async def start(hass: HomeAssistant, coordinator: Aoe2Coordinator) -> None:
-    coordinator.config_entry.mock_state(hass, ConfigEntryState.SETUP_IN_PROGRESS)
+    entry = coordinator.config_entry
+    assert isinstance(entry, MockConfigEntry)
+    entry.mock_state(hass, ConfigEntryState.SETUP_IN_PROGRESS)
     await coordinator.async_config_entry_first_refresh()
     await hass.async_block_till_done()
 
