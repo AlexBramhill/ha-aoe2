@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/AlexBramhill/ha-aoe2/compare/v0.4.0...v0.5.0) (2026-10-29)
+
+
+### Features
+
+* add specific match finished listener ([de98556](https://github.com/AlexBramhill/ha-aoe2/commit/de985564be2538fc32ec0dfa740972e30212dec4))
+
 ## [0.4.0](https://github.com/AlexBramhill/ha-aoe2/compare/v0.3.1...v0.4.0) (2026-10-29)
 
 
