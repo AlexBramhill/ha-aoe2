@@ -3,7 +3,7 @@ from datetime import timedelta
 import pytest
 from homeassistant.const import STATE_UNKNOWN, Platform
 from homeassistant.core import Event, HomeAssistant, callback
-from homeassistant.helpers.event import async_track_state_change_event
+from homeassistant.helpers.event import EventStateChangedData, async_track_state_change_event
 
 from custom_components.aoe2.const import EVENT_MATCH_FINISHED
 from custom_components.aoe2.models import Leaderboard
@@ -53,7 +53,7 @@ async def test_sensors_are_updated_before_match_finished_entity_fires(
     ratings_seen_at_event: list[str] = []
 
     @callback
-    def record_rating(_event: Event) -> None:
+    def record_rating(_event: Event[EventStateChangedData]) -> None:
         ratings_seen_at_event.append(state_of(hass, Platform.SENSOR, "rm_1v1_rating").state)
 
     match_finished = state_of(hass, Platform.EVENT, "match_finished").entity_id

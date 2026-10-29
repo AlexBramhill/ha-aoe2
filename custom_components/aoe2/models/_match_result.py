@@ -1,5 +1,4 @@
 from enum import StrEnum
-from typing import Self
 
 
 class MatchResult(StrEnum):
@@ -8,7 +7,7 @@ class MatchResult(StrEnum):
     UNKNOWN = "unknown"
 
     @classmethod
-    def from_is_winner(cls, is_winner: bool | None) -> Self:
+    def from_is_winner(cls, is_winner: bool | None) -> MatchResult:
         match is_winner:
             case True:
                 return cls.WIN
