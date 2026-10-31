@@ -44,7 +44,7 @@ class PlayerData:
         match = self.last_finished_match()
         return None if match is None else match.map_name
 
-    def date_of_last_finished_match(self) -> datetime | None:
+    def last_match_finished_at(self) -> datetime | None:
         match = self.last_finished_match()
         return None if match is None else match.finished
 
