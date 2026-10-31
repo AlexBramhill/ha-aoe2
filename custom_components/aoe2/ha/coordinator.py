@@ -77,10 +77,12 @@ class Aoe2Coordinator(TimestampDataUpdateCoordinator[PlayerData]):
         self._ledger = await self._ledger_store.async_load()
 
     async def _async_update_data(self) -> PlayerData:
-        latest = await self._fetch_player_data()
-        self._matches_to_announce = await self._record_newly_finished_matches(latest)
-        self.update_interval = self._update_intervals.for_data(latest)
-        return latest
+        latest_player_data = await self._fetch_player_data()
+        self._matches_to_announce.extend(
+            await self._record_newly_finished_matches(latest_player_data)
+        )
+        self.update_interval = self._update_intervals.for_data(latest_player_data)
+        return latest_player_data
 
     @callback
     def async_update_listeners(self) -> None:
