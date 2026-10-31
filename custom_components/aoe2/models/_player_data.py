@@ -50,7 +50,6 @@ class PlayerData:
         known_changes = [change for change in changes if change is not None]
         return sum(known_changes) if known_changes else None
 
-
     def _match_stats_for_last_match[Value](
         self, callback: Callable[[Match], Value]
     ) -> Value | None:
@@ -61,11 +60,9 @@ class PlayerData:
         return match.get_player_with_id(self.profile.profile_id)
 
     def _player_data_for_last_match(
-            self,
-        ) -> MatchPlayer | None:
-            return self._match_stats_for_last_match(
-                lambda match: self._player_data_for_match(match)
-            )
+        self,
+    ) -> MatchPlayer | None:
+        return self._match_stats_for_last_match(lambda match: self._player_data_for_match(match))
 
     def _player_stats_for_last_match[Value](
         self, callback: Callable[[MatchPlayer], Value]
