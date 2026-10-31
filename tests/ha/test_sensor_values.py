@@ -1,4 +1,4 @@
-from custom_components.aoe2.logic import (
+from custom_components.aoe2.ha.sensor_values import (
     get_current_match_details,
     get_last_match_details,
     get_last_match_result,

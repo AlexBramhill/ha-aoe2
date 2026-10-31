@@ -17,7 +17,7 @@ from homeassistant.helpers.typing import StateType
 from custom_components.aoe2.ha.config_entry import Aoe2ConfigEntry
 from custom_components.aoe2.ha.coordinator import Aoe2Coordinator
 from custom_components.aoe2.ha.entity import Aoe2Entity
-from custom_components.aoe2.logic import (
+from custom_components.aoe2.ha.sensor_values import (
     get_last_match_details,
     get_last_match_result,
     get_percentage,
@@ -133,7 +133,7 @@ PLAYER_SENSORS: tuple[Aoe2PlayerSensorEntityDescription, ...] = (
         key="last_played",
         translation_key="last_played",
         device_class=SensorDeviceClass.TIMESTAMP,
-        value_fn=PlayerData.date_of_last_finished_match,
+        value_fn=PlayerData.last_match_finished_at,
     ),
     Aoe2PlayerSensorEntityDescription(
         key="last_match_map",

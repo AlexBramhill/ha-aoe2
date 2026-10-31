@@ -7,7 +7,7 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from custom_components.aoe2.ha.config_entry import Aoe2ConfigEntry
 from custom_components.aoe2.ha.coordinator import Aoe2Coordinator
 from custom_components.aoe2.ha.entity import Aoe2Entity
-from custom_components.aoe2.logic import get_current_match_details
+from custom_components.aoe2.ha.sensor_values import get_current_match_details
 
 PARALLEL_UPDATES = 0
 
