@@ -13,6 +13,7 @@ class PlayerData:
     matches: tuple[Match, ...] = field(init=False)
 
     def __post_init__(self, unsorted_matches: list[Match]) -> None:
+        self._check_player_is_in_every_match(unsorted_matches)
         newest_first = sorted(unsorted_matches, key=lambda match: match.started, reverse=True)
         object.__setattr__(self, "matches", tuple(newest_first))
 
@@ -59,6 +60,12 @@ class PlayerData:
         changes = [self.own_player_in(match).rating_change for match in self.finished_matches()]
         known_changes = [change for change in changes if change is not None]
         return sum(known_changes) if known_changes else None
+
+    def _check_player_is_in_every_match(self, matches: list[Match]) -> None:
+        profile_id = self.profile.profile_id
+        missing = [match.match_id for match in matches if not match.has_player_with_id(profile_id)]
+        if missing:
+            raise ValueError(f"Profile {profile_id} did not play in matches {missing}")
 
     def _own_player_in_last_match(self) -> MatchPlayer | None:
         match = self.last_finished_match()

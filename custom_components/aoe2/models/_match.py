@@ -33,6 +33,9 @@ class Match:
     def is_finished(self) -> bool:
         return self.finished is not None
 
+    def has_player_with_id(self, profile_id: int) -> bool:
+        return any(player.profile_id == profile_id for player in self.players)
+
     def get_player_with_id(self, profile_id: int) -> MatchPlayer:
         for player in self.players:
             if player.profile_id == profile_id:

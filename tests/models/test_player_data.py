@@ -1,5 +1,7 @@
 from datetime import timedelta
 
+import pytest
+
 from custom_components.aoe2.models import MatchResult, PlayerData
 from tests.builders import TYPICAL_START, MatchBuilder, ProfileBuilder, build_match_player
 from tests.integration import PROFILE_ID
@@ -27,6 +29,16 @@ def test_matches_are_sorted_newest_first():
 
     # Then
     assert [match.match_id for match in data.matches] == [2, 1]
+
+
+def test_matches_the_player_did_not_play_in_are_rejected():
+    # Given
+    someone_elses_match = MatchBuilder().with_match_id(9).build()
+    other_player = ProfileBuilder().with_profile_id(999).build().expected
+
+    # When / Then
+    with pytest.raises(ValueError, match="did not play in matches \\[9\\]"):
+        PlayerData(profile=other_player, unsorted_matches=[someone_elses_match])
 
 
 def test_recent_win_rate_counts_finished_matches():
