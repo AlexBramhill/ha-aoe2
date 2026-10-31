@@ -6,12 +6,12 @@ from custom_components.aoe2.models import Match, MatchResult, PlayerData
 
 
 def get_last_match_result(data: PlayerData) -> MatchResult | None:
-    result = _get_from_last_match(data, lambda match: data.player_in(match).result)
+    result = _get_from_last_match(data, lambda match: data.player_data_for_match(match).result)
     return None if result is MatchResult.UNKNOWN else result
 
 
 def get_last_match_rating_change(data: PlayerData) -> int | None:
-    return _get_from_last_match(data, lambda match: data.player_in(match).rating_change)
+    return _get_from_last_match(data, lambda match: data.player_data_for_match(match).rating_change)
 
 
 def get_last_played(data: PlayerData) -> datetime | None:
@@ -23,14 +23,14 @@ def get_last_match_map(data: PlayerData) -> str | None:
 
 
 def get_last_match_civ(data: PlayerData) -> str | None:
-    return _get_from_last_match(data, lambda match: data.player_in(match).civ)
+    return _get_from_last_match(data, lambda match: data.player_data_for_match(match).civ)
 
 
 def get_last_match_details(data: PlayerData) -> dict[str, Any]:
     match = data.last_finished_match()
     if match is None:
         return {}
-    player = data.player_in(match)
+    player = data.player_data_for_match(match)
     return {
         "leaderboard": match.leaderboard,
         "map": match.map_name,
