@@ -18,12 +18,8 @@ from custom_components.aoe2.ha.config_entry import Aoe2ConfigEntry
 from custom_components.aoe2.ha.coordinator import Aoe2Coordinator
 from custom_components.aoe2.ha.entity import Aoe2Entity
 from custom_components.aoe2.logic import (
-    get_last_match_civ,
     get_last_match_details,
-    get_last_match_map,
-    get_last_match_rating_change,
     get_last_match_result,
-    get_last_played,
     get_percentage,
 )
 from custom_components.aoe2.models import Leaderboard, MatchResult, PlayerData, Rating
@@ -131,25 +127,25 @@ PLAYER_SENSORS: tuple[Aoe2PlayerSensorEntityDescription, ...] = (
     Aoe2PlayerSensorEntityDescription(
         key="last_match_rating_change",
         translation_key="last_match_rating_change",
-        value_fn=get_last_match_rating_change,
+        value_fn=PlayerData.last_match_rating_change,
     ),
     Aoe2PlayerSensorEntityDescription(
         key="last_played",
         translation_key="last_played",
         device_class=SensorDeviceClass.TIMESTAMP,
-        value_fn=get_last_played,
+        value_fn=PlayerData.last_played,
     ),
     Aoe2PlayerSensorEntityDescription(
         key="last_match_map",
         translation_key="last_match_map",
         entity_registry_enabled_default=False,
-        value_fn=get_last_match_map,
+        value_fn=PlayerData.last_match_map,
     ),
     Aoe2PlayerSensorEntityDescription(
         key="last_match_civ",
         translation_key="last_match_civ",
         entity_registry_enabled_default=False,
-        value_fn=get_last_match_civ,
+        value_fn=PlayerData.last_match_civ,
     ),
     Aoe2PlayerSensorEntityDescription(
         key="recent_win_rate",
@@ -157,7 +153,7 @@ PLAYER_SENSORS: tuple[Aoe2PlayerSensorEntityDescription, ...] = (
         native_unit_of_measurement=PERCENTAGE,
         suggested_display_precision=0,
         entity_registry_enabled_default=False,
-        value_fn=lambda data: get_percentage(data.win_rate()),
+        value_fn=lambda data: get_percentage(data.recent_win_rate()),
     ),
     Aoe2PlayerSensorEntityDescription(
         key="recent_rating_change",

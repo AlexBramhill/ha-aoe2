@@ -20,29 +20,7 @@ def data_with(*matches: MatchBuilder) -> PlayerData:
     return PlayerData(profile=PLAYER, matches=tuple(match.build() for match in matches))
 
 
-def test_last_match_result_is_from_newest_finished_match():
-    # Given
-    data = data_with(MatchBuilder().with_match_id(3).unfinished(), LOST_MATCH, WON_MATCH)
-
-    # When
-    result = get_last_match_result(data)
-
-    # Then
-    assert result == "loss"
-
-
-def test_last_match_result_is_none_without_finished_matches():
-    # Given
-    data = data_with(MatchBuilder().unfinished())
-
-    # When
-    result = get_last_match_result(data)
-
-    # Then
-    assert result is None
-
-
-def test_last_match_result_is_none_when_the_outcome_is_unknown():
+def test_last_match_result_hides_an_unknown_outcome():
     # Given
     data = data_with(MatchBuilder().with_player(build_match_player(PROFILE_ID, is_winner=None)))
 

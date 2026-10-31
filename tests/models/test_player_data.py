@@ -1,4 +1,4 @@
-from custom_components.aoe2.models import PlayerData
+from custom_components.aoe2.models import MatchResult, PlayerData
 from tests.builders import MatchBuilder, ProfileBuilder, build_match_player
 from tests.integration import PROFILE_ID
 
@@ -20,7 +20,7 @@ def test_recent_win_rate_counts_finished_matches():
     data = data_with(WON_MATCH, LOST_MATCH, MatchBuilder().with_match_id(3).unfinished())
 
     # When
-    win_rate = data.win_rate()
+    win_rate = data.recent_win_rate()
 
     # Then
     assert win_rate == 0.5
@@ -31,7 +31,7 @@ def test_recent_win_rate_is_unknown_without_finished_matches():
     data = data_with(MatchBuilder().unfinished())
 
     # When
-    win_rate = data.win_rate()
+    win_rate = data.recent_win_rate()
 
     # Then
     assert win_rate is None
@@ -46,3 +46,36 @@ def test_recent_rating_change_sums_finished_matches():
 
     # Then
     assert change == 10 - 14
+
+
+def test_last_match_result_is_from_newest_finished_match():
+    # Given
+    data = data_with(MatchBuilder().with_match_id(3).unfinished(), LOST_MATCH, WON_MATCH)
+
+    # When
+    result = data.last_match_result()
+
+    # Then
+    assert result is MatchResult.LOSS
+
+
+def test_last_match_result_is_none_without_finished_matches():
+    # Given
+    data = data_with(MatchBuilder().unfinished())
+
+    # When
+    result = data.last_match_result()
+
+    # Then
+    assert result is None
+
+
+def test_last_match_result_is_unknown_when_the_outcome_is_unknown():
+    # Given
+    data = data_with(MatchBuilder().with_player(build_match_player(PROFILE_ID, is_winner=None)))
+
+    # When
+    result = data.last_match_result()
+
+    # Then
+    assert result is MatchResult.UNKNOWN

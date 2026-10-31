@@ -1,36 +1,18 @@
-from collections.abc import Callable
-from datetime import datetime
 from typing import Any
 
-from custom_components.aoe2.models import Match, MatchResult, PlayerData
+from custom_components.aoe2.models import MatchResult, PlayerData
 
 
 def get_last_match_result(data: PlayerData) -> MatchResult | None:
-    result = _get_from_last_match(data, lambda match: data.player_data_for_match(match).result)
+    result = data.last_match_result()
     return None if result is MatchResult.UNKNOWN else result
-
-
-def get_last_match_rating_change(data: PlayerData) -> int | None:
-    return _get_from_last_match(data, lambda match: data.player_data_for_match(match).rating_change)
-
-
-def get_last_played(data: PlayerData) -> datetime | None:
-    return _get_from_last_match(data, lambda match: match.finished)
-
-
-def get_last_match_map(data: PlayerData) -> str | None:
-    return _get_from_last_match(data, lambda match: match.map_name)
-
-
-def get_last_match_civ(data: PlayerData) -> str | None:
-    return _get_from_last_match(data, lambda match: data.player_data_for_match(match).civ)
 
 
 def get_last_match_details(data: PlayerData) -> dict[str, Any]:
     match = data.last_finished_match()
     if match is None:
         return {}
-    player = data.player_data_for_match(match)
+    player = match.get_player_with_id(data.profile.profile_id)
     return {
         "leaderboard": match.leaderboard,
         "map": match.map_name,
@@ -50,10 +32,3 @@ def get_current_match_details(data: PlayerData) -> dict[str, Any]:
 
 def get_percentage(fraction: float | None) -> float | None:
     return None if fraction is None else round(fraction * 100, 1)
-
-
-def _get_from_last_match[Value](
-    data: PlayerData, value_of: Callable[[Match], Value]
-) -> Value | None:
-    match = data.last_finished_match()
-    return None if match is None else value_of(match)
