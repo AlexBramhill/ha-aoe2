@@ -5,7 +5,7 @@ from tests.builders import MatchBuilder
 ABSENT_PROFILE_ID = 999
 
 
-def test_player_with_id_finds_player_in_match():
+def test_get_player_with_id_finds_player_in_match():
     # Given
     match = MatchBuilder().build()
 
@@ -16,7 +16,7 @@ def test_player_with_id_finds_player_in_match():
     assert player.profile_id == 2
 
 
-def test_player_with_id_raises_for_player_not_in_match():
+def test_get_player_with_id_raises_for_player_not_in_match():
     # Given
     match = MatchBuilder().build()
 

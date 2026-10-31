@@ -97,9 +97,7 @@ async def test_unload_unloads_entry(hass: HomeAssistant):
 
 
 @pytest.mark.usefixtures("created_client_names")
-async def test_remove_deletes_saved_announcements(
-    hass: HomeAssistant, hass_storage: dict[str, Any]
-):
+async def test_remove_deletes_saved_ledger(hass: HomeAssistant, hass_storage: dict[str, Any]):
     # Given
     entry = config_entry_for("aoe2companion")
     await set_up(hass, entry)

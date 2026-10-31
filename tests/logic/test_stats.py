@@ -31,7 +31,7 @@ def test_last_match_result_is_from_newest_finished_match():
     assert result == "loss"
 
 
-def test_last_match_result_is_unknown_without_finished_matches():
+def test_last_match_result_is_none_without_finished_matches():
     # Given
     data = data_with(MatchBuilder().unfinished())
 
@@ -42,7 +42,7 @@ def test_last_match_result_is_unknown_without_finished_matches():
     assert result is None
 
 
-def test_last_match_result_is_unknown_when_the_outcome_is_unknown():
+def test_last_match_result_is_none_when_the_outcome_is_unknown():
     # Given
     data = data_with(MatchBuilder().with_player(build_match_player(PROFILE_ID, is_winner=None)))
 

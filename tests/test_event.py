@@ -74,7 +74,7 @@ async def test_sensors_are_updated_before_match_finished_entity_fires(
 
 
 @pytest.mark.usefixtures("created_client_names")
-async def test_sensors_are_updated_before_match_finished_fires(
+async def test_sensors_are_updated_before_match_finished_bus_event_fires(
     hass: HomeAssistant, fake_client: FakeAoeClient
 ):
     # Given
