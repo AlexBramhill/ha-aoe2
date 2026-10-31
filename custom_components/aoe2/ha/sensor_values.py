@@ -12,7 +12,7 @@ def get_last_match_details(data: PlayerData) -> dict[str, Any]:
     match = data.last_finished_match()
     if match is None:
         return {}
-    player = match.get_player_with_id(data.profile.profile_id)
+    player = data.own_player_in(match)
     return {
         "leaderboard": match.leaderboard,
         "map": match.map_name,

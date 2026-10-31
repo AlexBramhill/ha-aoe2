@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from custom_components.aoe2.models import Leaderboard, Match, MatchResult
+from custom_components.aoe2.models import Leaderboard, Match, MatchPlayer, MatchResult
 
 
 @dataclass(frozen=True, slots=True)
@@ -18,10 +18,9 @@ class MatchFinishedEvent:
         return MatchResult.from_is_winner(self.is_winner)
 
 
-def get_match_finished_event(match: Match, profile_id: int) -> MatchFinishedEvent:
-    player = match.get_player_with_id(profile_id)
+def get_match_finished_event(match: Match, player: MatchPlayer) -> MatchFinishedEvent:
     return MatchFinishedEvent(
-        profile_id=profile_id,
+        profile_id=player.profile_id,
         match_id=match.match_id,
         leaderboard=match.leaderboard,
         map_name=match.map_name,

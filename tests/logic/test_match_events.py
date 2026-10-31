@@ -5,12 +5,12 @@ from custom_components.aoe2.models import Leaderboard, MatchResult
 from tests.builders import MatchBuilder, build_match_player
 
 
-def test_event_is_for_the_requested_player():
+def test_event_is_for_the_given_player():
     # Given
     match = MatchBuilder().build()
 
     # When
-    event = get_match_finished_event(match, profile_id=2)
+    event = get_match_finished_event(match, match.get_player_with_id(2))
 
     # Then
     assert event.profile_id == 2
@@ -30,7 +30,7 @@ def test_event_is_flat_for_automations():
     )
 
     # When
-    event = get_match_finished_event(match, profile_id=3)
+    event = get_match_finished_event(match, match.get_player_with_id(3))
 
     # Then
     assert asdict(event) == {

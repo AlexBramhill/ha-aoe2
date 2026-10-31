@@ -90,7 +90,7 @@ class Aoe2Coordinator(TimestampDataUpdateCoordinator[PlayerData]):
     @callback
     def _announce_newly_finished_matches(self) -> None:
         for match in self._matches_to_announce:
-            event = get_match_finished_event(match, self._profile_id)
+            event = get_match_finished_event(match, self.data.own_player_in(match))
             for listener in self._match_finished_listeners:
                 listener(event)
             self.hass.bus.async_fire(EVENT_MATCH_FINISHED, asdict(event))
