@@ -20,11 +20,7 @@ from custom_components.aoe2.const import (
     MIN_UPDATE_MINUTES,
 )
 from custom_components.aoe2.ha.match_tracker import MatchTracker
-from custom_components.aoe2.logic import (
-    MatchFinishedEvent,
-    UpdateIntervals,
-    get_match_finished_event,
-)
+from custom_components.aoe2.logic import MatchFinishedEvent, UpdateIntervals
 from custom_components.aoe2.models import Match, PlayerData
 
 RECENT_MATCH_COUNT = 5
@@ -90,7 +86,7 @@ class Aoe2Coordinator(TimestampDataUpdateCoordinator[PlayerData]):
     @callback
     def _announce_newly_finished_matches(self) -> None:
         for match in self._matches_to_announce:
-            event = get_match_finished_event(match, self.data.own_player_in(match))
+            event = MatchFinishedEvent.from_match(match, self.data.own_player_in(match))
             for listener in self._match_finished_listeners:
                 listener(event)
             self.hass.bus.async_fire(EVENT_MATCH_FINISHED, asdict(event))

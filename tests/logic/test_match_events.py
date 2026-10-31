@@ -1,6 +1,6 @@
 from dataclasses import asdict
 
-from custom_components.aoe2.logic import get_match_finished_event
+from custom_components.aoe2.logic import MatchFinishedEvent
 from custom_components.aoe2.models import Leaderboard, MatchResult
 from tests.builders import MatchBuilder, build_match_player
 
@@ -10,7 +10,7 @@ def test_event_is_for_the_given_player():
     match = MatchBuilder().build()
 
     # When
-    event = get_match_finished_event(match, match.get_player_with_id(2))
+    event = MatchFinishedEvent.from_match(match, match.get_player_with_id(2))
 
     # Then
     assert event.profile_id == 2
@@ -30,7 +30,7 @@ def test_event_is_flat_for_automations():
     )
 
     # When
-    event = get_match_finished_event(match, match.get_player_with_id(3))
+    event = MatchFinishedEvent.from_match(match, match.get_player_with_id(3))
 
     # Then
     assert asdict(event) == {

@@ -1,7 +1,4 @@
-from custom_components.aoe2.logic._match_events import (
-    MatchFinishedEvent,
-    get_match_finished_event,
-)
+from custom_components.aoe2.logic._match_events import MatchFinishedEvent
 from custom_components.aoe2.logic._match_ledger import (
     MAX_RECORDED_MATCHES,
     MatchLedger,
@@ -14,6 +11,5 @@ __all__ = [
     "MatchFinishedEvent",
     "MatchLedger",
     "UpdateIntervals",
-    "get_match_finished_event",
     "get_newly_finished_matches",
 ]
