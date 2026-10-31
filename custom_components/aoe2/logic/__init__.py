@@ -6,7 +6,7 @@ from custom_components.aoe2.logic._match_ledger import (
     MAX_RECORDED_MATCHES,
     MatchCheck,
     MatchLedger,
-    get_new_matches,
+    get_unrecorded_matches,
 )
 from custom_components.aoe2.logic._stats import (
     get_current_match_details,
@@ -26,6 +26,6 @@ __all__ = [
     "get_last_match_details",
     "get_last_match_result",
     "get_match_finished_event",
-    "get_new_matches",
+    "get_unrecorded_matches",
     "get_percentage",
 ]

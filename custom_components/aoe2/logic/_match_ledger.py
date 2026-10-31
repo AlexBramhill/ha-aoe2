@@ -29,7 +29,7 @@ class MatchCheck:
     to_announce: list[Match]
 
 
-def get_new_matches(data: PlayerData, match_ledger: MatchLedger | None) -> MatchCheck:
+def get_unrecorded_matches(data: PlayerData, match_ledger: MatchLedger | None) -> MatchCheck:
     finished_oldest_first = list(reversed(data.finished_matches()))
 
     if match_ledger is None or match_ledger.profile_id != data.profile.profile_id:

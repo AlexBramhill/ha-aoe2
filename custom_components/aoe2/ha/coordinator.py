@@ -25,7 +25,7 @@ from custom_components.aoe2.logic import (
     MatchLedger,
     UpdateIntervals,
     get_match_finished_event,
-    get_new_matches,
+    get_unrecorded_matches,
 )
 from custom_components.aoe2.models import Match, PlayerData
 
@@ -107,7 +107,7 @@ class Aoe2Coordinator(TimestampDataUpdateCoordinator[PlayerData]):
 
     async def _record_new_matches(self, latest: PlayerData) -> list[Match]:
         # Todo: refactor this nicer
-        check = get_new_matches(latest, self._ledger)
+        check = get_unrecorded_matches(latest, self._ledger)
         if check.ledger != self._ledger:
             await self._recorded_matches.async_save(check.ledger)
         self._ledger = check.ledger
