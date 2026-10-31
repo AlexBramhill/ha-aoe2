@@ -20,7 +20,7 @@ def test_recent_win_rate_counts_finished_matches():
     data = data_with(WON_MATCH, LOST_MATCH, MatchBuilder().with_match_id(3).unfinished())
 
     # When
-    win_rate = data.recent_win_rate()
+    win_rate = data.win_rate()
 
     # Then
     assert win_rate == 0.5
@@ -31,7 +31,7 @@ def test_recent_win_rate_is_unknown_without_finished_matches():
     data = data_with(MatchBuilder().unfinished())
 
     # When
-    win_rate = data.recent_win_rate()
+    win_rate = data.win_rate()
 
     # Then
     assert win_rate is None

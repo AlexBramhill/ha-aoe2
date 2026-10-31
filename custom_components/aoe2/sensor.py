@@ -157,7 +157,7 @@ PLAYER_SENSORS: tuple[Aoe2PlayerSensorEntityDescription, ...] = (
         native_unit_of_measurement=PERCENTAGE,
         suggested_display_precision=0,
         entity_registry_enabled_default=False,
-        value_fn=lambda data: get_percentage(data.recent_win_rate()),
+        value_fn=lambda data: get_percentage(data.win_rate()),
     ),
     Aoe2PlayerSensorEntityDescription(
         key="recent_rating_change",

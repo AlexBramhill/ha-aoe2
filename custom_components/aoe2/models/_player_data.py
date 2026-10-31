@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+from custom_components.aoe2.models import MatchResult
 from custom_components.aoe2.models._match import Match, MatchPlayer
 from custom_components.aoe2.models._profile import Profile
 
@@ -24,10 +25,9 @@ class PlayerData:
     def player_data_for_match(self, match: Match) -> MatchPlayer:
         return match.get_player_with_id(self.profile.profile_id)
 
-    def recent_win_rate(self) -> float | None:
-        results = [self.player_data_for_match(match).is_winner for match in self.finished_matches()]
-        known_results = [is_winner for is_winner in results if is_winner is not None]
-        return known_results.count(True) / len(known_results) if known_results else None
+    def win_rate(self) -> float:
+        results = [self.player_data_for_match(match).result for match in self.finished_matches()]
+        return results.count(MatchResult.WIN) / len(results)
 
     def recent_rating_change(self) -> int | None:
         changes = [
