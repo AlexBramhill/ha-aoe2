@@ -30,6 +30,8 @@ class PlayerData:
         return known_results.count(True) / len(known_results) if known_results else None
 
     def recent_rating_change(self) -> int | None:
-        changes = [self.player_data_for_match(match).rating_change for match in self.finished_matches()]
+        changes = [
+            self.player_data_for_match(match).rating_change for match in self.finished_matches()
+        ]
         known_changes = [change for change in changes if change is not None]
         return sum(known_changes) if known_changes else None
