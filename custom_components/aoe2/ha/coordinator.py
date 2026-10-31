@@ -19,13 +19,11 @@ from custom_components.aoe2.const import (
     MIN_IN_MATCH_UPDATE_MINUTES,
     MIN_UPDATE_MINUTES,
 )
-from custom_components.aoe2.ha.ledger_store import LedgerStore
+from custom_components.aoe2.ha.match_tracker import MatchTracker
 from custom_components.aoe2.logic import (
     MatchFinishedEvent,
-    MatchLedger,
     UpdateIntervals,
     get_match_finished_event,
-    get_newly_finished_matches,
 )
 from custom_components.aoe2.models import Match, PlayerData
 
@@ -50,8 +48,7 @@ class Aoe2Coordinator(TimestampDataUpdateCoordinator[PlayerData]):
         )
         self._client = client
         self._profile_id: int = entry.data[CONF_PROFILE_ID]
-        self._ledger_store = LedgerStore(hass, entry.entry_id)
-        self._ledger: MatchLedger | None = None
+        self._match_tracker = MatchTracker(hass, entry.entry_id)
         self._matches_to_announce: list[Match] = []
         self._match_finished_listeners: list[MatchFinishedListener] = []
 
@@ -74,12 +71,12 @@ class Aoe2Coordinator(TimestampDataUpdateCoordinator[PlayerData]):
         return remove_listener
 
     async def _async_setup(self) -> None:
-        self._ledger = await self._ledger_store.async_load()
+        await self._match_tracker.async_load()
 
     async def _async_update_data(self) -> PlayerData:
         latest_player_data = await self._fetch_player_data()
         self._matches_to_announce.extend(
-            await self._record_newly_finished_matches(latest_player_data)
+            await self._match_tracker.async_take_newly_finished(latest_player_data)
         )
         self.update_interval = self._update_intervals.for_data(latest_player_data)
         return latest_player_data
@@ -110,13 +107,6 @@ class Aoe2Coordinator(TimestampDataUpdateCoordinator[PlayerData]):
         except AoeClientError as error:
             raise UpdateFailed(str(error)) from error
         return PlayerData(profile=profile, unsorted_matches=matches)
-
-    async def _record_newly_finished_matches(self, latest_player_data: PlayerData) -> list[Match]:
-        newly_finished, ledger = get_newly_finished_matches(latest_player_data, self._ledger)
-        if ledger != self._ledger:
-            await self._ledger_store.async_save(ledger)
-        self._ledger = ledger
-        return newly_finished
 
 
 def get_update_intervals(options: Mapping[str, Any]) -> UpdateIntervals:
