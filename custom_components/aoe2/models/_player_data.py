@@ -12,7 +12,7 @@ class PlayerData:
     unsorted_matches: InitVar[list[Match]]
     matches: tuple[Match, ...] = field(init=False)
 
-    def __post_init__(self, unsorted_matches) -> None:
+    def __post_init__(self, unsorted_matches: list[Match]) -> None:
         newest_first = sorted(unsorted_matches, key=lambda match: match.started, reverse=True)
         object.__setattr__(self, "matches", tuple(newest_first))
 

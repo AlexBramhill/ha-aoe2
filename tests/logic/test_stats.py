@@ -17,7 +17,7 @@ LOST_MATCH = (
 
 
 def data_with(*matches: MatchBuilder) -> PlayerData:
-    return PlayerData(profile=PLAYER, unsorted_matches=(match.build() for match in matches))
+    return PlayerData(profile=PLAYER, unsorted_matches=[match.build() for match in matches])
 
 
 def test_last_match_result_hides_an_unknown_outcome():

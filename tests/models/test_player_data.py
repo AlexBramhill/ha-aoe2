@@ -1,5 +1,7 @@
+from datetime import timedelta
+
 from custom_components.aoe2.models import MatchResult, PlayerData
-from tests.builders import MatchBuilder, ProfileBuilder, build_match_player
+from tests.builders import TYPICAL_START, MatchBuilder, ProfileBuilder, build_match_player
 from tests.integration import PROFILE_ID
 
 PLAYER = ProfileBuilder().with_profile_id(PROFILE_ID).build().expected
@@ -12,7 +14,19 @@ LOST_MATCH = (
 
 
 def data_with(*matches: MatchBuilder) -> PlayerData:
-    return PlayerData(profile=PLAYER, unsorted_matches=(match.build() for match in matches))
+    return PlayerData(profile=PLAYER, unsorted_matches=[match.build() for match in matches])
+
+
+def test_matches_are_sorted_newest_first():
+    # Given
+    older = MatchBuilder().with_match_id(1).with_start(TYPICAL_START)
+    newer = MatchBuilder().with_match_id(2).with_start(TYPICAL_START + timedelta(hours=1))
+
+    # When
+    data = data_with(older, newer)
+
+    # Then
+    assert [match.match_id for match in data.matches] == [2, 1]
 
 
 def test_recent_win_rate_counts_finished_matches():
