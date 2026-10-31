@@ -69,7 +69,7 @@ async def test_refresh_provides_profile_and_matches(
     await refresh(hass, coordinator)
 
     # Then
-    expected = PlayerData(profile=fake_client.profile, matches=(EARLIER_MATCH.build(),))
+    expected = PlayerData(profile=fake_client.profile, unsorted_matches=(EARLIER_MATCH.build(),))
     assert coordinator.data == expected
 
 

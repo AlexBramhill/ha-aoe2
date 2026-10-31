@@ -10,7 +10,9 @@ OLDER_MATCH = MatchBuilder().with_match_id(1).build()
 NEWER_MATCH = MatchBuilder().with_match_id(2).with_start(TYPICAL_START + timedelta(hours=1)).build()
 CURRENT_MATCH = MatchBuilder().with_match_id(3).unfinished().build()
 
-NEWEST_FIRST = PlayerData(profile=PLAYER, matches=(CURRENT_MATCH, NEWER_MATCH, OLDER_MATCH))
+NEWEST_FIRST = PlayerData(
+    profile=PLAYER, unsorted_matches=(CURRENT_MATCH, NEWER_MATCH, OLDER_MATCH)
+)
 
 
 def test_new_player_records_finished_matches_without_announcing_them():
@@ -24,7 +26,7 @@ def test_new_player_records_finished_matches_without_announcing_them():
 
 def test_new_player_with_no_matches_still_gets_a_ledger():
     # Given
-    data = PlayerData(profile=PLAYER, matches=())
+    data = PlayerData(profile=PLAYER, unsorted_matches=())
 
     # When
     check = get_new_matches(data, match_ledger=None)

@@ -103,7 +103,7 @@ class Aoe2Coordinator(TimestampDataUpdateCoordinator[PlayerData]):
             raise UpdateFailed(str(error), retry_after=error.retry_after) from error
         except AoeClientError as error:
             raise UpdateFailed(str(error)) from error
-        return PlayerData(profile=profile, matches=tuple(matches))
+        return PlayerData(profile=profile, unsorted_matches=matches)
 
     async def _record_new_matches(self, latest: PlayerData) -> list[Match]:
         # Todo: refactor this nicer

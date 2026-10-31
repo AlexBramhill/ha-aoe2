@@ -133,7 +133,7 @@ PLAYER_SENSORS: tuple[Aoe2PlayerSensorEntityDescription, ...] = (
         key="last_played",
         translation_key="last_played",
         device_class=SensorDeviceClass.TIMESTAMP,
-        value_fn=PlayerData.last_played,
+        value_fn=PlayerData.date_of_last_finished_match,
     ),
     Aoe2PlayerSensorEntityDescription(
         key="last_match_map",

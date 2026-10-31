@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import InitVar, dataclass, field
 from datetime import datetime
 
 from custom_components.aoe2.models import MatchResult
@@ -9,7 +9,12 @@ from custom_components.aoe2.models._profile import Profile
 @dataclass(frozen=True, slots=True)
 class PlayerData:
     profile: Profile
-    matches: tuple[Match, ...]
+    unsorted_matches: InitVar[list[Match]]
+    matches: tuple[Match, ...] = field(init=False)
+
+    def __post_init__(self, unsorted_matches) -> None:
+        newest_first = sorted(unsorted_matches, key=lambda match: match.started, reverse=True)
+        object.__setattr__(self, "matches", tuple(newest_first))
 
     def finished_matches(self) -> tuple[Match, ...]:
         return tuple(match for match in self.matches if match.is_finished)
@@ -39,7 +44,7 @@ class PlayerData:
         match = self.last_finished_match()
         return None if match is None else match.map_name
 
-    def last_played(self) -> datetime | None:
+    def date_of_last_finished_match(self) -> datetime | None:
         match = self.last_finished_match()
         return None if match is None else match.finished
 
