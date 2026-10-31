@@ -4,9 +4,9 @@ from custom_components.aoe2.logic._match_events import (
 )
 from custom_components.aoe2.logic._match_ledger import (
     MAX_RECORDED_MATCHES,
-    MatchCheck,
+    UpdateWithUnrecordedMatchesResult,
     MatchLedger,
-    get_unrecorded_matches,
+    update_with_unrecorded_matches,
 )
 from custom_components.aoe2.logic._stats import (
     get_current_match_details,
@@ -18,7 +18,7 @@ from custom_components.aoe2.logic._update_intervals import UpdateIntervals
 
 __all__ = [
     "MAX_RECORDED_MATCHES",
-    "MatchCheck",
+    "UpdateWithUnrecordedMatchesResult",
     "MatchFinishedEvent",
     "MatchLedger",
     "UpdateIntervals",
@@ -26,6 +26,6 @@ __all__ = [
     "get_last_match_details",
     "get_last_match_result",
     "get_match_finished_event",
-    "get_unrecorded_matches",
+    "update_with_unrecorded_matches",
     "get_percentage",
 ]

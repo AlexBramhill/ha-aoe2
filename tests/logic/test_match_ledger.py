@@ -1,6 +1,10 @@
 from datetime import timedelta
 
-from custom_components.aoe2.logic import MAX_RECORDED_MATCHES, MatchLedger, get_unrecorded_matches
+from custom_components.aoe2.logic import (
+    MAX_RECORDED_MATCHES,
+    MatchLedger,
+    update_with_unrecorded_matches,
+)
 from custom_components.aoe2.models import PlayerData
 from tests.builders import TYPICAL_START, MatchBuilder, ProfileBuilder
 
@@ -17,7 +21,7 @@ NEWEST_FIRST = PlayerData(
 
 def test_new_player_records_finished_matches_without_announcing_them():
     # When
-    check = get_unrecorded_matches(NEWEST_FIRST, match_ledger=None)
+    check = update_with_unrecorded_matches(NEWEST_FIRST, match_ledger=None)
 
     # Then
     assert check.ledger == MatchLedger(PLAYER.profile_id, (1, 2))
@@ -29,7 +33,7 @@ def test_new_player_with_no_matches_still_gets_a_ledger():
     data = PlayerData(profile=PLAYER, unsorted_matches=())
 
     # When
-    check = get_unrecorded_matches(data, match_ledger=None)
+    check = update_with_unrecorded_matches(data, match_ledger=None)
 
     # Then
     assert check.ledger == MatchLedger(PLAYER.profile_id)
@@ -40,7 +44,7 @@ def test_unrecorded_matches_are_announced_oldest_first():
     saved = MatchLedger(PLAYER.profile_id)
 
     # When
-    check = get_unrecorded_matches(NEWEST_FIRST, saved)
+    check = update_with_unrecorded_matches(NEWEST_FIRST, saved)
 
     # Then
     assert check.to_announce == [OLDER_MATCH, NEWER_MATCH]
@@ -52,7 +56,7 @@ def test_recorded_matches_are_not_announced_again():
     saved = MatchLedger(PLAYER.profile_id, (1, 2))
 
     # When
-    check = get_unrecorded_matches(NEWEST_FIRST, saved)
+    check = update_with_unrecorded_matches(NEWEST_FIRST, saved)
 
     # Then
     assert check.to_announce == []
@@ -64,7 +68,7 @@ def test_ledger_for_another_player_is_replaced_without_announcing():
     saved = MatchLedger(OTHER_PROFILE_ID, (99,))
 
     # When
-    check = get_unrecorded_matches(NEWEST_FIRST, saved)
+    check = update_with_unrecorded_matches(NEWEST_FIRST, saved)
 
     # Then
     assert check.ledger == MatchLedger(PLAYER.profile_id, (1, 2))

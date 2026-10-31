@@ -24,22 +24,24 @@ class MatchLedger:
 
 
 @dataclass(frozen=True, slots=True)
-class MatchCheck:
+class UpdateWithUnrecordedMatchesResult:
     ledger: MatchLedger
     to_announce: list[Match]
 
 
-def get_unrecorded_matches(data: PlayerData, match_ledger: MatchLedger | None) -> MatchCheck:
+def update_with_unrecorded_matches(
+    data: PlayerData, match_ledger: MatchLedger | None
+) -> UpdateWithUnrecordedMatchesResult:
     finished_oldest_first = list(reversed(data.finished_matches()))
 
     if match_ledger is None or match_ledger.profile_id != data.profile.profile_id:
         new_ledger = MatchLedger(data.profile.profile_id).record(
             match.match_id for match in finished_oldest_first
         )
-        return MatchCheck(ledger=new_ledger, to_announce=[])
+        return UpdateWithUnrecordedMatchesResult(ledger=new_ledger, to_announce=[])
 
     unrecorded = [match for match in finished_oldest_first if match.match_id not in match_ledger]
-    return MatchCheck(
+    return UpdateWithUnrecordedMatchesResult(
         ledger=match_ledger.record(match.match_id for match in unrecorded),
         to_announce=unrecorded,
     )

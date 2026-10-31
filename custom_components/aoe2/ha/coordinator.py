@@ -25,7 +25,7 @@ from custom_components.aoe2.logic import (
     MatchLedger,
     UpdateIntervals,
     get_match_finished_event,
-    get_unrecorded_matches,
+    update_with_unrecorded_matches,
 )
 from custom_components.aoe2.models import Match, PlayerData
 
@@ -105,13 +105,13 @@ class Aoe2Coordinator(TimestampDataUpdateCoordinator[PlayerData]):
             raise UpdateFailed(str(error)) from error
         return PlayerData(profile=profile, unsorted_matches=matches)
 
+    # TODO: This really needs a rework
     async def _record_new_matches(self, latest: PlayerData) -> list[Match]:
-        # Todo: refactor this nicer
-        check = get_unrecorded_matches(latest, self._ledger)
-        if check.ledger != self._ledger:
-            await self._recorded_matches.async_save(check.ledger)
-        self._ledger = check.ledger
-        return check.to_announce
+        result = update_with_unrecorded_matches(latest, self._ledger)
+        if result.ledger != self._ledger:
+            await self._recorded_matches.async_save(result.ledger)
+        self._ledger = result.ledger
+        return result.to_announce
 
 
 def get_update_intervals(options: Mapping[str, Any]) -> UpdateIntervals:
