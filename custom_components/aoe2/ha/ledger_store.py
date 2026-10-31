@@ -9,14 +9,14 @@ from custom_components.aoe2.logic import MatchLedger
 STORAGE_VERSION = 1
 
 
-class StoredRecordedMatches(TypedDict):
+class StoredLedger(TypedDict):
     match_ids: list[int]
     profile_id: int
 
 
-class RecordedMatches:
+class LedgerStore:
     def __init__(self, hass: HomeAssistant, entry_id: str) -> None:
-        self._store = Store[StoredRecordedMatches](
+        self._store = Store[StoredLedger](
             hass, STORAGE_VERSION, f"{DOMAIN}.{entry_id}.recorded_matches"
         )
 
@@ -28,7 +28,7 @@ class RecordedMatches:
 
     async def async_save(self, ledger: MatchLedger) -> None:
         await self._store.async_save(
-            StoredRecordedMatches(match_ids=list(ledger.match_ids), profile_id=ledger.profile_id)
+            StoredLedger(match_ids=list(ledger.match_ids), profile_id=ledger.profile_id)
         )
 
     async def async_remove(self) -> None:
