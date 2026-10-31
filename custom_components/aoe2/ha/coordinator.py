@@ -88,6 +88,10 @@ class Aoe2Coordinator(TimestampDataUpdateCoordinator[PlayerData]):
     def async_update_listeners(self) -> None:
         """Announce after entities update, so automations see the new ratings."""
         super().async_update_listeners()
+        self._announce_newly_finished_matches()
+
+    @callback
+    def _announce_newly_finished_matches(self) -> None:
         for match in self._matches_to_announce:
             event = get_match_finished_event(match, self._profile_id)
             for listener in self._match_finished_listeners:
@@ -107,9 +111,8 @@ class Aoe2Coordinator(TimestampDataUpdateCoordinator[PlayerData]):
             raise UpdateFailed(str(error)) from error
         return PlayerData(profile=profile, unsorted_matches=matches)
 
-    # TODO: This really needs a rework
-    async def _record_newly_finished_matches(self, latest: PlayerData) -> list[Match]:
-        newly_finished, ledger = get_newly_finished_matches(latest, self._ledger)
+    async def _record_newly_finished_matches(self, latest_player_data: PlayerData) -> list[Match]:
+        newly_finished, ledger = get_newly_finished_matches(latest_player_data, self._ledger)
         if ledger != self._ledger:
             await self._ledger_store.async_save(ledger)
         self._ledger = ledger
