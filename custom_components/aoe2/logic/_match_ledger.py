@@ -4,7 +4,8 @@ from typing import Self
 
 from custom_components.aoe2.models import Match, PlayerData
 
-MAX_RECORDED_MATCHES = 1000
+RECENT_MATCH_COUNT = 5
+MAX_RECORDED_MATCHES = RECENT_MATCH_COUNT * 2
 
 
 @dataclass(frozen=True, slots=True)

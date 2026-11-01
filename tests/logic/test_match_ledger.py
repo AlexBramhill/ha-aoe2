@@ -2,6 +2,7 @@ from datetime import timedelta
 
 from custom_components.aoe2.logic import (
     MAX_RECORDED_MATCHES,
+    RECENT_MATCH_COUNT,
     MatchLedger,
     get_newly_finished_matches,
 )
@@ -97,3 +98,24 @@ def test_recording_keeps_only_the_most_recent_ids():
     assert len(recorded.match_ids) == MAX_RECORDED_MATCHES
     assert oldest_kept - 1 not in recorded
     assert oldest_kept in recorded
+
+
+def test_a_full_page_of_recent_matches_is_not_announced_again():
+    # Given
+    full_page = PlayerData(
+        profile=PLAYER,
+        unsorted_matches=[
+            MatchBuilder()
+            .with_match_id(match_id)
+            .with_start(TYPICAL_START + timedelta(hours=match_id))
+            .build()
+            for match_id in range(RECENT_MATCH_COUNT)
+        ],
+    )
+    _, ledger = get_newly_finished_matches(full_page, match_ledger=None)
+
+    # When
+    newly_finished, _ = get_newly_finished_matches(full_page, ledger)
+
+    # Then
+    assert newly_finished == []

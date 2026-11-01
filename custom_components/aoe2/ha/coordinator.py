@@ -20,10 +20,8 @@ from custom_components.aoe2.const import (
     MIN_UPDATE_MINUTES,
 )
 from custom_components.aoe2.ha.match_tracker import MatchTracker
-from custom_components.aoe2.logic import MatchFinishedEvent, UpdateIntervals
+from custom_components.aoe2.logic import RECENT_MATCH_COUNT, MatchFinishedEvent, UpdateIntervals
 from custom_components.aoe2.models import Match, PlayerData
-
-RECENT_MATCH_COUNT = 5
 
 type MatchFinishedListener = Callable[[MatchFinishedEvent], None]
 
