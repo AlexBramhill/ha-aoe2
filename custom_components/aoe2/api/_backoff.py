@@ -33,7 +33,7 @@ def _get_delay_before_retry(
 
 
 def _get_exponential_delay(retry: int, first_delay_seconds: float) -> float:
-    return first_delay_seconds * 2**retry
+    return first_delay_seconds * 2.0**retry
 
 
 def _get_jitter() -> float:

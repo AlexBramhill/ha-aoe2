@@ -1,3 +1,4 @@
+# pyright: reportUninitializedInstanceVariable=false
 """Query a data source from the command line.
 
 python scripts/try_api.py aoe2companion <profile_id>
@@ -6,12 +7,12 @@ python scripts/try_api.py aoe2companion <profile_id> --count 10
 
 import argparse
 import asyncio
-import json
 import sys
 from pathlib import Path
 from typing import get_args
 
 import aiohttp
+from pydantic import BaseModel
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
@@ -21,15 +22,25 @@ from custom_components.aoe2.models import Match, MatchPlayer, Profile, Rating
 MANIFEST = Path(__file__).resolve().parents[1] / "custom_components/aoe2/manifest.json"
 
 
-async def main(args: argparse.Namespace) -> None:
+class Arguments(argparse.Namespace):
+    client: ClientName
+    profile_id: int
+    count: int
+
+
+async def main(args: Arguments) -> None:
     async with aiohttp.ClientSession() as session:
         client = create_client(args.client, session, script_version())
         await print_player(client, args.profile_id, args.count)
 
 
+class Manifest(BaseModel):
+    version: str
+
+
 def script_version() -> str:
-    version = json.loads(MANIFEST.read_text())["version"]
-    return f"{version}+try_api"
+    manifest = Manifest.model_validate_json(MANIFEST.read_text())
+    return f"{manifest.version}+try_api"
 
 
 async def print_player(client: AoeClient, profile_id: int, match_count: int) -> None:
@@ -79,14 +90,14 @@ def format_rating_change(player: MatchPlayer) -> str:
     return f"{player.rating_change:+d}"
 
 
-def parse_args() -> argparse.Namespace:
+def parse_args() -> Arguments:
     parser = argparse.ArgumentParser(description="Query an AoE2 data source.")
     _ = parser.add_argument("client", choices=get_args(ClientName), help="data source to query")
     _ = parser.add_argument("profile_id", type=int, help="player to show")
     _ = parser.add_argument(
         "--count", type=int, default=5, help="maximum number of recent matches to show"
     )
-    return parser.parse_args()
+    return parser.parse_args(namespace=Arguments())
 
 
 if __name__ == "__main__":
