@@ -1,4 +1,4 @@
-from typing import Any, override
+from typing import override
 
 from homeassistant.components.binary_sensor import BinarySensorEntity
 from homeassistant.core import HomeAssistant
@@ -8,6 +8,7 @@ from custom_components.aoe2.ha import (
     Aoe2ConfigEntry,
     Aoe2Coordinator,
     Aoe2Entity,
+    StateAttributes,
     get_current_match_details,
 )
 
@@ -26,7 +27,7 @@ class Aoe2InMatchSensor(Aoe2Entity, BinarySensorEntity):
     _attr_translation_key: str = "in_match"
 
     def __init__(self, coordinator: Aoe2Coordinator) -> None:
-        super().__init__(coordinator, "in_match")
+        super().__init__(coordinator, self._attr_translation_key)
 
     @property
     @override
@@ -35,5 +36,5 @@ class Aoe2InMatchSensor(Aoe2Entity, BinarySensorEntity):
 
     @property
     @override
-    def extra_state_attributes(self) -> dict[str, Any]:
+    def extra_state_attributes(self) -> StateAttributes:
         return get_current_match_details(self.coordinator.data)

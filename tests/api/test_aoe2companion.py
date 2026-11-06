@@ -1,21 +1,25 @@
+import json
+
 import pytest
+from pydantic import ValidationError
 
 from custom_components.aoe2.api import (
     BACKGROUND_REQUESTS,
     INTERACTIVE_REQUESTS,
-    AoeClientResponseError,
     RequestPolicy,
     _aoe2companion,
 )
 from custom_components.aoe2.api._aoe2companion import (
     LEADERBOARDS_BY_ID,
     Aoe2CompanionClient,
-    parse_matches,
-    parse_profile,
+    get_matches_from,
+    get_profile_from,
 )
-from custom_components.aoe2.models import Leaderboard
+from custom_components.aoe2.api._aoe2companion_responses import MatchesResponse, ProfileResponse
+from custom_components.aoe2.models import Leaderboard, Match, Profile
 from tests.api.api_json import Body
 from tests.api.helpers import TEST_VERSION, UNUSED_SESSION, VIPER, VIPER_WON_RANKED_MATCH_ID
+from tests.json_values import get_object_at
 
 KINGSTONE_PROFILE_ID = 2776293
 RATING_JSON = {
@@ -28,13 +32,23 @@ RATING_JSON = {
     "lastMatchTime": "2026-10-18T19:26:00.000Z",
 }
 
+VIPER_PROFILE = ProfileResponse(profile_id=VIPER.profile_id, name="Viper")
+
+
+def parse_profile(body: str) -> Profile:
+    return get_profile_from(ProfileResponse.model_validate_json(body))
+
+
+def parse_matches(body: str) -> list[Match]:
+    return get_matches_from(MatchesResponse.model_validate_json(body))
+
 
 @pytest.fixture
-def matches_response() -> Body:
-    return VIPER.read_fixture("aoe2companion_matches.json")
+def matches_response() -> str:
+    return VIPER.read_fixture_text("aoe2companion_matches.json")
 
 
-def test_match_player_includes_civ_name(matches_response: Body):
+def test_match_player_includes_civ_name(matches_response: str):
     # When
     newest_match = parse_matches(matches_response)[0]
 
@@ -43,7 +57,7 @@ def test_match_player_includes_civ_name(matches_response: Body):
     assert kingstone.civ == "Persians"
 
 
-def test_match_reports_map_played(matches_response: Body):
+def test_match_reports_map_played(matches_response: str):
     # When
     matches = parse_matches(matches_response)
 
@@ -88,7 +102,7 @@ def ai_match_response() -> Body:
 
 def test_ai_player_has_name_team_and_civ_but_no_result():
     # When
-    match = parse_matches(ai_match_response())[0]
+    match = parse_matches(json.dumps(ai_match_response()))[0]
 
     # Then
     ai = match.get_player_with_id(-1)
@@ -99,11 +113,11 @@ def test_ai_player_has_name_team_and_civ_but_no_result():
 def test_rating_after_match_is_unknown_without_rating_change():
     # Given
     response = ai_match_response()
-    human = response["matches"][0]["teams"][0]["players"][0]
+    human = get_object_at(response, "matches", 0, "teams", 0, "players", 0)
     human["ratingDiff"] = None
 
     # When
-    match = parse_matches(response)[0]
+    match = parse_matches(json.dumps(response))[0]
 
     # Then
     player = match.get_player_with_id(1241154)
@@ -113,10 +127,10 @@ def test_rating_after_match_is_unknown_without_rating_change():
 def test_match_on_unrecognised_leaderboard_is_other():
     # Given
     response = ai_match_response()
-    response["matches"][0]["leaderboardId"] = "brand_new_mode"
+    get_object_at(response, "matches", 0)["leaderboardId"] = "brand_new_mode"
 
     # When
-    match = parse_matches(response)[0]
+    match = parse_matches(json.dumps(response))[0]
 
     # Then
     assert match.leaderboard is Leaderboard.OTHER
@@ -134,19 +148,38 @@ def test_profile_skips_ratings_on_unrecognised_leaderboards():
     }
 
     # When
-    parsed = parse_profile(profile)
+    parsed = parse_profile(json.dumps(profile))
 
     # Then
     assert [rating.leaderboard for rating in parsed.ratings] == [Leaderboard.RM_TEAM]
 
 
-def test_malformed_profile_raises_response_error():
+def test_profile_without_profile_id_is_rejected():
     # Given
     malformed_profile = {"name": "missing profileId"}
 
     # When / Then
-    with pytest.raises(AoeClientResponseError):
-        _ = parse_profile(malformed_profile)
+    with pytest.raises(ValidationError):
+        _ = parse_profile(json.dumps(malformed_profile))
+
+
+def test_mistyped_rating_is_rejected():
+    # Given
+    profile = {
+        "profileId": 1,
+        "name": "Player",
+        "leaderboards": [{**RATING_JSON, "rating": "1650"}],
+    }
+
+    # When / Then
+    with pytest.raises(ValidationError):
+        _ = parse_profile(json.dumps(profile))
+
+
+def test_list_response_is_rejected():
+    # When / Then
+    with pytest.raises(ValidationError):
+        _ = parse_matches("[]")
 
 
 def test_profile_url_links_to_aoe2companion_profile():
@@ -188,11 +221,13 @@ async def test_requests_send_the_client_version(monkeypatch: pytest.MonkeyPatch)
     # Given
     sent_versions: list[str] = []
 
-    async def recording_get_json(*_args: object, version: str, **_options: object) -> Body:
+    async def recording_get_response(
+        *_args: object, version: str, **_options: object
+    ) -> ProfileResponse:
         sent_versions.append(version)
-        return {"profileId": VIPER.profile_id, "name": "Viper", "leaderboards": []}
+        return VIPER_PROFILE
 
-    monkeypatch.setattr(_aoe2companion, "get_json", recording_get_json)
+    monkeypatch.setattr(_aoe2companion, "get_response", recording_get_response)
     client = Aoe2CompanionClient(UNUSED_SESSION, TEST_VERSION)
 
     # When
@@ -215,11 +250,13 @@ async def test_requests_use_the_client_policy(
     # Given
     sent_policies: list[RequestPolicy] = []
 
-    async def recording_get_json(*_args: object, policy: RequestPolicy, **_options: object) -> Body:
+    async def recording_get_response(
+        *_args: object, policy: RequestPolicy, **_options: object
+    ) -> ProfileResponse:
         sent_policies.append(policy)
-        return {"profileId": VIPER.profile_id, "name": "Viper", "leaderboards": []}
+        return VIPER_PROFILE
 
-    monkeypatch.setattr(_aoe2companion, "get_json", recording_get_json)
+    monkeypatch.setattr(_aoe2companion, "get_response", recording_get_response)
     client = (
         Aoe2CompanionClient(UNUSED_SESSION, TEST_VERSION)
         if given_policy is None

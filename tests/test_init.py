@@ -1,4 +1,4 @@
-from typing import Any, get_args
+from typing import get_args
 
 import pytest
 from homeassistant.config_entries import ConfigEntryState
@@ -97,7 +97,7 @@ async def test_unload_unloads_entry(hass: HomeAssistant):
 
 
 @pytest.mark.usefixtures("created_client_names")
-async def test_remove_deletes_saved_ledger(hass: HomeAssistant, hass_storage: dict[str, Any]):
+async def test_remove_deletes_saved_ledger(hass: HomeAssistant, hass_storage: dict[str, object]):
     # Given
     entry = config_entry_for("aoe2companion")
     await set_up(hass, entry)

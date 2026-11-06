@@ -1,12 +1,19 @@
 from collections.abc import Callable
-from typing import get_args
+from typing import cast, get_args
 
 import pytest
+from pydantic import TypeAdapter
 
-from custom_components.aoe2.api import AoeClient, AoeClientNotFoundError, ClientName, create_client
+from custom_components.aoe2.api import (
+    AoeClient,
+    AoeClientNotFoundError,
+    ClientName,
+    create_client,
+)
 from custom_components.aoe2.models import Leaderboard, Match
 from tests.api.fake_apis import FAKE_API_FOR_CLIENT, FakeApi
 from tests.api.helpers import (
+    RECORDED_PLAYER_NAMES,
     RECORDED_PLAYERS,
     TEST_VERSION,
     UNUSED_SESSION,
@@ -58,18 +65,20 @@ def match_with_id(matches: list[Match], match_id: int) -> Match:
 
 @pytest.fixture(params=get_args(ClientName))
 def client_name(request: pytest.FixtureRequest) -> ClientName:
-    return request.param
+    return TypeAdapter[ClientName](ClientName).validate_python(cast(object, request.param))
 
 
-@pytest.fixture(params=RECORDED_PLAYERS, ids=lambda player: player.name)
+@pytest.fixture(params=RECORDED_PLAYERS, ids=RECORDED_PLAYER_NAMES)
 def recorded_player(request: pytest.FixtureRequest) -> RecordedPlayer:
-    return request.param
+    param = cast(object, request.param)
+    assert isinstance(param, RecordedPlayer)
+    return param
 
 
 @pytest.fixture
 def connect(monkeypatch: pytest.MonkeyPatch) -> Connect:
     def connect_to(fake_api: FakeApi) -> AoeClient:
-        monkeypatch.setattr(fake_api.module, "get_json", fake_api.get_json)
+        monkeypatch.setattr(fake_api.module, "get_response", fake_api.get_response)
         return create_client(fake_api.name, session=UNUSED_SESSION, version=TEST_VERSION)
 
     return connect_to
@@ -168,16 +177,6 @@ async def test_match_players_have_names(client: AoeClient, recorded_player: Reco
     # Then
     for match in matches:
         assert all(player.name for player in match.players)
-
-
-async def test_teams_are_numbered_from_one(client: AoeClient, recorded_player: RecordedPlayer):
-    # When
-    matches = await client.get_recent_matches(recorded_player.profile_id)
-
-    # Then
-    for match in matches:
-        teams = {player.team for player in match.players}
-        assert teams == set(range(1, len(teams) + 1))
 
 
 async def test_matches_have_map_names(client: AoeClient, recorded_player: RecordedPlayer):

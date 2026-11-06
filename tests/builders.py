@@ -1,7 +1,7 @@
 from collections.abc import Callable
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime, timedelta
-from typing import Any, Self
+from typing import Self
 
 from custom_components.aoe2.models import Leaderboard, Match, MatchPlayer, Profile, Rating
 from tests.api.api_json import (
@@ -26,7 +26,7 @@ class BuiltMatchHistory:
 TYPICAL_LAST_MATCH = datetime(2026, 10, 1, 18, 30, tzinfo=UTC)
 
 
-def build_rating(leaderboard: Leaderboard, rating: int, **fields: Any) -> Rating:
+def build_rating(leaderboard: Leaderboard, rating: int, **fields: object) -> Rating:
     unranked_with_one_game = Rating(
         leaderboard=leaderboard,
         rating=rating,
@@ -100,7 +100,7 @@ class ProfileBuilder:
         )
 
 
-def build_match_player(profile_id: int, **fields: Any) -> MatchPlayer:
+def build_match_player(profile_id: int, **fields: object) -> MatchPlayer:
     winner_on_team_one = MatchPlayer(
         profile_id=profile_id,
         name=f"Player {profile_id}",

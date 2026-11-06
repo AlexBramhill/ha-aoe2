@@ -1,9 +1,10 @@
-import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, cast
+from typing import cast
 
 import aiohttp
+
+from tests.json_values import read_json_object
 
 FIXTURES = Path(__file__).parent / "fixtures"
 TEST_VERSION = "1.2.3-tests"
@@ -21,8 +22,11 @@ class RecordedPlayer:
     name: str
     profile_id: int
 
-    def read_fixture(self, filename: str) -> Any:
-        return json.loads((FIXTURES / self.name / filename).read_text())
+    def read_fixture(self, filename: str) -> dict[str, object]:
+        return read_json_object(FIXTURES / self.name / filename)
+
+    def read_fixture_text(self, filename: str) -> str:
+        return (FIXTURES / self.name / filename).read_text()
 
 
 VIPER = RecordedPlayer(name="viper", profile_id=196240)
@@ -32,3 +36,4 @@ VIPER_WON_RANKED_MATCH_ID = 514828647
 
 TEAM_PLAYER = RecordedPlayer(name="team_player", profile_id=9100001)
 RECORDED_PLAYERS = [VIPER, TEAM_PLAYER]
+RECORDED_PLAYER_NAMES = [player.name for player in RECORDED_PLAYERS]

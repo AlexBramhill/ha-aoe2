@@ -1,38 +1,32 @@
-from typing import Any, TypeIs
-
 import pytest
 
-from custom_components.aoe2.api._http import is_json_object
 from custom_components.aoe2.models import Leaderboard
-from tests.api.helpers import RECORDED_PLAYERS, RecordedPlayer
+from tests.api.helpers import RECORDED_PLAYER_NAMES, RECORDED_PLAYERS, RecordedPlayer
 from tests.builders import MatchBuilder, ProfileBuilder, build_match_history, build_rating
+from tests.json_values import is_dict, is_list
 
 
-def has_same_shape(built: Any, recorded: Any) -> bool:
+def has_same_shape(built: object, recorded: object) -> bool:
     if built is None or recorded is None:
         return True
-    if is_json_object(built):
-        return is_json_object(recorded) and object_has_same_shape(built, recorded)
-    if is_json_list(built):
-        return is_json_list(recorded) and list_has_same_shape(built, recorded)
+    if is_dict(built):
+        return is_dict(recorded) and object_has_same_shape(built, recorded)
+    if is_list(built):
+        return is_list(recorded) and list_has_same_shape(built, recorded)
     return type(built) is type(recorded)
 
 
-def object_has_same_shape(built: dict[str, Any], recorded: dict[str, Any]) -> bool:
+def object_has_same_shape(built: dict[str, object], recorded: dict[str, object]) -> bool:
     return all(
         key in recorded and has_same_shape(value, recorded[key]) for key, value in built.items()
     )
 
 
-def is_json_list(value: object) -> TypeIs[list[Any]]:
-    return isinstance(value, list)
-
-
-def list_has_same_shape(built: list[Any], recorded: list[Any]) -> bool:
+def list_has_same_shape(built: list[object], recorded: list[object]) -> bool:
     return all(any(has_same_shape(item, candidate) for candidate in recorded) for item in built)
 
 
-@pytest.mark.parametrize("player", RECORDED_PLAYERS, ids=lambda player: player.name)
+@pytest.mark.parametrize("player", RECORDED_PLAYERS, ids=RECORDED_PLAYER_NAMES)
 def test_aoe2companion_response_has_recorded_shape(player: RecordedPlayer):
     # Given
     recorded = player.read_fixture("aoe2companion_profile.json")
@@ -44,7 +38,7 @@ def test_aoe2companion_response_has_recorded_shape(player: RecordedPlayer):
     assert has_same_shape(built.aoe2companion_response, recorded)
 
 
-@pytest.mark.parametrize("player", RECORDED_PLAYERS, ids=lambda player: player.name)
+@pytest.mark.parametrize("player", RECORDED_PLAYERS, ids=RECORDED_PLAYER_NAMES)
 def test_aoe2companion_matches_have_recorded_shape(player: RecordedPlayer):
     # Given
     recorded = player.read_fixture("aoe2companion_matches.json")

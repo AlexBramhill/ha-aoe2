@@ -1,4 +1,5 @@
-from typing import Any, final, override
+from collections.abc import Mapping
+from typing import final, override
 
 import probatio
 from homeassistant.config_entries import (
@@ -23,7 +24,6 @@ from custom_components.aoe2.api import (
     AoeClientRetryError,
 )
 from custom_components.aoe2.const import (
-    CONF_CLIENT,
     CONF_IN_MATCH_UPDATE_MINUTES,
     CONF_PROFILE_ID,
     CONF_UPDATE_MINUTES,
@@ -33,7 +33,7 @@ from custom_components.aoe2.const import (
     MIN_IN_MATCH_UPDATE_MINUTES,
     MIN_UPDATE_MINUTES,
 )
-from custom_components.aoe2.ha import async_create_client
+from custom_components.aoe2.ha import EntryData, EntryOptions, async_create_client
 from custom_components.aoe2.models import Profile
 
 FORM_ERROR = "base"
@@ -83,12 +83,14 @@ class Aoe2ConfigFlow(ConfigFlow, domain=DOMAIN):
         return Aoe2OptionsFlow()
 
     @override
-    async def async_step_user(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+    async def async_step_user(
+        self, user_input: dict[str, object] | None = None
+    ) -> ConfigFlowResult:
         client = await self._get_client()
         if user_input is None:
             return self._show_profile_form("user", client)
 
-        profile_id: int = user_input[CONF_PROFILE_ID]
+        profile_id = EntryData.from_mapping(user_input).profile_id
         await self._abort_if_player_already_added(profile_id)
 
         match await _get_profile_or_form_errors(client, profile_id):
@@ -98,15 +100,15 @@ class Aoe2ConfigFlow(ConfigFlow, domain=DOMAIN):
                 return self._show_profile_form("user", client, user_input, errors)
 
     async def async_step_reconfigure(
-        self, user_input: dict[str, Any] | None = None
+        self, user_input: dict[str, object] | None = None
     ) -> ConfigFlowResult:
         entry = self._get_reconfigure_entry()
         client = await self._get_client()
         if user_input is None:
             return self._show_profile_form("reconfigure", client, dict(entry.data))
 
-        profile_id: int = user_input[CONF_PROFILE_ID]
-        is_new_player = profile_id != entry.data[CONF_PROFILE_ID]
+        profile_id = EntryData.from_mapping(user_input).profile_id
+        is_new_player = profile_id != EntryData.from_entry(entry).profile_id
         if is_new_player:
             await self._abort_if_player_already_added(profile_id)
 
@@ -123,7 +125,7 @@ class Aoe2ConfigFlow(ConfigFlow, domain=DOMAIN):
     def _create_player_entry(self, profile_id: int, player_name: str) -> ConfigFlowResult:
         return self.async_create_entry(
             title=player_name,
-            data={CONF_CLIENT: DEFAULT_CLIENT, CONF_PROFILE_ID: profile_id},
+            data=EntryData(profile_id=profile_id).model_dump(),
         )
 
     async def _get_client(self) -> AoeClient:
@@ -133,7 +135,7 @@ class Aoe2ConfigFlow(ConfigFlow, domain=DOMAIN):
         self,
         step_id: str,
         client: AoeClient,
-        suggested_values: dict[str, Any] | None = None,
+        suggested_values: Mapping[str, object] | None = None,
         errors: dict[str, str] | None = None,
     ) -> ConfigFlowResult:
         return self.async_show_form(
@@ -155,9 +157,11 @@ class Aoe2ConfigFlow(ConfigFlow, domain=DOMAIN):
 
 
 class Aoe2OptionsFlow(OptionsFlowWithReload):
-    async def async_step_init(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+    async def async_step_init(
+        self, user_input: dict[str, object] | None = None
+    ) -> ConfigFlowResult:
         if user_input is not None:
-            return self.async_create_entry(data=_get_whole_minutes(user_input))
+            return self.async_create_entry(data=_get_options_from(user_input).model_dump())
         return self.async_show_form(
             step_id="init",
             data_schema=self.add_suggested_values_to_schema(
@@ -167,8 +171,9 @@ class Aoe2OptionsFlow(OptionsFlowWithReload):
         )
 
 
-def _get_whole_minutes(options: dict[str, Any]) -> dict[str, int]:
-    return {key: int(minutes) for key, minutes in options.items()}
+def _get_options_from(user_input: dict[str, object]) -> EntryOptions:
+    """Number selectors hand back floats even with a step of 1, so whole floats are allowed."""
+    return EntryOptions.model_validate(user_input, strict=False)
 
 
 async def _get_profile_or_form_errors(
