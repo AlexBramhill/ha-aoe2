@@ -2,9 +2,10 @@ from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from http import HTTPStatus
-from typing import Any, TypeIs
 
 import aiohttp
+from aiohttp.typedefs import Query
+from pydantic import BaseModel, ValidationError
 
 from custom_components.aoe2.api._backoff import with_exponential_backoff
 from custom_components.aoe2.api._errors import (
@@ -30,33 +31,35 @@ BACKGROUND_REQUESTS = RequestPolicy(timeout_seconds=15, max_retries=2)
 INTERACTIVE_REQUESTS = RequestPolicy(timeout_seconds=10, max_retries=0)
 
 
-async def get_json(
+async def get_response[Response: BaseModel](
     session: aiohttp.ClientSession,
     url: str,
-    params: dict[str, Any] | None = None,
+    response_type: type[Response],
+    params: Query | None = None,
     *,
     version: str,
     policy: RequestPolicy,
-) -> dict[str, Any]:
+) -> Response:
     user_agent = USER_AGENT.format(version=version)
     request_timeout = aiohttp.ClientTimeout(total=policy.timeout_seconds)
-    return await with_exponential_backoff(
-        lambda: _request_json(session, url, params, user_agent, request_timeout),
+    body = await with_exponential_backoff(
+        lambda: _get_response_body(session, url, params, user_agent, request_timeout),
         retry_on=AoeClientRetryError,
         max_retries=policy.max_retries,
         first_delay_seconds=FIRST_RETRY_DELAY_SECONDS,
         get_requested_delay=lambda error: error.retry_after,
         longest_wait_seconds=LONGEST_RETRY_WAIT_SECONDS,
     )
+    return _get_validated_response(url, body, response_type)
 
 
-async def _request_json(
+async def _get_response_body(
     session: aiohttp.ClientSession,
     url: str,
-    params: dict[str, Any] | None,
+    params: Query | None,
     user_agent: str,
     request_timeout: aiohttp.ClientTimeout,
-) -> dict[str, Any]:
+) -> str:
     async with (
         _connection_error_handler(url),
         session.get(
@@ -64,8 +67,16 @@ async def _request_json(
         ) as response,
     ):
         raise_for_status(response)
-        body = await _read_json(response)
-    return _ensure_object(url, body)
+        return await response.text()
+
+
+def _get_validated_response[Response: BaseModel](
+    url: str, body: str, response_type: type[Response]
+) -> Response:
+    try:
+        return response_type.model_validate_json(body)
+    except ValidationError as error:
+        raise AoeClientResponseError(f"{url} returned an unexpected response: {error}") from error
 
 
 @asynccontextmanager
@@ -93,24 +104,6 @@ def raise_for_status(response: aiohttp.ClientResponse) -> None:
             raise AoeClientResponseError(f"{url} returned HTTP {status}")
 
 
-async def _read_json(response: aiohttp.ClientResponse) -> Any:
-    try:
-        return await response.json(content_type=None)
-    except ValueError as error:
-        raise AoeClientResponseError(f"{response.url} returned invalid JSON") from error
-
-
-def _ensure_object(url: str, body: Any) -> dict[str, Any]:
-    if not is_json_object(body):
-        raise AoeClientResponseError(f"{url} returned {type(body).__name__}, expected object")
-    return body
-
-
 def _get_retry_after(response: aiohttp.ClientResponse) -> int | None:
     value = response.headers.get("Retry-After", "")
     return int(value) if value.isdecimal() else None
-
-
-def is_json_object(value: object) -> TypeIs[dict[str, Any]]:
-    """JSON object keys are always strings."""
-    return isinstance(value, dict)

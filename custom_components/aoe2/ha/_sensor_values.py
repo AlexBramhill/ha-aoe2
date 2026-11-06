@@ -1,6 +1,9 @@
-from typing import Any
+from datetime import datetime
 
 from custom_components.aoe2.models import MatchResult, PlayerData
+
+type AttributeValue = str | int | float | datetime | list[str] | None
+type StateAttributes = dict[str, AttributeValue]
 
 
 def get_last_match_result(data: PlayerData) -> MatchResult | None:
@@ -8,7 +11,7 @@ def get_last_match_result(data: PlayerData) -> MatchResult | None:
     return None if result is MatchResult.UNKNOWN else result
 
 
-def get_last_match_details(data: PlayerData) -> dict[str, Any]:
+def get_last_match_details(data: PlayerData) -> StateAttributes:
     match = data.last_finished_match()
     if match is None:
         return {}
@@ -23,7 +26,7 @@ def get_last_match_details(data: PlayerData) -> dict[str, Any]:
     }
 
 
-def get_current_match_details(data: PlayerData) -> dict[str, Any]:
+def get_current_match_details(data: PlayerData) -> StateAttributes:
     match = data.current_match()
     if match is None:
         return {}

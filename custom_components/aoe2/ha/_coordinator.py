@@ -2,7 +2,7 @@ import asyncio
 from collections.abc import Callable, Mapping
 from dataclasses import asdict
 from datetime import timedelta
-from typing import Any, final, override
+from typing import final, override
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import CALLBACK_TYPE, HomeAssistant, callback
@@ -10,15 +10,11 @@ from homeassistant.helpers.update_coordinator import TimestampDataUpdateCoordina
 
 from custom_components.aoe2.api import AoeClient, AoeClientError, AoeClientRetryError
 from custom_components.aoe2.const import (
-    CONF_IN_MATCH_UPDATE_MINUTES,
-    CONF_PROFILE_ID,
-    CONF_UPDATE_MINUTES,
     DOMAIN,
     EVENT_MATCH_FINISHED,
     LOGGER,
-    MIN_IN_MATCH_UPDATE_MINUTES,
-    MIN_UPDATE_MINUTES,
 )
+from custom_components.aoe2.ha._entry_values import EntryData, EntryOptions
 from custom_components.aoe2.ha._match_tracker import MatchTracker
 from custom_components.aoe2.logic import RECENT_MATCH_COUNT, MatchFinishedEvent, UpdateIntervals
 from custom_components.aoe2.models import Match, PlayerData
@@ -42,7 +38,7 @@ class Aoe2Coordinator(TimestampDataUpdateCoordinator[PlayerData]):
             update_interval=self._update_intervals.usual,
         )
         self._client = client
-        self._profile_id: int = entry.data[CONF_PROFILE_ID]
+        self._profile_id = EntryData.from_entry(entry).profile_id
         self._match_tracker = MatchTracker(hass, entry.entry_id)
         self._matches_to_announce: list[Match] = []
         self._match_finished_listeners: list[MatchFinishedListener] = []
@@ -107,10 +103,9 @@ class Aoe2Coordinator(TimestampDataUpdateCoordinator[PlayerData]):
         return PlayerData(profile=profile, unsorted_matches=matches)
 
 
-def get_update_intervals(options: Mapping[str, Any]) -> UpdateIntervals:
+def get_update_intervals(stored_options: Mapping[str, object]) -> UpdateIntervals:
+    options = EntryOptions.from_mapping(stored_options)
     return UpdateIntervals(
-        usual=timedelta(minutes=options.get(CONF_UPDATE_MINUTES, MIN_UPDATE_MINUTES)),
-        in_match=timedelta(
-            minutes=options.get(CONF_IN_MATCH_UPDATE_MINUTES, MIN_IN_MATCH_UPDATE_MINUTES)
-        ),
+        usual=timedelta(minutes=options.update_minutes),
+        in_match=timedelta(minutes=options.in_match_update_minutes),
     )

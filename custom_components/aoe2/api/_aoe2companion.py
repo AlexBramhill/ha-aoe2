@@ -1,11 +1,17 @@
 from collections.abc import Iterator
-from datetime import datetime
-from typing import Any, final
+from typing import final
 
 import aiohttp
+from pydantic import BaseModel
 
-from custom_components.aoe2.api._http import BACKGROUND_REQUESTS, RequestPolicy, get_json
-from custom_components.aoe2.api._parsing import number_teams_from_one, response_parser
+from custom_components.aoe2.api._aoe2companion_responses import (
+    MatchesResponse,
+    MatchResponse,
+    PlayerResponse,
+    ProfileResponse,
+    RatingResponse,
+)
+from custom_components.aoe2.api._http import BACKGROUND_REQUESTS, RequestPolicy, get_response
 from custom_components.aoe2.models import Leaderboard, Match, MatchPlayer, Profile, Rating
 
 BASE_URL = "https://data.aoe2companion.com/api"
@@ -54,98 +60,89 @@ class Aoe2CompanionClient:
         return PROFILE_URL.format(profile_id=profile_id)
 
     async def get_profile(self, profile_id: int) -> Profile:
-        body = await self._get(f"profiles/{profile_id}")
-        return parse_profile(body)
+        response = await self._get_api_response(f"profiles/{profile_id}", ProfileResponse)
+        return get_profile_from(response)
 
     async def get_recent_matches(self, profile_id: int, count: int = 5) -> list[Match]:
-        body = await self._get("matches", profile_ids=profile_id, per_page=count)
-        return parse_matches(body)
+        response = await self._get_api_response(
+            "matches", MatchesResponse, profile_ids=profile_id, per_page=count
+        )
+        return get_matches_from(response)
 
-    async def _get(self, path: str, **params: Any) -> dict[str, Any]:
-        return await get_json(
+    async def _get_api_response[Response: BaseModel](
+        self, path: str, response_type: type[Response], **params: str | int
+    ) -> Response:
+        return await get_response(
             self._session,
             f"{BASE_URL}/{path}",
+            response_type,
             params,
             version=self._version,
             policy=self._policy,
         )
 
 
-@response_parser
-def parse_profile(body: dict[str, Any]) -> Profile:
+def get_profile_from(response: ProfileResponse) -> Profile:
     return Profile(
-        profile_id=body["profileId"],
-        name=body["name"],
-        country=body.get("country"),
-        ratings=tuple(_get_known_ratings(body)),
+        profile_id=response.profile_id,
+        name=response.name,
+        country=response.country,
+        ratings=tuple(_get_ratings_on_known_leaderboards(response)),
     )
 
 
-@response_parser
-def parse_matches(body: dict[str, Any]) -> list[Match]:
-    return [_get_match(match) for match in body.get("matches", [])]
+def get_matches_from(response: MatchesResponse) -> list[Match]:
+    return [_get_match(match) for match in response.matches]
 
 
-def _get_known_ratings(body: dict[str, Any]) -> Iterator[Rating]:
+def _get_ratings_on_known_leaderboards(response: ProfileResponse) -> Iterator[Rating]:
     """Unrecognised leaderboards are skipped: several would all collapse into OTHER."""
-    for raw in body.get("leaderboards", []):
-        if (leaderboard := _get_leaderboard(raw["leaderboardId"])) is not Leaderboard.OTHER:
-            yield _get_rating(leaderboard, raw)
+    for rating in response.leaderboards:
+        if (leaderboard := _get_leaderboard(rating.leaderboard_id)) is not Leaderboard.OTHER:
+            yield _get_rating(leaderboard, rating)
 
 
-def _get_rating(leaderboard: Leaderboard, raw: dict[str, Any]) -> Rating:
+def _get_rating(leaderboard: Leaderboard, rating: RatingResponse) -> Rating:
     return Rating(
         leaderboard=leaderboard,
-        rating=raw["rating"],
-        rank=raw.get("rank"),
-        wins=raw.get("wins", 0),
-        losses=raw.get("losses", 0),
-        streak=raw.get("streak", 0),
-        highest_rating=raw["maxRating"],
-        last_match=datetime.fromisoformat(raw["lastMatchTime"]),
+        rating=rating.rating,
+        rank=rating.rank,
+        wins=rating.wins,
+        losses=rating.losses,
+        streak=rating.streak,
+        highest_rating=rating.max_rating,
+        last_match=rating.last_match_time,
     )
 
 
-def _get_match(raw: dict[str, Any]) -> Match:
+def _get_match(match: MatchResponse) -> Match:
     return Match(
-        match_id=raw["matchId"],
-        started=datetime.fromisoformat(raw["started"]),
-        finished=_get_datetime_or_none(raw.get("finished")),
-        leaderboard=_get_leaderboard(raw["leaderboardId"]),
-        map_name=raw["mapName"],
-        players=number_teams_from_one(
-            _get_match_player(player) for player in _get_all_players(raw)
-        ),
+        match_id=match.match_id,
+        started=match.started,
+        finished=match.finished,
+        leaderboard=_get_leaderboard(match.leaderboard_id),
+        map_name=match.map_name,
+        players=tuple(_get_match_player(player) for team in match.teams for player in team.players),
     )
 
 
-def _get_all_players(match: dict[str, Any]) -> Iterator[dict[str, Any]]:
-    for team in match.get("teams", []):
-        yield from team.get("players", [])
-
-
-def _get_match_player(raw: dict[str, Any]) -> MatchPlayer:
+def _get_match_player(player: PlayerResponse) -> MatchPlayer:
     return MatchPlayer(
-        profile_id=raw["profileId"],
-        name=raw["name"],
-        team=raw["team"],
-        civ=raw["civName"],
-        rating_after_match=_get_rating_after_match(raw),
-        rating_change=raw.get("ratingDiff"),
-        is_winner=raw.get("won"),
+        profile_id=player.profile_id,
+        name=player.name,
+        team=player.team,
+        civ=player.civ_name,
+        rating_after_match=_get_rating_after_match(player),
+        rating_change=player.rating_diff,
+        is_winner=player.won,
     )
 
 
-def _get_rating_after_match(raw: dict[str, Any]) -> int | None:
+def _get_rating_after_match(player: PlayerResponse) -> int | None:
     """aoe2companion reports the rating going into the match."""
-    rating_before, change = raw.get("rating"), raw.get("ratingDiff")
-    if rating_before is None or change is None:
+    if player.rating is None or player.rating_diff is None:
         return None
-    return rating_before + change
-
-
-def _get_datetime_or_none(value: str | None) -> datetime | None:
-    return datetime.fromisoformat(value) if value else None
+    return player.rating + player.rating_diff
 
 
 def _get_leaderboard(leaderboard_id: str) -> Leaderboard:
