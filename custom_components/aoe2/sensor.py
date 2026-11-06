@@ -60,40 +60,34 @@ class Aoe2PlayerSensorEntityDescription(SensorEntityDescription):
 RATING_SENSORS: tuple[Aoe2RatingSensorEntityDescription, ...] = (
     Aoe2RatingSensorEntityDescription(
         key="rating",
-        translation_key="rating",
         state_class=SensorStateClass.MEASUREMENT,
         value_fn=lambda rating: rating.rating,
     ),
     Aoe2RatingSensorEntityDescription(
         key="rank",
-        translation_key="rank",
         state_class=SensorStateClass.MEASUREMENT,
         value_fn=lambda rating: rating.rank,
     ),
     Aoe2RatingSensorEntityDescription(
         key="wins",
-        translation_key="wins",
         state_class=SensorStateClass.TOTAL_INCREASING,
         entity_registry_enabled_default=False,
         value_fn=lambda rating: rating.wins,
     ),
     Aoe2RatingSensorEntityDescription(
         key="losses",
-        translation_key="losses",
         state_class=SensorStateClass.TOTAL_INCREASING,
         entity_registry_enabled_default=False,
         value_fn=lambda rating: rating.losses,
     ),
     Aoe2RatingSensorEntityDescription(
         key="games",
-        translation_key="games",
         state_class=SensorStateClass.TOTAL_INCREASING,
         entity_registry_enabled_default=False,
         value_fn=lambda rating: rating.games,
     ),
     Aoe2RatingSensorEntityDescription(
         key="win_rate",
-        translation_key="win_rate",
         native_unit_of_measurement=PERCENTAGE,
         state_class=SensorStateClass.MEASUREMENT,
         suggested_display_precision=1,
@@ -102,14 +96,12 @@ RATING_SENSORS: tuple[Aoe2RatingSensorEntityDescription, ...] = (
     ),
     Aoe2RatingSensorEntityDescription(
         key="streak",
-        translation_key="streak",
         state_class=SensorStateClass.MEASUREMENT,
         entity_registry_enabled_default=False,
         value_fn=lambda rating: rating.streak,
     ),
     Aoe2RatingSensorEntityDescription(
         key="highest_rating",
-        translation_key="highest_rating",
         entity_registry_enabled_default=False,
         value_fn=lambda rating: rating.highest_rating,
     ),
@@ -119,7 +111,6 @@ RATING_SENSORS: tuple[Aoe2RatingSensorEntityDescription, ...] = (
 PLAYER_SENSORS: tuple[Aoe2PlayerSensorEntityDescription, ...] = (
     Aoe2PlayerSensorEntityDescription(
         key="last_match_result",
-        translation_key="last_match_result",
         device_class=SensorDeviceClass.ENUM,
         options=[MatchResult.WIN, MatchResult.LOSS],
         value_fn=get_last_match_result,
@@ -127,30 +118,25 @@ PLAYER_SENSORS: tuple[Aoe2PlayerSensorEntityDescription, ...] = (
     ),
     Aoe2PlayerSensorEntityDescription(
         key="last_match_rating_change",
-        translation_key="last_match_rating_change",
         value_fn=PlayerData.last_match_rating_change,
     ),
     Aoe2PlayerSensorEntityDescription(
         key="last_played",
-        translation_key="last_played",
         device_class=SensorDeviceClass.TIMESTAMP,
         value_fn=PlayerData.last_match_finished_at,
     ),
     Aoe2PlayerSensorEntityDescription(
         key="last_match_map",
-        translation_key="last_match_map",
         entity_registry_enabled_default=False,
         value_fn=PlayerData.last_match_map,
     ),
     Aoe2PlayerSensorEntityDescription(
         key="last_match_civ",
-        translation_key="last_match_civ",
         entity_registry_enabled_default=False,
         value_fn=PlayerData.last_match_civ,
     ),
     Aoe2PlayerSensorEntityDescription(
         key="recent_win_rate",
-        translation_key="recent_win_rate",
         native_unit_of_measurement=PERCENTAGE,
         suggested_display_precision=0,
         entity_registry_enabled_default=False,
@@ -158,7 +144,6 @@ PLAYER_SENSORS: tuple[Aoe2PlayerSensorEntityDescription, ...] = (
     ),
     Aoe2PlayerSensorEntityDescription(
         key="recent_rating_change",
-        translation_key="recent_rating_change",
         entity_registry_enabled_default=False,
         value_fn=PlayerData.recent_rating_change,
     ),
@@ -191,7 +176,7 @@ class Aoe2RatingSensor(Aoe2Entity, SensorEntity):
         description: Aoe2RatingSensorEntityDescription,
         leaderboard: Leaderboard,
     ) -> None:
-        super().__init__(coordinator, f"{leaderboard}_{description.key}")
+        super().__init__(coordinator, description.key, f"{leaderboard}_{description.key}")
         self.entity_description = description
         self._leaderboard: Leaderboard = leaderboard
         self._attr_translation_placeholders: Mapping[str, str] = {
@@ -227,12 +212,11 @@ class Aoe2PlayerSensor(Aoe2Entity, SensorEntity):
 
 
 class Aoe2LastUpdatedSensor(Aoe2Entity, SensorEntity):
-    _attr_translation_key: str = "last_updated"
     _attr_device_class: SensorDeviceClass = SensorDeviceClass.TIMESTAMP
     _attr_entity_category: EntityCategory = EntityCategory.DIAGNOSTIC
 
     def __init__(self, coordinator: Aoe2Coordinator) -> None:
-        super().__init__(coordinator, self._attr_translation_key)
+        super().__init__(coordinator, "last_updated")
 
     @property
     @override
