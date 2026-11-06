@@ -18,6 +18,6 @@ async def async_set_up_player(hass: HomeAssistant, config_entry: Aoe2ConfigEntry
     coordinator = Aoe2Coordinator(hass, config_entry, client)
     await coordinator.async_config_entry_first_refresh()
     config_entry.runtime_data = coordinator
-    remove_previous_players_devices(hass, config_entry)
+    remove_previous_players_devices(hass, config_entry, coordinator.profile_id)
     await hass.config_entries.async_forward_entry_setups(config_entry, PLATFORMS)
     return True

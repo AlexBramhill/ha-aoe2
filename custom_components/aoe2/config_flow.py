@@ -90,7 +90,7 @@ class Aoe2ConfigFlow(ConfigFlow, domain=DOMAIN):
         if user_input is None:
             return self._show_profile_form("user", client)
 
-        profile_id = EntryData.from_mapping(user_input).profile_id
+        profile_id = _get_profile_id(user_input)
         await self._abort_if_player_already_added(profile_id)
 
         match await _get_profile_or_form_errors(client, profile_id):
@@ -107,8 +107,8 @@ class Aoe2ConfigFlow(ConfigFlow, domain=DOMAIN):
         if user_input is None:
             return self._show_profile_form("reconfigure", client, dict(entry.data))
 
-        profile_id = EntryData.from_mapping(user_input).profile_id
-        is_new_player = profile_id != EntryData.from_entry(entry).profile_id
+        profile_id = _get_profile_id(user_input)
+        is_new_player = str(profile_id) != entry.unique_id
         if is_new_player:
             await self._abort_if_player_already_added(profile_id)
 
@@ -169,6 +169,12 @@ class Aoe2OptionsFlow(OptionsFlowWithReload):
             ),
             description_placeholders=MINIMUM_INTERVAL_PLACEHOLDERS,
         )
+
+
+def _get_profile_id(user_input: Mapping[str, object]) -> int:
+    profile_id = user_input[CONF_PROFILE_ID]
+    assert isinstance(profile_id, int)
+    return profile_id
 
 
 def _get_options_from(user_input: dict[str, object]) -> EntryOptions:

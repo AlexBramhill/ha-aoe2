@@ -30,7 +30,7 @@ async def test_previous_players_device_is_removed(hass: HomeAssistant):
     _ = add_player_device(hass, entry, PREVIOUS_PROFILE_ID)
 
     # When
-    remove_previous_players_devices(hass, entry)
+    remove_previous_players_devices(hass, entry, PROFILE_ID)
 
     # Then
     remaining = get_entry_devices(hass, entry)
@@ -44,7 +44,7 @@ async def test_previous_players_device_is_deleted_from_the_registry(hass: HomeAs
     device_id = add_player_device(hass, entry, PREVIOUS_PROFILE_ID)
 
     # When
-    remove_previous_players_devices(hass, entry)
+    remove_previous_players_devices(hass, entry, PROFILE_ID)
 
     # Then
     assert device_registry.async_get(hass).async_get(device_id) is None
