@@ -21,10 +21,8 @@ async def async_setup_entry(
 
 
 class Aoe2MatchFinishedEvent(Aoe2Entity, EventEntity):
-    _attr_translation_key: str = "match_finished"
-
     def __init__(self, coordinator: Aoe2Coordinator) -> None:
-        super().__init__(coordinator, self._attr_translation_key)
+        super().__init__(coordinator, "match_finished")
         self._attr_event_types: list[str] = list(MatchResult)
 
     @override

@@ -24,10 +24,8 @@ async def async_setup_entry(
 
 
 class Aoe2InMatchSensor(Aoe2Entity, BinarySensorEntity):
-    _attr_translation_key: str = "in_match"
-
     def __init__(self, coordinator: Aoe2Coordinator) -> None:
-        super().__init__(coordinator, self._attr_translation_key)
+        super().__init__(coordinator, "in_match")
 
     @property
     @override
