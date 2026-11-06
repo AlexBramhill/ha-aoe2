@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.1](https://github.com/AlexBramhill/ha-aoe2/compare/v0.5.0...v0.5.1) (2026-11-06)
+
+
+### Bug Fixes
+
+* throw if matches do not contain player ([f05d35d](https://github.com/AlexBramhill/ha-aoe2/commit/f05d35d6e03b7ae1fc29fd9b2fa39f0bdcef795e))
+
 ## [0.5.0](https://github.com/AlexBramhill/ha-aoe2/compare/v0.4.0...v0.5.0) (2026-10-29)
 
 
