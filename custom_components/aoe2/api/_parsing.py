@@ -2,7 +2,7 @@ from collections.abc import Callable, Iterable
 from dataclasses import replace
 from functools import wraps
 
-from custom_components.aoe2.api.errors import AoeClientResponseError
+from custom_components.aoe2.api._errors import AoeClientResponseError
 from custom_components.aoe2.models import MatchPlayer
 
 

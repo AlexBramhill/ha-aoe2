@@ -14,10 +14,10 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.typing import StateType
 
-from custom_components.aoe2.ha.config_entry import Aoe2ConfigEntry
-from custom_components.aoe2.ha.coordinator import Aoe2Coordinator
-from custom_components.aoe2.ha.entity import Aoe2Entity
-from custom_components.aoe2.ha.sensor_values import (
+from custom_components.aoe2.ha import (
+    Aoe2ConfigEntry,
+    Aoe2Coordinator,
+    Aoe2Entity,
     get_last_match_details,
     get_last_match_result,
     get_percentage,

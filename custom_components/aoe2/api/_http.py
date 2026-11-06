@@ -7,7 +7,7 @@ from typing import Any
 import aiohttp
 
 from custom_components.aoe2.api._backoff import with_exponential_backoff
-from custom_components.aoe2.api.errors import (
+from custom_components.aoe2.api._errors import (
     AoeClientConnectionError,
     AoeClientNotFoundError,
     AoeClientRateLimitError,

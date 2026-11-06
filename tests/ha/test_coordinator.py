@@ -24,7 +24,7 @@ from custom_components.aoe2.const import (
     MIN_IN_MATCH_UPDATE_MINUTES,
     MIN_UPDATE_MINUTES,
 )
-from custom_components.aoe2.ha.coordinator import Aoe2Coordinator, get_update_intervals
+from custom_components.aoe2.ha._coordinator import Aoe2Coordinator, get_update_intervals
 from custom_components.aoe2.logic import MatchFinishedEvent
 from custom_components.aoe2.models import Leaderboard, PlayerData
 from tests.builders import TYPICAL_START, MatchBuilder

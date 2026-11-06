@@ -9,8 +9,8 @@ from custom_components.aoe2.api import (
     RequestPolicy,
 )
 from custom_components.aoe2.api._aoe2companion import Aoe2CompanionClient
-from custom_components.aoe2.ha import client
-from custom_components.aoe2.ha.client import async_create_client
+from custom_components.aoe2.ha import _client
+from custom_components.aoe2.ha._client import async_create_client
 from tests.fake_client import FakeAoeClient
 from tests.ha.helpers import read_manifest_version
 
@@ -28,7 +28,7 @@ async def test_client_is_created_with_the_integration_version(
         created.append((client_name, version, policy))
         return FakeAoeClient()
 
-    monkeypatch.setattr(client, "create_client", recording_create_client)
+    monkeypatch.setattr(_client, "create_client", recording_create_client)
 
     # When
     await async_create_client(hass, "aoe2companion", policy)

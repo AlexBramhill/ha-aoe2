@@ -1,8 +1,6 @@
 from homeassistant.core import HomeAssistant
 
-from custom_components.aoe2.ha.config_entry import Aoe2ConfigEntry
-from custom_components.aoe2.ha.match_tracker import MatchTracker
-from custom_components.aoe2.ha.setup import PLATFORMS, async_set_up_player
+from custom_components.aoe2.ha import PLATFORMS, Aoe2ConfigEntry, MatchTracker, async_set_up_player
 
 
 async def async_setup_entry(hass: HomeAssistant, config_entry: Aoe2ConfigEntry) -> bool:

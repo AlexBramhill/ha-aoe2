@@ -1,3 +1,4 @@
+import ast
 import subprocess
 import sys
 from pathlib import Path
@@ -59,6 +60,32 @@ def get_integration_parts(modules: list[str]) -> set[str]:
     }
 
 
+def get_private_imports_from_outside(package: str) -> list[str]:
+    """Read imports from source: at runtime the package's own facade loads its private modules."""
+    private_prefix = f"{INTEGRATION_PACKAGE}.{package}._"
+    return [
+        f"{source.relative_to(INTEGRATION)}: {imported}"
+        for source in get_sources_outside(package)
+        for imported in get_imported_names(source)
+        if imported.startswith(private_prefix)
+    ]
+
+
+def get_sources_outside(package: str) -> list[Path]:
+    package_path = INTEGRATION / package
+    return [source for source in INTEGRATION.rglob("*.py") if package_path not in source.parents]
+
+
+def get_imported_names(source: Path) -> list[str]:
+    imported: list[str] = []
+    for node in ast.walk(ast.parse(source.read_text())):
+        if isinstance(node, ast.Import):
+            imported += [alias.name for alias in node.names]
+        elif isinstance(node, ast.ImportFrom) and node.module:
+            imported += [f"{node.module}.{alias.name}" for alias in node.names]
+    return imported
+
+
 @pytest.mark.parametrize("package", HOME_ASSISTANT_FREE_PACKAGES)
 def test_package_does_not_import_home_assistant(package: str):
     # When
@@ -75,3 +102,12 @@ def test_package_only_imports_allowed_parts_of_the_integration(package: str, all
 
     # Then
     assert get_integration_parts(loaded) <= allowed
+
+
+@pytest.mark.parametrize("package", ALLOWED_IMPORTS)
+def test_package_private_modules_are_only_imported_from_inside_it(package: str):
+    # When
+    private_imports = get_private_imports_from_outside(package)
+
+    # Then
+    assert private_imports == []

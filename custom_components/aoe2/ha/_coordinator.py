@@ -19,7 +19,7 @@ from custom_components.aoe2.const import (
     MIN_IN_MATCH_UPDATE_MINUTES,
     MIN_UPDATE_MINUTES,
 )
-from custom_components.aoe2.ha.match_tracker import MatchTracker
+from custom_components.aoe2.ha._match_tracker import MatchTracker
 from custom_components.aoe2.logic import RECENT_MATCH_COUNT, MatchFinishedEvent, UpdateIntervals
 from custom_components.aoe2.models import Match, PlayerData
 

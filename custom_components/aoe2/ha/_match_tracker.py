@@ -1,6 +1,6 @@
 from homeassistant.core import HomeAssistant
 
-from custom_components.aoe2.ha.ledger_store import LedgerStore
+from custom_components.aoe2.ha._ledger_store import LedgerStore
 from custom_components.aoe2.logic import MatchLedger, get_newly_finished_matches
 from custom_components.aoe2.models import Match, PlayerData
 

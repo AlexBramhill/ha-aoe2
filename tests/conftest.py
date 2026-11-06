@@ -1,7 +1,7 @@
 import pytest
 
 from custom_components.aoe2.api import AoeClient, ClientName, RequestPolicy
-from custom_components.aoe2.ha import client
+from custom_components.aoe2.ha import _client
 from tests.fake_client import FakeAoeClient
 
 
@@ -35,5 +35,5 @@ def created_client_names(
         created_client_policies.append(policy)
         return fake_client
 
-    monkeypatch.setattr(client, "create_client", create_fake_client)
+    monkeypatch.setattr(_client, "create_client", create_fake_client)
     return names

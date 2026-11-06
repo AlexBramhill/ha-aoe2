@@ -4,7 +4,7 @@ from typing import Any
 from homeassistant.core import HomeAssistant
 
 from custom_components.aoe2.const import DOMAIN
-from custom_components.aoe2.ha.match_tracker import MatchTracker
+from custom_components.aoe2.ha._match_tracker import MatchTracker
 from custom_components.aoe2.models import PlayerData
 from tests.builders import TYPICAL_START, MatchBuilder, ProfileBuilder
 

@@ -1,6 +1,6 @@
 from homeassistant.core import HomeAssistant
 
-from custom_components.aoe2.ha.version import async_get_version
+from custom_components.aoe2.ha._version import async_get_version
 from tests.ha.helpers import read_manifest_version
 
 

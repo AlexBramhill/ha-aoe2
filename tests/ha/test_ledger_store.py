@@ -3,7 +3,7 @@ from typing import Any
 from homeassistant.core import HomeAssistant
 
 from custom_components.aoe2.const import DOMAIN
-from custom_components.aoe2.ha.ledger_store import LedgerStore
+from custom_components.aoe2.ha._ledger_store import LedgerStore
 from custom_components.aoe2.logic import MatchLedger
 
 ENTRY_ID = "entry"

@@ -28,7 +28,10 @@ asyncio_mode = "auto"
 line-length = 100
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "B", "UP", "SIM", "RUF", "ASYNC", "PT", "C4", "RET", "PIE"]
+select = ["E", "F", "I", "B", "UP", "SIM", "RUF", "ASYNC", "PT", "C4", "RET", "PIE", "TID"]
+
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "all"
 
 [tool.pyright]
 include = ["custom_components", "scripts", "tests"]

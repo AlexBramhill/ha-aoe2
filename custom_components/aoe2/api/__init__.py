@@ -1,24 +1,22 @@
-"""AoE2 API clients. Nothing in this package imports Home Assistant."""
-
 from collections.abc import Callable
 from typing import Literal
 
 import aiohttp
 
 from custom_components.aoe2.api._aoe2companion import Aoe2CompanionClient
-from custom_components.aoe2.api._http import (
-    BACKGROUND_REQUESTS,
-    INTERACTIVE_REQUESTS,
-    RequestPolicy,
-)
-from custom_components.aoe2.api.client import AoeClient
-from custom_components.aoe2.api.errors import (
+from custom_components.aoe2.api._client import AoeClient
+from custom_components.aoe2.api._errors import (
     AoeClientConnectionError,
     AoeClientError,
     AoeClientNotFoundError,
     AoeClientRateLimitError,
     AoeClientResponseError,
     AoeClientRetryError,
+)
+from custom_components.aoe2.api._http import (
+    BACKGROUND_REQUESTS,
+    INTERACTIVE_REQUESTS,
+    RequestPolicy,
 )
 
 ClientName = Literal["aoe2companion"]
