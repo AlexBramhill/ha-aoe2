@@ -1,11 +1,10 @@
 from datetime import datetime
 from itertools import groupby
-from typing import Any
 
 from custom_components.aoe2.api._aoe2companion import LEADERBOARDS_BY_ID
 from custom_components.aoe2.models import Leaderboard, Match, MatchPlayer, Profile, Rating
 
-type Body = dict[str, Any]
+type Body = dict[str, object]
 
 AOE2COMPANION_IDS_BY_LEADERBOARD = {
     leaderboard: leaderboard_id for leaderboard_id, leaderboard in LEADERBOARDS_BY_ID.items()

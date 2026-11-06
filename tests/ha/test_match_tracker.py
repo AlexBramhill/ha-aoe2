@@ -1,5 +1,4 @@
 from datetime import timedelta
-from typing import Any
 
 from homeassistant.core import HomeAssistant
 
@@ -76,7 +75,7 @@ async def test_match_that_finished_while_stopped_is_returned_after_restart(hass:
     assert taken == [NEXT_MATCH]
 
 
-async def test_remove_deletes_saved_ledger(hass: HomeAssistant, hass_storage: dict[str, Any]):
+async def test_remove_deletes_saved_ledger(hass: HomeAssistant, hass_storage: dict[str, object]):
     # Given
     tracker = await loaded_tracker(hass)
     _ = await tracker.async_take_newly_finished(BEFORE_NEXT_MATCH)

@@ -1,7 +1,9 @@
-import json
+from collections.abc import Mapping
 from datetime import timedelta
 from pathlib import Path
+from typing import TypeIs, cast
 
+import probatio
 import pytest
 from homeassistant.config_entries import SOURCE_USER, ConfigFlowResult
 from homeassistant.const import STATE_UNKNOWN, Platform
@@ -38,6 +40,7 @@ from tests.builders import MatchBuilder, ProfileBuilder, build_match_player
 from tests.fake_client import FakeAoeClient
 from tests.integration import PROFILE_ID as SET_UP_PROFILE_ID
 from tests.integration import set_up_integration, state_of
+from tests.json_values import get_at, get_object_at, read_json
 
 PROFILE_ID = 196240
 NEW_PLAYER = ProfileBuilder().with_profile_id(PROFILE_ID).with_name("New player")
@@ -189,10 +192,10 @@ async def test_already_added_player_aborts(hass: HomeAssistant):
 @pytest.mark.parametrize("error_key", [ERROR_PLAYER_NOT_FOUND, ERROR_CANNOT_CONNECT, ERROR_UNKNOWN])
 def test_every_form_error_has_text(error_key: str):
     # Given
-    translations = json.loads(TRANSLATIONS.read_text())
+    errors = get_object_at(read_json(TRANSLATIONS), "config", "error")
 
     # Then
-    assert error_key in translations["config"]["error"]
+    assert error_key in errors
 
 
 async def start_reconfigure_flow(hass: HomeAssistant, entry: MockConfigEntry) -> str:
@@ -222,8 +225,11 @@ async def test_reconfigure_form_suggests_current_profile_id(hass: HomeAssistant)
     assert result.get("step_id") == "reconfigure"
     data_schema = result.get("data_schema")
     assert data_schema is not None
-    (profile_id_key,) = data_schema.schema
-    assert profile_id_key.description == {"suggested_value": SET_UP_PROFILE_ID}
+    schema = cast(object, data_schema.schema)
+    assert is_mapping(schema)
+    (profile_id_key,) = schema
+    assert isinstance(profile_id_key, probatio.Marker)
+    assert cast(object, profile_id_key.description) == {"suggested_value": SET_UP_PROFILE_ID}
 
 
 @pytest.mark.usefixtures("created_client_names")
@@ -397,12 +403,13 @@ async def test_options_form_shows_minimum_intervals(hass: HomeAssistant):
 )
 def test_interval_descriptions_use_minimum_placeholders(field: str, placeholder: str):
     # Given
-    translations = json.loads(TRANSLATIONS.read_text())
+    translations = read_json(TRANSLATIONS)
 
     # When
-    description = translations["options"]["step"]["init"]["data_description"][field]
+    description = get_at(translations, "options", "step", "init", "data_description", field)
 
     # Then
+    assert isinstance(description, str)
     assert placeholder in description
 
 
@@ -450,3 +457,7 @@ async def test_options_reject_intervals_below_minimum(
     # When / Then
     with pytest.raises(InvalidData):
         _ = await hass.config_entries.options.async_configure(flow_id, user_input=too_frequent)
+
+
+def is_mapping(value: object) -> TypeIs[Mapping[object, object]]:
+    return isinstance(value, Mapping)

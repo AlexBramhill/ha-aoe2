@@ -1,5 +1,4 @@
 from datetime import timedelta
-from typing import Any
 
 import pytest
 from homeassistant.config_entries import ConfigEntryState
@@ -29,6 +28,7 @@ from custom_components.aoe2.logic import MatchFinishedEvent
 from custom_components.aoe2.models import Leaderboard, PlayerData
 from tests.builders import TYPICAL_START, MatchBuilder
 from tests.fake_client import FakeAoeClient
+from tests.json_values import get_at
 
 PROFILE_ID = 1
 EARLIER_MATCH = MatchBuilder().with_match_id(1)
@@ -265,14 +265,13 @@ async def test_empty_response_does_not_cause_matches_to_be_announced_again(
 
 
 async def test_first_refresh_records_existing_matches(
-    hass: HomeAssistant, coordinator: Aoe2Coordinator, hass_storage: dict[str, Any]
+    hass: HomeAssistant, coordinator: Aoe2Coordinator, hass_storage: dict[str, object]
 ):
     # When
     await refresh(hass, coordinator)
 
     # Then
-    stored = hass_storage[storage_key(coordinator)]["data"]
-    assert stored["match_ids"] == [1]
+    assert get_at(hass_storage, storage_key(coordinator), "data", "match_ids") == [1]
 
 
 async def test_restart_does_not_announce_matches_again(

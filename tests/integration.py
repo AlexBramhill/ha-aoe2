@@ -5,12 +5,17 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.aoe2.api import ClientName
 from custom_components.aoe2.const import CONF_CLIENT, CONF_PROFILE_ID, DEFAULT_CLIENT, DOMAIN
+from custom_components.aoe2.ha import Aoe2Coordinator
 
 PROFILE_ID = 1
 
 
-def config_entry_for(client_name: ClientName = DEFAULT_CLIENT) -> MockConfigEntry:
-    return MockConfigEntry(
+class Aoe2MockConfigEntry(MockConfigEntry):
+    runtime_data: Aoe2Coordinator
+
+
+def config_entry_for(client_name: ClientName = DEFAULT_CLIENT) -> Aoe2MockConfigEntry:
+    return Aoe2MockConfigEntry(
         domain=DOMAIN,
         unique_id=str(PROFILE_ID),
         data={CONF_CLIENT: client_name, CONF_PROFILE_ID: PROFILE_ID},
@@ -23,13 +28,13 @@ async def set_up(hass: HomeAssistant, entry: MockConfigEntry) -> None:
     await hass.async_block_till_done()
 
 
-async def set_up_integration(hass: HomeAssistant) -> MockConfigEntry:
+async def set_up_integration(hass: HomeAssistant) -> Aoe2MockConfigEntry:
     entry = config_entry_for()
     await set_up(hass, entry)
     return entry
 
 
-async def refresh(hass: HomeAssistant, entry: MockConfigEntry) -> None:
+async def refresh(hass: HomeAssistant, entry: Aoe2MockConfigEntry) -> None:
     await entry.runtime_data.async_refresh()
     await hass.async_block_till_done()
 

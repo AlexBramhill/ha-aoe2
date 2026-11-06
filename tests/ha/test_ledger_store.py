@@ -1,10 +1,9 @@
-from typing import Any
-
 from homeassistant.core import HomeAssistant
 
 from custom_components.aoe2.const import DOMAIN
 from custom_components.aoe2.ha._ledger_store import LedgerStore
 from custom_components.aoe2.logic import MatchLedger
+from tests.json_values import get_at
 
 ENTRY_ID = "entry"
 PROFILE_ID = 1
@@ -31,15 +30,18 @@ async def test_saved_ledger_survives_reload(hass: HomeAssistant):
     assert loaded == ledger
 
 
-async def test_saved_format_is_unchanged(hass: HomeAssistant, hass_storage: dict[str, Any]):
+async def test_saved_format_is_unchanged(hass: HomeAssistant, hass_storage: dict[str, object]):
     # When
     await LedgerStore(hass, ENTRY_ID).async_save(MatchLedger(PROFILE_ID, (1, 2)))
 
     # Then
-    assert hass_storage[STORAGE_KEY]["data"] == {"match_ids": [1, 2], "profile_id": PROFILE_ID}
+    assert get_at(hass_storage, STORAGE_KEY, "data") == {
+        "match_ids": [1, 2],
+        "profile_id": PROFILE_ID,
+    }
 
 
-async def test_remove_deletes_saved_ledger(hass: HomeAssistant, hass_storage: dict[str, Any]):
+async def test_remove_deletes_saved_ledger(hass: HomeAssistant, hass_storage: dict[str, object]):
     # Given
     store = LedgerStore(hass, ENTRY_ID)
     await store.async_save(MatchLedger(PROFILE_ID, (1,)))

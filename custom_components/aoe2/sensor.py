@@ -1,7 +1,7 @@
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, final, override
+from typing import final, override
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
@@ -18,6 +18,7 @@ from custom_components.aoe2.ha import (
     Aoe2ConfigEntry,
     Aoe2Coordinator,
     Aoe2Entity,
+    StateAttributes,
     get_last_match_details,
     get_last_match_result,
     get_percentage,
@@ -53,7 +54,7 @@ class Aoe2RatingSensorEntityDescription(SensorEntityDescription):
 @dataclass(frozen=True, kw_only=True)
 class Aoe2PlayerSensorEntityDescription(SensorEntityDescription):
     value_fn: Callable[[PlayerData], SensorValue]
-    attributes_fn: Callable[[PlayerData], dict[str, Any]] | None = None
+    attributes_fn: Callable[[PlayerData], StateAttributes] | None = None
 
 
 RATING_SENSORS: tuple[Aoe2RatingSensorEntityDescription, ...] = (
@@ -220,7 +221,7 @@ class Aoe2PlayerSensor(Aoe2Entity, SensorEntity):
 
     @property
     @override
-    def extra_state_attributes(self) -> dict[str, Any] | None:
+    def extra_state_attributes(self) -> StateAttributes | None:
         attributes_fn = self.entity_description.attributes_fn
         return None if attributes_fn is None else attributes_fn(self.coordinator.data)
 
@@ -231,7 +232,7 @@ class Aoe2LastUpdatedSensor(Aoe2Entity, SensorEntity):
     _attr_entity_category: EntityCategory = EntityCategory.DIAGNOSTIC
 
     def __init__(self, coordinator: Aoe2Coordinator) -> None:
-        super().__init__(coordinator, "last_updated")
+        super().__init__(coordinator, self._attr_translation_key)
 
     @property
     @override

@@ -1,11 +1,10 @@
-import json
 from dataclasses import asdict
 from datetime import timedelta
-from typing import Any
 
 from homeassistant.components.diagnostics import async_redact_data
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.json import json_dumps
+from homeassistant.util.json import JsonValueType, json_loads
 
 from custom_components.aoe2.ha import Aoe2ConfigEntry
 
@@ -14,7 +13,7 @@ IDENTIFYING_KEYS = {"profile_id", "name", "title", "unique_id", "country", "matc
 
 async def async_get_config_entry_diagnostics(
     _hass: HomeAssistant, entry: Aoe2ConfigEntry
-) -> dict[str, Any]:
+) -> dict[str, object]:
     coordinator = entry.runtime_data
     # HA types the Mapping overload as returning a bare dict
     return async_redact_data(  # pyright: ignore[reportUnknownVariableType]
@@ -31,9 +30,9 @@ async def async_get_config_entry_diagnostics(
     )
 
 
-def _get_json_data(value: Any) -> Any:
+def _get_json_data(value: object) -> JsonValueType:
     """Tuples become lists, so redaction reaches inside them."""
-    return json.loads(json_dumps(value))
+    return json_loads(json_dumps(value))
 
 
 def _get_seconds(interval: timedelta | None) -> float | None:

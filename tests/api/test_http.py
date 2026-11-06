@@ -2,10 +2,11 @@ import asyncio
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
-from typing import Any
 
 import aiohttp
 import pytest
+from aiohttp.typedefs import Query
+from pydantic import BaseModel
 
 from custom_components.aoe2.api import (
     AoeClientConnectionError,
@@ -18,10 +19,16 @@ from custom_components.aoe2.api._http import (
     INTERACTIVE_REQUESTS,
     LONGEST_RETRY_WAIT_SECONDS,
     RequestPolicy,
-    get_json,
+    get_response,
     raise_for_status,
 )
 from tests.api.helpers import TEST_VERSION, get_stand_in
+
+OK_BODY = '{"ok": true}'
+
+
+class OkResponse(BaseModel):
+    ok: bool
 
 
 @dataclass
@@ -29,10 +36,9 @@ class FakeResponse:
     status: int
     headers: dict[str, str] = field(default_factory=dict)
     url: str = "https://example.test"
-    body: Any = None
+    body: str = ""
 
-    async def json(self, content_type: str | None = None) -> Any:
-        del content_type
+    async def text(self) -> str:
         return self.body
 
 
@@ -42,10 +48,18 @@ class RecordingSession:
     sent_timeouts: list[aiohttp.ClientTimeout] = field(default_factory=list)
 
     @asynccontextmanager
-    async def get(self, url: str, **kwargs: Any) -> AsyncGenerator[FakeResponse]:
-        self.sent_headers.append(kwargs.get("headers", {}))
-        self.sent_timeouts.append(kwargs["timeout"])
-        yield FakeResponse(status=200, url=url, body={"ok": True})
+    async def get(
+        self,
+        url: str,
+        *,
+        params: Query | None,
+        headers: dict[str, str],
+        timeout: aiohttp.ClientTimeout,  # noqa: ASYNC109 - aiohttp's keyword
+    ) -> AsyncGenerator[FakeResponse]:
+        del params
+        self.sent_headers.append(headers)
+        self.sent_timeouts.append(timeout)
+        yield FakeResponse(status=200, url=url, body=OK_BODY)
 
 
 @dataclass
@@ -54,13 +68,14 @@ class FlakySession:
 
     statuses: list[int]
     headers: dict[str, str] = field(default_factory=dict)
+    body: str = OK_BODY
     attempts: int = 0
 
     @asynccontextmanager
-    async def get(self, url: str, **_kwargs: Any) -> AsyncGenerator[FakeResponse]:
+    async def get(self, url: str, **_kwargs: object) -> AsyncGenerator[FakeResponse]:
         status = self.statuses[self.attempts] if self.attempts < len(self.statuses) else 200
         self.attempts += 1
-        yield FakeResponse(status=status, headers=self.headers, url=url, body={"ok": True})
+        yield FakeResponse(status=status, headers=self.headers, url=url, body=self.body)
 
 
 @pytest.fixture
@@ -73,10 +88,11 @@ def no_backoff_sleep(monkeypatch: pytest.MonkeyPatch) -> None:
 
 async def get_from(
     session: FlakySession | RecordingSession, policy: RequestPolicy = BACKGROUND_REQUESTS
-) -> dict[str, Any]:
-    return await get_json(
+) -> OkResponse:
+    return await get_response(
         get_stand_in(aiohttp.ClientSession, session),
         "https://example.test/api",
+        OkResponse,
         version=TEST_VERSION,
         policy=policy,
     )
@@ -191,7 +207,7 @@ async def test_transient_errors_are_retried_until_success(status: int):
     body = await get_from(session)
 
     # Then
-    assert body == {"ok": True}
+    assert body == OkResponse(ok=True)
     assert session.attempts == BACKGROUND_REQUESTS.max_retries + 1
 
 
@@ -242,7 +258,7 @@ async def test_rate_limited_request_waits_for_retry_after(monkeypatch: pytest.Mo
     body = await get_from(session)
 
     # Then
-    assert body == {"ok": True}
+    assert body == OkResponse(ok=True)
     assert waits == [3]
 
 
@@ -265,3 +281,21 @@ async def test_long_retry_after_is_left_to_the_caller(
     # Then
     assert session.attempts == 1
     assert raised.value.retry_after == retry_after
+
+
+async def test_invalid_json_raises_response_error():
+    # Given
+    session = FlakySession(statuses=[], body="not json")
+
+    # When / Then
+    with pytest.raises(AoeClientResponseError):
+        _ = await get_from(session)
+
+
+async def test_unexpected_response_shape_raises_response_error():
+    # Given
+    session = FlakySession(statuses=[], body='{"unexpected": true}')
+
+    # When / Then
+    with pytest.raises(AoeClientResponseError):
+        _ = await get_from(session)
