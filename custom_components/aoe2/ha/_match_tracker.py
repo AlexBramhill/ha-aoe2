@@ -1,3 +1,5 @@
+from typing import final
+
 from homeassistant.core import HomeAssistant
 
 from custom_components.aoe2.ha._ledger_store import LedgerStore
@@ -5,6 +7,7 @@ from custom_components.aoe2.logic import MatchLedger, get_newly_finished_matches
 from custom_components.aoe2.models import Match, PlayerData
 
 
+@final
 class MatchTracker:
     def __init__(self, hass: HomeAssistant, entry_id: str) -> None:
         self._store = LedgerStore(hass, entry_id)

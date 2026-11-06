@@ -38,4 +38,4 @@ def test_get_player_with_id_raises_for_player_not_in_match():
 
     # When / Then
     with pytest.raises(LookupError):
-        match.get_player_with_id(ABSENT_PROFILE_ID)
+        _ = match.get_player_with_id(ABSENT_PROFILE_ID)

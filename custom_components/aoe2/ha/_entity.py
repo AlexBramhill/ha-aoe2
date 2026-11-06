@@ -6,14 +6,14 @@ from custom_components.aoe2.ha._coordinator import Aoe2Coordinator
 
 
 class Aoe2Entity(CoordinatorEntity[Aoe2Coordinator]):
-    _attr_has_entity_name = True
+    _attr_has_entity_name: bool = True
 
     def __init__(self, coordinator: Aoe2Coordinator, unique_key: str) -> None:
         super().__init__(coordinator)
         profile_id = coordinator.profile_id
-        self._attr_unique_id = f"{profile_id}_{unique_key}"
-        self._attr_attribution = coordinator.client.attribution
-        self._attr_device_info = DeviceInfo(
+        self._attr_unique_id: str = f"{profile_id}_{unique_key}"
+        self._attr_attribution: str = coordinator.client.attribution
+        self._attr_device_info: DeviceInfo = DeviceInfo(
             identifiers={(DOMAIN, str(profile_id))},
             name=coordinator.data.profile.name,
             entry_type=DeviceEntryType.SERVICE,

@@ -38,7 +38,7 @@ def test_matches_the_player_did_not_play_in_are_rejected():
 
     # When / Then
     with pytest.raises(ValueError, match="did not play in matches \\[9\\]"):
-        PlayerData(profile=other_player, unsorted_matches=[someone_elses_match])
+        _ = PlayerData(profile=other_player, unsorted_matches=[someone_elses_match])
 
 
 def test_recent_win_rate_counts_finished_matches():

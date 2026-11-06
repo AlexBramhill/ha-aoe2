@@ -13,4 +13,5 @@ class MatchResult(StrEnum):
                 return cls.WIN
             case False:
                 return cls.LOSS
-        return cls.UNKNOWN
+            case None:
+                return cls.UNKNOWN

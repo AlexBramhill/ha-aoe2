@@ -133,7 +133,7 @@ async def test_add_player_checks_profile_without_retrying(
     flow_id = await start_flow(hass)
 
     # When
-    await submit_profile_id(hass, flow_id)
+    _ = await submit_profile_id(hass, flow_id)
 
     # Then
     showing_form, checking_profile, *_setting_up_entry = created_client_policies
@@ -149,7 +149,7 @@ async def test_unexpected_client_error_is_logged_with_traceback(
     flow_id = await start_flow(hass)
 
     # When
-    await submit_profile_id(hass, flow_id)
+    _ = await submit_profile_id(hass, flow_id)
 
     # Then
     (record,) = [r for r in caplog.records if r.message == "Unexpected error checking profile"]
@@ -162,7 +162,7 @@ async def test_form_can_be_resubmitted_after_error(hass: HomeAssistant, fake_cli
     # Given
     fake_client.error = AoeClientConnectionError("unreachable")
     flow_id = await start_flow(hass)
-    await submit_profile_id(hass, flow_id)
+    _ = await submit_profile_id(hass, flow_id)
     fake_client.error = None
 
     # When
@@ -258,7 +258,7 @@ async def test_reconfigure_to_new_player_removes_previous_players_device(
     switch_to_new_player(fake_client)
 
     # When
-    await submit_profile_id(hass, flow_id)
+    _ = await submit_profile_id(hass, flow_id)
     await hass.async_block_till_done()
 
     # Then
@@ -288,7 +288,7 @@ async def test_reconfigure_to_new_player_does_not_report_their_past_matches(
     switch_to_new_player(fake_client)
 
     # When
-    await submit_profile_id(hass, flow_id)
+    _ = await submit_profile_id(hass, flow_id)
     await hass.async_block_till_done()
 
     # Then
@@ -329,7 +329,7 @@ async def test_reconfigure_checks_profile_without_retrying(
     flow_id = await start_reconfigure_flow(hass, entry)
 
     # When
-    await hass.config_entries.flow.async_configure(
+    _ = await hass.config_entries.flow.async_configure(
         flow_id, user_input={CONF_PROFILE_ID: SET_UP_PROFILE_ID}
     )
 
@@ -449,4 +449,4 @@ async def test_options_reject_intervals_below_minimum(
 
     # When / Then
     with pytest.raises(InvalidData):
-        await hass.config_entries.options.async_configure(flow_id, user_input=too_frequent)
+        _ = await hass.config_entries.options.async_configure(flow_id, user_input=too_frequent)

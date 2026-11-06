@@ -13,7 +13,7 @@ async def test_entities_credit_the_configured_data_source(
     hass: HomeAssistant, fake_client: FakeAoeClient
 ):
     # When
-    await set_up_integration(hass)
+    _ = await set_up_integration(hass)
 
     # Then
     rating = state_of(hass, Platform.SENSOR, "rm_1v1_rating")

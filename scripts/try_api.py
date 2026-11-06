@@ -81,9 +81,9 @@ def format_rating_change(player: MatchPlayer) -> str:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Query an AoE2 data source.")
-    parser.add_argument("client", choices=get_args(ClientName), help="data source to query")
-    parser.add_argument("profile_id", type=int, help="player to show")
-    parser.add_argument(
+    _ = parser.add_argument("client", choices=get_args(ClientName), help="data source to query")
+    _ = parser.add_argument("profile_id", type=int, help="player to show")
+    _ = parser.add_argument(
         "--count", type=int, default=5, help="maximum number of recent matches to show"
     )
     return parser.parse_args()

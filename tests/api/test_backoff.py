@@ -1,8 +1,8 @@
+import asyncio
 from dataclasses import dataclass, field
 
 import pytest
 
-from custom_components.aoe2.api import _backoff
 from custom_components.aoe2.api._backoff import with_exponential_backoff
 
 MAX_RETRIES = 3
@@ -12,7 +12,7 @@ LONGEST_WAIT_SECONDS = 10
 class TransientError(Exception):
     def __init__(self, retry_after: float | None = None) -> None:
         super().__init__()
-        self.retry_after = retry_after
+        self.retry_after: float | None = retry_after
 
 
 class PermanentError(Exception):
@@ -41,7 +41,7 @@ def backoff_delays(monkeypatch: pytest.MonkeyPatch) -> list[float]:
     async def record_sleep(delay: float) -> None:
         delays.append(delay)
 
-    monkeypatch.setattr(_backoff.asyncio, "sleep", record_sleep)
+    monkeypatch.setattr(asyncio, "sleep", record_sleep)
     return delays
 
 
@@ -82,13 +82,14 @@ async def test_retries_until_success(backoff_delays: list[float]):
     assert len(backoff_delays) == 2
 
 
-async def test_gives_up_after_max_retries(backoff_delays: list[float]):
+@pytest.mark.usefixtures("backoff_delays")
+async def test_gives_up_after_max_retries():
     # Given
     request = FlakyRequest(failures=MAX_RETRIES + 1)
 
     # When
     with pytest.raises(TransientError):
-        await run_with_backoff(request)
+        _ = await run_with_backoff(request)
 
     # Then
     assert request.calls == MAX_RETRIES + 1
@@ -99,7 +100,7 @@ async def test_delays_double_with_jitter(backoff_delays: list[float]):
     request = FlakyRequest(failures=MAX_RETRIES)
 
     # When
-    await run_with_backoff(request)
+    _ = await run_with_backoff(request)
 
     # Then
     assert 1 <= backoff_delays[0] <= 2
@@ -113,7 +114,7 @@ async def test_other_errors_are_not_retried(backoff_delays: list[float]):
 
     # When
     with pytest.raises(PermanentError):
-        await run_with_backoff(request)
+        _ = await run_with_backoff(request)
 
     # Then
     assert request.calls == 1
@@ -125,7 +126,7 @@ async def test_waits_as_long_as_the_error_requests(backoff_delays: list[float]):
     request = FlakyRequest(failures=2, error=TransientError(retry_after=3))
 
     # When
-    await run_with_backoff(request)
+    _ = await run_with_backoff(request)
 
     # Then
     assert backoff_delays == [3, 3]
@@ -137,7 +138,7 @@ async def test_gives_up_when_requested_wait_is_too_long(backoff_delays: list[flo
 
     # When
     with pytest.raises(TransientError):
-        await run_with_backoff(request)
+        _ = await run_with_backoff(request)
 
     # Then
     assert request.calls == 1

@@ -39,3 +39,6 @@ venvPath = "."
 venv = ".venv"
 pythonVersion = "3.14"
 reportIncompatibleVariableOverride = false
+allowedUntypedLibraries = ["homeassistant", "pytest_homeassistant_custom_component"]
+reportAny = false
+reportExplicitAny = false

@@ -146,7 +146,7 @@ def test_malformed_profile_raises_response_error():
 
     # When / Then
     with pytest.raises(AoeClientResponseError):
-        parse_profile(malformed_profile)
+        _ = parse_profile(malformed_profile)
 
 
 def test_profile_url_links_to_aoe2companion_profile():
@@ -196,7 +196,7 @@ async def test_requests_send_the_client_version(monkeypatch: pytest.MonkeyPatch)
     client = Aoe2CompanionClient(UNUSED_SESSION, TEST_VERSION)
 
     # When
-    await client.get_profile(VIPER.profile_id)
+    _ = await client.get_profile(VIPER.profile_id)
 
     # Then
     assert sent_versions == [TEST_VERSION]
@@ -227,7 +227,7 @@ async def test_requests_use_the_client_policy(
     )
 
     # When
-    await client.get_profile(VIPER.profile_id)
+    _ = await client.get_profile(VIPER.profile_id)
 
     # Then
     assert sent_policies == [expected_policy]

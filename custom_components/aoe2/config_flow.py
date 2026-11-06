@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, final, override
 
 import probatio
 from homeassistant.config_entries import (
@@ -47,7 +47,8 @@ PROFILE_SCHEMA = probatio.Schema({probatio.Required(CONF_PROFILE_ID): POSITIVE_I
 
 
 def _get_minutes_selector(minimum: int) -> Selector[NumberSelectorConfig]:
-    return NumberSelector(
+    # HA's selector registry erases NumberSelector's type argument
+    return NumberSelector(  # pyright: ignore[reportUnknownVariableType]
         NumberSelectorConfig(
             min=minimum, step=1, unit_of_measurement="min", mode=NumberSelectorMode.BOX
         )
@@ -71,14 +72,17 @@ MINIMUM_INTERVAL_PLACEHOLDERS = {
 }
 
 
+@final
 class Aoe2ConfigFlow(ConfigFlow, domain=DOMAIN):
     VERSION = 1
 
     @staticmethod
     @callback
+    @override
     def async_get_options_flow(config_entry: ConfigEntry) -> Aoe2OptionsFlow:
         return Aoe2OptionsFlow()
 
+    @override
     async def async_step_user(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         client = await self._get_client()
         if user_input is None:
@@ -113,7 +117,7 @@ class Aoe2ConfigFlow(ConfigFlow, domain=DOMAIN):
                 return self._show_profile_form("reconfigure", client, user_input, errors)
 
     async def _abort_if_player_already_added(self, profile_id: int) -> None:
-        await self.async_set_unique_id(str(profile_id))
+        _ = await self.async_set_unique_id(str(profile_id))
         self._abort_if_unique_id_configured()
 
     def _create_player_entry(self, profile_id: int, player_name: str) -> ConfigFlowResult:

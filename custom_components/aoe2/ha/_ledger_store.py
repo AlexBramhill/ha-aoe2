@@ -1,4 +1,4 @@
-from typing import TypedDict
+from typing import TypedDict, final
 
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.storage import Store
@@ -14,6 +14,7 @@ class StoredLedger(TypedDict):
     profile_id: int
 
 
+@final
 class LedgerStore:
     def __init__(self, hass: HomeAssistant, entry_id: str) -> None:
         self._store = Store[StoredLedger](

@@ -1,7 +1,7 @@
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any
+from typing import Any, final, override
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
@@ -165,7 +165,7 @@ PLAYER_SENSORS: tuple[Aoe2PlayerSensorEntityDescription, ...] = (
 
 
 async def async_setup_entry(
-    hass: HomeAssistant,
+    _hass: HomeAssistant,
     entry: Aoe2ConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
@@ -192,10 +192,13 @@ class Aoe2RatingSensor(Aoe2Entity, SensorEntity):
     ) -> None:
         super().__init__(coordinator, f"{leaderboard}_{description.key}")
         self.entity_description = description
-        self._leaderboard = leaderboard
-        self._attr_translation_placeholders = {"leaderboard": LEADERBOARD_NAMES[leaderboard]}
+        self._leaderboard: Leaderboard = leaderboard
+        self._attr_translation_placeholders: Mapping[str, str] = {
+            "leaderboard": LEADERBOARD_NAMES[leaderboard]
+        }
 
     @property
+    @override
     def native_value(self) -> SensorValue:
         rating = self.coordinator.data.profile.rating_for(self._leaderboard)
         return None if rating is None else self.entity_description.value_fn(rating)
@@ -211,28 +214,32 @@ class Aoe2PlayerSensor(Aoe2Entity, SensorEntity):
         self.entity_description = description
 
     @property
+    @override
     def native_value(self) -> SensorValue:
         return self.entity_description.value_fn(self.coordinator.data)
 
     @property
+    @override
     def extra_state_attributes(self) -> dict[str, Any] | None:
         attributes_fn = self.entity_description.attributes_fn
         return None if attributes_fn is None else attributes_fn(self.coordinator.data)
 
 
 class Aoe2LastUpdatedSensor(Aoe2Entity, SensorEntity):
-    _attr_translation_key = "last_updated"
-    _attr_device_class = SensorDeviceClass.TIMESTAMP
-    _attr_entity_category = EntityCategory.DIAGNOSTIC
+    _attr_translation_key: str = "last_updated"
+    _attr_device_class: SensorDeviceClass = SensorDeviceClass.TIMESTAMP
+    _attr_entity_category: EntityCategory = EntityCategory.DIAGNOSTIC
 
     def __init__(self, coordinator: Aoe2Coordinator) -> None:
         super().__init__(coordinator, "last_updated")
 
     @property
+    @override
     def native_value(self) -> datetime | None:
         return self.coordinator.last_update_success_time
 
 
+@final
 class RatingSensorsPerLeaderboard:
     def __init__(
         self, coordinator: Aoe2Coordinator, async_add_entities: AddConfigEntryEntitiesCallback

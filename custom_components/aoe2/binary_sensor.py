@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, override
 
 from homeassistant.components.binary_sensor import BinarySensorEntity
 from homeassistant.core import HomeAssistant
@@ -15,7 +15,7 @@ PARALLEL_UPDATES = 0
 
 
 async def async_setup_entry(
-    hass: HomeAssistant,
+    _hass: HomeAssistant,
     entry: Aoe2ConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
@@ -23,15 +23,17 @@ async def async_setup_entry(
 
 
 class Aoe2InMatchSensor(Aoe2Entity, BinarySensorEntity):
-    _attr_translation_key = "in_match"
+    _attr_translation_key: str = "in_match"
 
     def __init__(self, coordinator: Aoe2Coordinator) -> None:
         super().__init__(coordinator, "in_match")
 
     @property
+    @override
     def is_on(self) -> bool:
         return self.coordinator.data.is_in_current_match()
 
     @property
+    @override
     def extra_state_attributes(self) -> dict[str, Any]:
         return get_current_match_details(self.coordinator.data)

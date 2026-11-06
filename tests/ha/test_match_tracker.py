@@ -38,7 +38,7 @@ async def test_matches_finished_before_tracking_started_are_not_returned(hass: H
 async def test_newly_finished_match_is_returned_only_once(hass: HomeAssistant):
     # Given
     tracker = await loaded_tracker(hass)
-    await tracker.async_take_newly_finished(BEFORE_NEXT_MATCH)
+    _ = await tracker.async_take_newly_finished(BEFORE_NEXT_MATCH)
 
     # When
     first_take = await tracker.async_take_newly_finished(AFTER_NEXT_MATCH)
@@ -52,8 +52,8 @@ async def test_newly_finished_match_is_returned_only_once(hass: HomeAssistant):
 async def test_returned_match_is_not_returned_again_after_restart(hass: HomeAssistant):
     # Given
     before_restart = await loaded_tracker(hass)
-    await before_restart.async_take_newly_finished(BEFORE_NEXT_MATCH)
-    await before_restart.async_take_newly_finished(AFTER_NEXT_MATCH)
+    _ = await before_restart.async_take_newly_finished(BEFORE_NEXT_MATCH)
+    _ = await before_restart.async_take_newly_finished(AFTER_NEXT_MATCH)
 
     # When
     after_restart = await loaded_tracker(hass)
@@ -66,7 +66,7 @@ async def test_returned_match_is_not_returned_again_after_restart(hass: HomeAssi
 async def test_match_that_finished_while_stopped_is_returned_after_restart(hass: HomeAssistant):
     # Given
     before_restart = await loaded_tracker(hass)
-    await before_restart.async_take_newly_finished(BEFORE_NEXT_MATCH)
+    _ = await before_restart.async_take_newly_finished(BEFORE_NEXT_MATCH)
 
     # When
     after_restart = await loaded_tracker(hass)
@@ -79,7 +79,7 @@ async def test_match_that_finished_while_stopped_is_returned_after_restart(hass:
 async def test_remove_deletes_saved_ledger(hass: HomeAssistant, hass_storage: dict[str, Any]):
     # Given
     tracker = await loaded_tracker(hass)
-    await tracker.async_take_newly_finished(BEFORE_NEXT_MATCH)
+    _ = await tracker.async_take_newly_finished(BEFORE_NEXT_MATCH)
     assert STORAGE_KEY in hass_storage
 
     # When

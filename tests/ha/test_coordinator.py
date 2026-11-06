@@ -170,7 +170,7 @@ async def test_match_finished_listeners_hear_newly_finished_match(
     # Given
     await refresh(hass, coordinator)
     heard: list[MatchFinishedEvent] = []
-    coordinator.async_add_match_finished_listener(heard.append)
+    _ = coordinator.async_add_match_finished_listener(heard.append)
     fake_client.matches = [NEWER_MATCH.build(), EARLIER_MATCH.build()]
 
     # When

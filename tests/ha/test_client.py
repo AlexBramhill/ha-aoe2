@@ -31,7 +31,7 @@ async def test_client_is_created_with_the_integration_version(
     monkeypatch.setattr(_client, "create_client", recording_create_client)
 
     # When
-    await async_create_client(hass, "aoe2companion", policy)
+    _ = await async_create_client(hass, "aoe2companion", policy)
 
     # Then
     assert created == [("aoe2companion", read_manifest_version(), policy)]

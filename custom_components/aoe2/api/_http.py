@@ -1,8 +1,8 @@
-from collections.abc import AsyncIterator
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from http import HTTPStatus
-from typing import Any
+from typing import Any, TypeIs
 
 import aiohttp
 
@@ -63,20 +63,20 @@ async def _request_json(
             url, params=params, headers={"User-Agent": user_agent}, timeout=request_timeout
         ) as response,
     ):
-        _raise_for_status(response)
+        raise_for_status(response)
         body = await _read_json(response)
     return _ensure_object(url, body)
 
 
 @asynccontextmanager
-async def _connection_error_handler(url: str) -> AsyncIterator[None]:
+async def _connection_error_handler(url: str) -> AsyncGenerator[None]:
     try:
         yield
     except (aiohttp.ClientError, TimeoutError) as error:
         raise AoeClientConnectionError(f"Error fetching {url}: {error}") from error
 
 
-def _raise_for_status(response: aiohttp.ClientResponse) -> None:
+def raise_for_status(response: aiohttp.ClientResponse) -> None:
     url = response.url
     match response.status:
         case HTTPStatus.OK:
@@ -101,7 +101,7 @@ async def _read_json(response: aiohttp.ClientResponse) -> Any:
 
 
 def _ensure_object(url: str, body: Any) -> dict[str, Any]:
-    if not isinstance(body, dict):
+    if not is_json_object(body):
         raise AoeClientResponseError(f"{url} returned {type(body).__name__}, expected object")
     return body
 
@@ -109,3 +109,8 @@ def _ensure_object(url: str, body: Any) -> dict[str, Any]:
 def _get_retry_after(response: aiohttp.ClientResponse) -> int | None:
     value = response.headers.get("Retry-After", "")
     return int(value) if value.isdecimal() else None
+
+
+def is_json_object(value: object) -> TypeIs[dict[str, Any]]:
+    """JSON object keys are always strings."""
+    return isinstance(value, dict)

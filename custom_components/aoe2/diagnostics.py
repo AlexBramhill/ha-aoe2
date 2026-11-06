@@ -13,10 +13,11 @@ IDENTIFYING_KEYS = {"profile_id", "name", "title", "unique_id", "country", "matc
 
 
 async def async_get_config_entry_diagnostics(
-    hass: HomeAssistant, entry: Aoe2ConfigEntry
+    _hass: HomeAssistant, entry: Aoe2ConfigEntry
 ) -> dict[str, Any]:
     coordinator = entry.runtime_data
-    return async_redact_data(
+    # HA types the Mapping overload as returning a bare dict
+    return async_redact_data(  # pyright: ignore[reportUnknownVariableType]
         {
             "entry": entry.as_dict(),
             "coordinator": {

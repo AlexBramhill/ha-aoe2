@@ -129,7 +129,7 @@ async def test_built_matches_are_parsed_as_expected(
 async def test_unknown_profile_raises_not_found(client: AoeClient):
     # When / Then
     with pytest.raises(AoeClientNotFoundError):
-        await client.get_profile(UNKNOWN_PROFILE_ID)
+        _ = await client.get_profile(UNKNOWN_PROFILE_ID)
 
 
 async def test_matches_are_newest_first(client: AoeClient, recorded_player: RecordedPlayer):
@@ -148,7 +148,7 @@ async def test_matches_include_requested_player(client: AoeClient, recorded_play
     # Then
     assert matches
     for match in matches:
-        match.get_player_with_id(recorded_player.profile_id)
+        _ = match.get_player_with_id(recorded_player.profile_id)
 
 
 async def test_match_times_are_timezone_aware(client: AoeClient, recorded_player: RecordedPlayer):

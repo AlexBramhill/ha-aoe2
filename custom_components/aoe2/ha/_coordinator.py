@@ -2,7 +2,7 @@ import asyncio
 from collections.abc import Callable, Mapping
 from dataclasses import asdict
 from datetime import timedelta
-from typing import Any
+from typing import Any, final, override
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import CALLBACK_TYPE, HomeAssistant, callback
@@ -26,6 +26,7 @@ from custom_components.aoe2.models import Match, PlayerData
 type MatchFinishedListener = Callable[[MatchFinishedEvent], None]
 
 
+@final
 class Aoe2Coordinator(TimestampDataUpdateCoordinator[PlayerData]):
     config_entry: ConfigEntry[Aoe2Coordinator]
 
@@ -64,9 +65,11 @@ class Aoe2Coordinator(TimestampDataUpdateCoordinator[PlayerData]):
 
         return remove_listener
 
+    @override
     async def _async_setup(self) -> None:
         await self._match_tracker.async_load()
 
+    @override
     async def _async_update_data(self) -> PlayerData:
         latest_player_data = await self._fetch_player_data()
         self._matches_to_announce.extend(
@@ -76,6 +79,7 @@ class Aoe2Coordinator(TimestampDataUpdateCoordinator[PlayerData]):
         return latest_player_data
 
     @callback
+    @override
     def async_update_listeners(self) -> None:
         """Announce after entities update, so automations see the new ratings."""
         super().async_update_listeners()

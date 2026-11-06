@@ -10,7 +10,7 @@ from tests.integration import refresh, set_up_integration, state_of
 @pytest.mark.usefixtures("created_client_names")
 async def test_in_match_is_off_when_all_matches_finished(hass: HomeAssistant):
     # When
-    await set_up_integration(hass)
+    _ = await set_up_integration(hass)
 
     # Then
     assert state_of(hass, Platform.BINARY_SENSOR, "in_match").state == STATE_OFF

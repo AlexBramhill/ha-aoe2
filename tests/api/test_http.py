@@ -1,4 +1,5 @@
-from collections.abc import AsyncIterator
+import asyncio
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
 from typing import Any
@@ -11,15 +12,14 @@ from custom_components.aoe2.api import (
     AoeClientNotFoundError,
     AoeClientRateLimitError,
     AoeClientResponseError,
-    _backoff,
 )
 from custom_components.aoe2.api._http import (
     BACKGROUND_REQUESTS,
     INTERACTIVE_REQUESTS,
     LONGEST_RETRY_WAIT_SECONDS,
     RequestPolicy,
-    _raise_for_status,
     get_json,
+    raise_for_status,
 )
 from tests.api.helpers import TEST_VERSION, get_stand_in
 
@@ -32,6 +32,7 @@ class FakeResponse:
     body: Any = None
 
     async def json(self, content_type: str | None = None) -> Any:
+        del content_type
         return self.body
 
 
@@ -41,7 +42,7 @@ class RecordingSession:
     sent_timeouts: list[aiohttp.ClientTimeout] = field(default_factory=list)
 
     @asynccontextmanager
-    async def get(self, url: str, **kwargs: Any) -> AsyncIterator[FakeResponse]:
+    async def get(self, url: str, **kwargs: Any) -> AsyncGenerator[FakeResponse]:
         self.sent_headers.append(kwargs.get("headers", {}))
         self.sent_timeouts.append(kwargs["timeout"])
         yield FakeResponse(status=200, url=url, body={"ok": True})
@@ -56,7 +57,7 @@ class FlakySession:
     attempts: int = 0
 
     @asynccontextmanager
-    async def get(self, url: str, **kwargs: Any) -> AsyncIterator[FakeResponse]:
+    async def get(self, url: str, **_kwargs: Any) -> AsyncGenerator[FakeResponse]:
         status = self.statuses[self.attempts] if self.attempts < len(self.statuses) else 200
         self.attempts += 1
         yield FakeResponse(status=status, headers=self.headers, url=url, body={"ok": True})
@@ -64,10 +65,10 @@ class FlakySession:
 
 @pytest.fixture
 def no_backoff_sleep(monkeypatch: pytest.MonkeyPatch) -> None:
-    async def skip_sleep(delay: float) -> None:
+    async def skip_sleep(_delay: float) -> None:
         pass
 
-    monkeypatch.setattr(_backoff.asyncio, "sleep", skip_sleep)
+    monkeypatch.setattr(asyncio, "sleep", skip_sleep)
 
 
 async def get_from(
@@ -96,7 +97,7 @@ def test_success_status_does_not_raise():
     response = fake_response(200)
 
     # When / Then
-    _raise_for_status(response)
+    raise_for_status(response)
 
 
 @pytest.mark.parametrize(
@@ -114,7 +115,7 @@ def test_error_status_raises(status: int, expected_error: type[Exception]):
 
     # When / Then
     with pytest.raises(expected_error):
-        _raise_for_status(response)
+        raise_for_status(response)
 
 
 @pytest.mark.parametrize(
@@ -136,7 +137,7 @@ def test_error_reads_retry_after(
 
     # When
     with pytest.raises(expected_error) as raised:
-        _raise_for_status(response)
+        raise_for_status(response)
 
     # Then
     assert raised.value.retry_after == retry_after_seconds
@@ -149,7 +150,7 @@ def test_other_server_errors_ignore_retry_after(status: int):
 
     # When
     with pytest.raises(AoeClientConnectionError) as raised:
-        _raise_for_status(response)
+        raise_for_status(response)
 
     # Then
     assert raised.value.retry_after is None
@@ -160,7 +161,7 @@ async def test_requests_send_a_user_agent_naming_the_version():
     session = RecordingSession()
 
     # When
-    await get_from(session)
+    _ = await get_from(session)
 
     # Then
     assert session.sent_headers == [
@@ -174,7 +175,7 @@ async def test_requests_use_the_policy_timeout(policy: RequestPolicy):
     session = RecordingSession()
 
     # When
-    await get_from(session, policy)
+    _ = await get_from(session, policy)
 
     # Then
     assert session.sent_timeouts == [aiohttp.ClientTimeout(total=policy.timeout_seconds)]
@@ -201,7 +202,7 @@ async def test_interactive_requests_fail_on_first_server_error():
 
     # When
     with pytest.raises(AoeClientConnectionError):
-        await get_from(session, INTERACTIVE_REQUESTS)
+        _ = await get_from(session, INTERACTIVE_REQUESTS)
 
     # Then
     assert session.attempts == 1
@@ -221,7 +222,7 @@ async def test_non_transient_failure_is_not_retried(status: int, expected_error:
 
     # When
     with pytest.raises(expected_error):
-        await get_from(session)
+        _ = await get_from(session)
 
     # Then
     assert session.attempts == 1
@@ -234,7 +235,7 @@ async def test_rate_limited_request_waits_for_retry_after(monkeypatch: pytest.Mo
     async def record_sleep(delay: float) -> None:
         waits.append(delay)
 
-    monkeypatch.setattr(_backoff.asyncio, "sleep", record_sleep)
+    monkeypatch.setattr(asyncio, "sleep", record_sleep)
     session = FlakySession(statuses=[429], headers={"Retry-After": "3"})
 
     # When
@@ -259,7 +260,7 @@ async def test_long_retry_after_is_left_to_the_caller(
 
     # When
     with pytest.raises(expected_error) as raised:
-        await get_from(session)
+        _ = await get_from(session)
 
     # Then
     assert session.attempts == 1

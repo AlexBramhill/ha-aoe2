@@ -1,6 +1,6 @@
 from collections.abc import Iterator
 from datetime import datetime
-from typing import Any
+from typing import Any, final
 
 import aiohttp
 
@@ -30,6 +30,7 @@ LEADERBOARDS_BY_ID: dict[str, Leaderboard] = {
 }
 
 
+@final
 class Aoe2CompanionClient:
     def __init__(
         self,

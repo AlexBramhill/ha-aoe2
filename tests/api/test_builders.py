@@ -1,7 +1,8 @@
-from typing import Any
+from typing import Any, TypeIs
 
 import pytest
 
+from custom_components.aoe2.api._http import is_json_object
 from custom_components.aoe2.models import Leaderboard
 from tests.api.helpers import RECORDED_PLAYERS, RecordedPlayer
 from tests.builders import MatchBuilder, ProfileBuilder, build_match_history, build_rating
@@ -10,10 +11,10 @@ from tests.builders import MatchBuilder, ProfileBuilder, build_match_history, bu
 def has_same_shape(built: Any, recorded: Any) -> bool:
     if built is None or recorded is None:
         return True
-    if isinstance(built, dict):
-        return isinstance(recorded, dict) and object_has_same_shape(built, recorded)
-    if isinstance(built, list):
-        return isinstance(recorded, list) and list_has_same_shape(built, recorded)
+    if is_json_object(built):
+        return is_json_object(recorded) and object_has_same_shape(built, recorded)
+    if is_json_list(built):
+        return is_json_list(recorded) and list_has_same_shape(built, recorded)
     return type(built) is type(recorded)
 
 
@@ -21,6 +22,10 @@ def object_has_same_shape(built: dict[str, Any], recorded: dict[str, Any]) -> bo
     return all(
         key in recorded and has_same_shape(value, recorded[key]) for key, value in built.items()
     )
+
+
+def is_json_list(value: object) -> TypeIs[list[Any]]:
+    return isinstance(value, list)
 
 
 def list_has_same_shape(built: list[Any], recorded: list[Any]) -> bool:

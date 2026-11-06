@@ -20,7 +20,7 @@ from tests.integration import (
 @pytest.mark.usefixtures("created_client_names")
 async def test_rating_sensors_show_each_leaderboard(hass: HomeAssistant):
     # When
-    await set_up_integration(hass)
+    _ = await set_up_integration(hass)
 
     # Then
     assert state_of(hass, Platform.SENSOR, "rm_1v1_rating").state == "1650"
@@ -31,7 +31,7 @@ async def test_rating_sensors_show_each_leaderboard(hass: HomeAssistant):
 @pytest.mark.usefixtures("created_client_names")
 async def test_last_match_sensors_describe_newest_match(hass: HomeAssistant):
     # When
-    await set_up_integration(hass)
+    _ = await set_up_integration(hass)
 
     # Then
     result = state_of(hass, Platform.SENSOR, "last_match_result")
@@ -44,7 +44,7 @@ async def test_last_match_sensors_describe_newest_match(hass: HomeAssistant):
 @pytest.mark.usefixtures("created_client_names")
 async def test_last_updated_records_successful_refresh(hass: HomeAssistant):
     # When
-    await set_up_integration(hass)
+    _ = await set_up_integration(hass)
 
     # Then
     assert state_of(hass, Platform.SENSOR, "last_updated").state != STATE_UNAVAILABLE
@@ -57,7 +57,7 @@ async def test_last_updated_records_successful_refresh(hass: HomeAssistant):
 )
 async def test_detail_sensors_are_disabled_by_default(hass: HomeAssistant, unique_key: str):
     # When
-    await set_up_integration(hass)
+    _ = await set_up_integration(hass)
 
     # Then
     entity_id = entity_id_for(hass, Platform.SENSOR, unique_key)

@@ -57,6 +57,7 @@ class FakeApi:
         version: str,
         policy: RequestPolicy,
     ) -> Body:
+        del version, policy
         path = url.removeprefix(f"{self.module.BASE_URL}/")
         if path not in self.responses_by_path:
             raise AoeClientNotFoundError(url)

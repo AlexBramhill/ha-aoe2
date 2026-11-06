@@ -19,7 +19,7 @@ def config_entry_for(client_name: ClientName = DEFAULT_CLIENT) -> MockConfigEntr
 
 async def set_up(hass: HomeAssistant, entry: MockConfigEntry) -> None:
     entry.add_to_hass(hass)
-    await hass.config_entries.async_setup(entry.entry_id)
+    _ = await hass.config_entries.async_setup(entry.entry_id)
     await hass.async_block_till_done()
 
 

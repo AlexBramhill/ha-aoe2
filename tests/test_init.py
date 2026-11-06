@@ -70,7 +70,7 @@ async def test_setup_removes_previous_players_device(hass: HomeAssistant):
     entry = config_entry_for("aoe2companion")
     entry.add_to_hass(hass)
     devices = device_registry.async_get(hass)
-    devices.async_get_or_create(
+    _ = devices.async_get_or_create(
         config_entry_id=entry.entry_id, identifiers={(DOMAIN, str(PREVIOUS_PROFILE_ID))}
     )
 
@@ -105,7 +105,7 @@ async def test_remove_deletes_saved_ledger(hass: HomeAssistant, hass_storage: di
     assert storage_key in hass_storage
 
     # When
-    await hass.config_entries.async_remove(entry.entry_id)
+    _ = await hass.config_entries.async_remove(entry.entry_id)
     await hass.async_block_till_done()
 
     # Then

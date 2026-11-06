@@ -9,7 +9,7 @@ FIXTURES = Path(__file__).parent / "fixtures"
 TEST_VERSION = "1.2.3-tests"
 
 
-def get_stand_in[T](real_type: type[T], fake: object) -> T:
+def get_stand_in[T](_real_type: type[T], fake: object) -> T:
     return cast(T, fake)
 
 

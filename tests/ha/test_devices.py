@@ -26,8 +26,8 @@ async def test_previous_players_device_is_removed(hass: HomeAssistant):
     # Given
     entry = config_entry_for()
     entry.add_to_hass(hass)
-    add_player_device(hass, entry, PROFILE_ID)
-    add_player_device(hass, entry, PREVIOUS_PROFILE_ID)
+    _ = add_player_device(hass, entry, PROFILE_ID)
+    _ = add_player_device(hass, entry, PREVIOUS_PROFILE_ID)
 
     # When
     remove_previous_players_devices(hass, entry)

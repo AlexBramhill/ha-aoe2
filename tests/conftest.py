@@ -7,7 +7,7 @@ from tests.fake_client import FakeAoeClient
 
 @pytest.fixture(autouse=True)
 def auto_enable_custom_integrations(enable_custom_integrations: None) -> None:
-    return
+    del enable_custom_integrations
 
 
 @pytest.fixture

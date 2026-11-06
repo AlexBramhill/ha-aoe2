@@ -17,10 +17,12 @@ class FakeAoeClient:
         return f"https://fake.test/players/{profile_id}"
 
     async def get_profile(self, profile_id: int) -> Profile:
+        del profile_id
         self._raise_error_if_set()
         return self.profile
 
     async def get_recent_matches(self, profile_id: int, count: int = 5) -> list[Match]:
+        del profile_id
         self._raise_error_if_set()
         return self.matches[:count]
 
