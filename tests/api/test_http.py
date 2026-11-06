@@ -1,7 +1,7 @@
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
-from typing import Any, cast
+from typing import Any
 
 import aiohttp
 import pytest
@@ -21,7 +21,7 @@ from custom_components.aoe2.api._http import (
     _raise_for_status,
     get_json,
 )
-from tests.api.helpers import TEST_VERSION
+from tests.api.helpers import TEST_VERSION, get_stand_in
 
 
 @dataclass
@@ -74,7 +74,7 @@ async def get_from(
     session: FlakySession | RecordingSession, policy: RequestPolicy = BACKGROUND_REQUESTS
 ) -> dict[str, Any]:
     return await get_json(
-        cast(aiohttp.ClientSession, session),
+        get_stand_in(aiohttp.ClientSession, session),
         "https://example.test/api",
         version=TEST_VERSION,
         policy=policy,
@@ -83,7 +83,7 @@ async def get_from(
 
 def fake_response(status: int, headers: dict[str, str] | None = None) -> aiohttp.ClientResponse:
     """Status handling only reads status, headers and url, so a stand-in is enough."""
-    return cast(aiohttp.ClientResponse, FakeResponse(status, headers or {}))
+    return get_stand_in(aiohttp.ClientResponse, FakeResponse(status, headers or {}))
 
 
 def response_with_retry_after(status: int, retry_after: str | None) -> aiohttp.ClientResponse:

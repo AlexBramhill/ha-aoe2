@@ -6,8 +6,14 @@ from typing import Any, cast
 import aiohttp
 
 FIXTURES = Path(__file__).parent / "fixtures"
-UNUSED_SESSION = cast(aiohttp.ClientSession, None)
 TEST_VERSION = "1.2.3-tests"
+
+
+def get_stand_in[T](real_type: type[T], fake: object) -> T:
+    return cast(T, fake)
+
+
+UNUSED_SESSION = get_stand_in(aiohttp.ClientSession, None)
 
 
 @dataclass(frozen=True)

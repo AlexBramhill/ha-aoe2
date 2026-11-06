@@ -86,7 +86,7 @@ Requires Python 3.14.2+ and [uv](https://docs.astral.sh/uv/).
 ```sh
 uv sync
 uv run pytest
-uv run ruff check && uv run ruff format --check && uv run pyright
+uv run ruff check && uv run ruff format --check && uv run basedpyright
 uv run python scripts/try_api.py aoe2companion <profile_id>  # query the API directly
 ```
 

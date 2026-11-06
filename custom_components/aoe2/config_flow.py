@@ -12,6 +12,7 @@ from homeassistant.helpers.selector import (
     NumberSelector,
     NumberSelectorConfig,
     NumberSelectorMode,
+    Selector,
 )
 
 from custom_components.aoe2.api import (
@@ -45,7 +46,7 @@ POSITIVE_INTEGER = probatio.All(probatio.Coerce(int), probatio.Range(min=1))
 PROFILE_SCHEMA = probatio.Schema({probatio.Required(CONF_PROFILE_ID): POSITIVE_INTEGER})
 
 
-def _get_minutes_selector(minimum: int) -> NumberSelector:
+def _get_minutes_selector(minimum: int) -> Selector[NumberSelectorConfig]:
     return NumberSelector(
         NumberSelectorConfig(
             min=minimum, step=1, unit_of_measurement="min", mode=NumberSelectorMode.BOX

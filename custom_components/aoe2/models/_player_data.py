@@ -1,8 +1,8 @@
 from dataclasses import InitVar, dataclass, field
 from datetime import datetime
 
-from custom_components.aoe2.models import MatchResult
 from custom_components.aoe2.models._match import Match, MatchPlayer
+from custom_components.aoe2.models._match_result import MatchResult
 from custom_components.aoe2.models._profile import Profile
 
 
