@@ -46,10 +46,22 @@ def test_recent_win_rate_counts_finished_matches():
     data = data_with(WON_MATCH, LOST_MATCH, MatchBuilder().with_match_id(3).unfinished())
 
     # When
-    win_rate = data.recent_win_rate()
+    win_rate = data.get_recent_win_rate()
 
     # Then
     assert win_rate == 0.5
+
+
+def test_recent_win_rate_ignores_matches_with_an_unknown_outcome():
+    # Given
+    unknown_outcome = build_match_player(PROFILE_ID, is_winner=None)
+    data = data_with(WON_MATCH, MatchBuilder().with_match_id(3).with_player(unknown_outcome))
+
+    # When
+    win_rate = data.get_recent_win_rate()
+
+    # Then
+    assert win_rate == 1.0
 
 
 def test_recent_win_rate_is_unknown_without_finished_matches():
@@ -57,7 +69,7 @@ def test_recent_win_rate_is_unknown_without_finished_matches():
     data = data_with(MatchBuilder().unfinished())
 
     # When
-    win_rate = data.recent_win_rate()
+    win_rate = data.get_recent_win_rate()
 
     # Then
     assert win_rate is None
@@ -68,7 +80,7 @@ def test_recent_rating_change_sums_finished_matches():
     data = data_with(WON_MATCH, LOST_MATCH)
 
     # When
-    change = data.recent_rating_change()
+    change = data.get_recent_rating_change()
 
     # Then
     assert change == 10 - 14
@@ -79,21 +91,21 @@ def test_last_match_result_is_from_newest_finished_match():
     data = data_with(MatchBuilder().with_match_id(3).unfinished(), LOST_MATCH, WON_MATCH)
 
     # When
-    result = data.last_match_result()
+    result = data.get_last_match_result()
 
     # Then
     assert result is MatchResult.LOSS
 
 
-def test_last_match_result_is_none_without_finished_matches():
+def test_last_match_result_is_unknown_without_finished_matches():
     # Given
     data = data_with(MatchBuilder().unfinished())
 
     # When
-    result = data.last_match_result()
+    result = data.get_last_match_result()
 
     # Then
-    assert result is None
+    assert result is MatchResult.UNKNOWN
 
 
 def test_last_match_result_is_unknown_when_the_outcome_is_unknown():
@@ -101,7 +113,7 @@ def test_last_match_result_is_unknown_when_the_outcome_is_unknown():
     data = data_with(MatchBuilder().with_player(build_match_player(PROFILE_ID, is_winner=None)))
 
     # When
-    result = data.last_match_result()
+    result = data.get_last_match_result()
 
     # Then
     assert result is MatchResult.UNKNOWN

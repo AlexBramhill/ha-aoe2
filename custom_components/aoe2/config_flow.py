@@ -21,7 +21,7 @@ from custom_components.aoe2.api import (
     AoeClient,
     AoeClientError,
     AoeClientNotFoundError,
-    AoeClientRetryError,
+    AoeClientRetryableError,
 )
 from custom_components.aoe2.const import (
     CONF_IN_MATCH_UPDATE_MINUTES,
@@ -55,14 +55,15 @@ def _get_minutes_selector(minimum: int) -> Selector[NumberSelectorConfig]:
     )
 
 
+MINIMUM_MINUTES = {
+    CONF_UPDATE_MINUTES: MIN_UPDATE_MINUTES,
+    CONF_IN_MATCH_UPDATE_MINUTES: MIN_IN_MATCH_UPDATE_MINUTES,
+}
+
 OPTIONS_SCHEMA = probatio.Schema(
     {
-        probatio.Required(CONF_UPDATE_MINUTES, default=MIN_UPDATE_MINUTES): _get_minutes_selector(
-            MIN_UPDATE_MINUTES
-        ),
-        probatio.Required(
-            CONF_IN_MATCH_UPDATE_MINUTES, default=MIN_IN_MATCH_UPDATE_MINUTES
-        ): _get_minutes_selector(MIN_IN_MATCH_UPDATE_MINUTES),
+        probatio.Required(key, default=minimum): _get_minutes_selector(minimum)
+        for key, minimum in MINIMUM_MINUTES.items()
     }
 )
 
@@ -125,7 +126,7 @@ class Aoe2ConfigFlow(ConfigFlow, domain=DOMAIN):
     def _create_player_entry(self, profile_id: int, player_name: str) -> ConfigFlowResult:
         return self.async_create_entry(
             title=player_name,
-            data=EntryData(profile_id=profile_id).model_dump(),
+            data=EntryData(profile_id=profile_id).model_dump(mode="json"),
         )
 
     async def _get_client(self) -> AoeClient:
@@ -152,7 +153,7 @@ class Aoe2ConfigFlow(ConfigFlow, domain=DOMAIN):
             entry,
             unique_id=str(profile_id),
             title=player_name,
-            data_updates={CONF_PROFILE_ID: profile_id},
+            data=EntryData.from_entry(entry).with_profile_id(profile_id).model_dump(mode="json"),
         )
 
 
@@ -161,7 +162,9 @@ class Aoe2OptionsFlow(OptionsFlowWithReload):
         self, user_input: dict[str, object] | None = None
     ) -> ConfigFlowResult:
         if user_input is not None:
-            return self.async_create_entry(data=_get_options_from(user_input).model_dump())
+            return self.async_create_entry(
+                data=_get_options_from(user_input).model_dump(mode="json")
+            )
         return self.async_show_form(
             step_id="init",
             data_schema=self.add_suggested_values_to_schema(
@@ -189,7 +192,7 @@ async def _get_profile_or_form_errors(
         return await client.get_profile(profile_id)
     except AoeClientNotFoundError:
         return {CONF_PROFILE_ID: ERROR_PLAYER_NOT_FOUND}
-    except AoeClientRetryError:
+    except AoeClientRetryableError:
         return {FORM_ERROR: ERROR_CANNOT_CONNECT}
     except AoeClientError:
         LOGGER.exception("Unexpected error checking profile")

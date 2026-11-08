@@ -27,15 +27,17 @@ class MatchLedger:
 def get_newly_finished_matches(
     data: PlayerData, match_ledger: MatchLedger | None
 ) -> tuple[list[Match], MatchLedger]:
-    finished_oldest_first = list(reversed(data.finished_matches()))
+    profile_id = data.profile.profile_id
+    finished_matches_oldest_first = list(reversed(data.get_finished_matches()))
 
-    if match_ledger is None or match_ledger.profile_id != data.profile.profile_id:
-        new_ledger = MatchLedger(data.profile.profile_id).record(
-            match.match_id for match in finished_oldest_first
-        )
-        return [], new_ledger
+    if match_ledger is None or match_ledger.profile_id != profile_id:
+        return [], _get_starting_ledger(profile_id, finished_matches_oldest_first)
 
     newly_finished = [
-        match for match in finished_oldest_first if match.match_id not in match_ledger
+        match for match in finished_matches_oldest_first if match.match_id not in match_ledger
     ]
     return newly_finished, match_ledger.record(match.match_id for match in newly_finished)
+
+
+def _get_starting_ledger(profile_id: int, matches: list[Match]) -> MatchLedger:
+    return MatchLedger(profile_id).record(match.match_id for match in matches)

@@ -1,5 +1,5 @@
 import asyncio
-from collections.abc import Callable, Mapping
+from collections.abc import Callable
 from dataclasses import asdict
 from datetime import timedelta
 from typing import final, override
@@ -8,7 +8,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import CALLBACK_TYPE, HomeAssistant, callback
 from homeassistant.helpers.update_coordinator import TimestampDataUpdateCoordinator, UpdateFailed
 
-from custom_components.aoe2.api import AoeClient, AoeClientError, AoeClientRetryError
+from custom_components.aoe2.api import AoeClient, AoeClientError, AoeClientRetryableError
 from custom_components.aoe2.const import (
     DOMAIN,
     EVENT_MATCH_FINISHED,
@@ -29,7 +29,7 @@ class Aoe2Coordinator(TimestampDataUpdateCoordinator[PlayerData]):
     def __init__(
         self, hass: HomeAssistant, entry: ConfigEntry[Aoe2Coordinator], client: AoeClient
     ) -> None:
-        self._update_intervals = get_update_intervals(entry.options)
+        self._update_intervals = get_update_intervals(entry)
         super().__init__(
             hass,
             LOGGER,
@@ -71,7 +71,7 @@ class Aoe2Coordinator(TimestampDataUpdateCoordinator[PlayerData]):
         self._matches_to_announce.extend(
             await self._match_tracker.async_take_newly_finished(latest_player_data)
         )
-        self.update_interval = self._update_intervals.for_data(latest_player_data)
+        self.update_interval = self._update_intervals.get_interval_for(latest_player_data)
         return latest_player_data
 
     @callback
@@ -84,7 +84,7 @@ class Aoe2Coordinator(TimestampDataUpdateCoordinator[PlayerData]):
     @callback
     def _announce_newly_finished_matches(self) -> None:
         for match in self._matches_to_announce:
-            event = MatchFinishedEvent.from_match(match, self.data.own_player_in(match))
+            event = MatchFinishedEvent.from_match(match, self.data.get_own_player_in(match))
             for listener in self._match_finished_listeners:
                 listener(event)
             self.hass.bus.async_fire(EVENT_MATCH_FINISHED, asdict(event))
@@ -96,15 +96,15 @@ class Aoe2Coordinator(TimestampDataUpdateCoordinator[PlayerData]):
                 self._client.get_profile(self._profile_id),
                 self._client.get_recent_matches(self._profile_id, RECENT_MATCH_COUNT),
             )
-        except AoeClientRetryError as error:
+        except AoeClientRetryableError as error:
             raise UpdateFailed(str(error), retry_after=error.retry_after) from error
         except AoeClientError as error:
             raise UpdateFailed(str(error)) from error
         return PlayerData(profile=profile, unsorted_matches=matches)
 
 
-def get_update_intervals(stored_options: Mapping[str, object]) -> UpdateIntervals:
-    options = EntryOptions.from_mapping(stored_options)
+def get_update_intervals(entry: ConfigEntry) -> UpdateIntervals:
+    options = EntryOptions.from_entry(entry)
     return UpdateIntervals(
         usual=timedelta(minutes=options.update_minutes),
         in_match=timedelta(minutes=options.in_match_update_minutes),

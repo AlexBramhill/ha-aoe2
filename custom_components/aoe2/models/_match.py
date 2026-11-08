@@ -42,12 +42,12 @@ class Match:
                 return player
         raise LookupError(f"Profile {profile_id} did not play in match {self.match_id}")
 
-    def teammates_of(self, player: MatchPlayer) -> tuple[MatchPlayer, ...]:
+    def get_teammates_of(self, player: MatchPlayer) -> tuple[MatchPlayer, ...]:
         return tuple(
             other
             for other in self.players
             if other.team == player.team and other.profile_id != player.profile_id
         )
 
-    def opponents_of(self, player: MatchPlayer) -> tuple[MatchPlayer, ...]:
+    def get_opponents_of(self, player: MatchPlayer) -> tuple[MatchPlayer, ...]:
         return tuple(other for other in self.players if other.team != player.team)

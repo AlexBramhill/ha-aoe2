@@ -340,8 +340,11 @@ async def test_returns_to_normal_polling_after_the_match(
 
 
 def test_update_intervals_default_to_the_minimums():
+    # Given
+    entry = MockConfigEntry(domain=DOMAIN)
+
     # When
-    intervals = get_update_intervals({})
+    intervals = get_update_intervals(entry)
 
     # Then
     assert intervals.usual == timedelta(minutes=MIN_UPDATE_MINUTES)
@@ -349,8 +352,12 @@ def test_update_intervals_default_to_the_minimums():
 
 
 def test_update_intervals_come_from_options():
+    # Given
+    options = {CONF_UPDATE_MINUTES: 30, CONF_IN_MATCH_UPDATE_MINUTES: 5}
+    entry = MockConfigEntry(domain=DOMAIN, options=options)
+
     # When
-    intervals = get_update_intervals({CONF_UPDATE_MINUTES: 30, CONF_IN_MATCH_UPDATE_MINUTES: 5})
+    intervals = get_update_intervals(entry)
 
     # Then
     assert intervals.usual == timedelta(minutes=30)

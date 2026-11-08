@@ -9,5 +9,5 @@ class UpdateIntervals:
     usual: timedelta
     in_match: timedelta
 
-    def for_data(self, data: PlayerData) -> timedelta:
+    def get_interval_for(self, data: PlayerData) -> timedelta:
         return self.in_match if data.is_in_current_match() else self.usual

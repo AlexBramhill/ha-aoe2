@@ -9,10 +9,10 @@ from aiohttp.typedefs import Query
 from pydantic import BaseModel
 
 from custom_components.aoe2.api import (
-    AoeClientConnectionError,
     AoeClientNotFoundError,
     AoeClientRateLimitError,
     AoeClientResponseError,
+    AoeClientServerError,
 )
 from custom_components.aoe2.api._http import (
     BACKGROUND_REQUESTS,
@@ -121,8 +121,8 @@ def test_success_status_does_not_raise():
     [
         (404, AoeClientNotFoundError),
         (400, AoeClientResponseError),
-        (500, AoeClientConnectionError),
-        (503, AoeClientConnectionError),
+        (500, AoeClientServerError),
+        (503, AoeClientServerError),
     ],
 )
 def test_error_status_raises(status: int, expected_error: type[Exception]):
@@ -136,7 +136,7 @@ def test_error_status_raises(status: int, expected_error: type[Exception]):
 
 @pytest.mark.parametrize(
     ("status", "expected_error"),
-    [(429, AoeClientRateLimitError), (503, AoeClientConnectionError)],
+    [(429, AoeClientRateLimitError), (503, AoeClientServerError)],
 )
 @pytest.mark.parametrize(
     ("retry_after_header", "retry_after_seconds"),
@@ -144,7 +144,7 @@ def test_error_status_raises(status: int, expected_error: type[Exception]):
 )
 def test_error_reads_retry_after(
     status: int,
-    expected_error: type[AoeClientRateLimitError | AoeClientConnectionError],
+    expected_error: type[AoeClientRateLimitError | AoeClientServerError],
     retry_after_header: str | None,
     retry_after_seconds: int | None,
 ):
@@ -165,7 +165,7 @@ def test_other_server_errors_ignore_retry_after(status: int):
     response = response_with_retry_after(status, "30")
 
     # When
-    with pytest.raises(AoeClientConnectionError) as raised:
+    with pytest.raises(AoeClientServerError) as raised:
         raise_for_status(response)
 
     # Then
@@ -217,7 +217,7 @@ async def test_interactive_requests_fail_on_first_server_error():
     session = FlakySession(statuses=[503])
 
     # When
-    with pytest.raises(AoeClientConnectionError):
+    with pytest.raises(AoeClientServerError):
         _ = await get_from(session, INTERACTIVE_REQUESTS)
 
     # Then
@@ -264,11 +264,11 @@ async def test_rate_limited_request_waits_for_retry_after(monkeypatch: pytest.Mo
 
 @pytest.mark.parametrize(
     ("status", "expected_error"),
-    [(429, AoeClientRateLimitError), (503, AoeClientConnectionError)],
+    [(429, AoeClientRateLimitError), (503, AoeClientServerError)],
 )
 @pytest.mark.usefixtures("no_backoff_sleep")
 async def test_long_retry_after_is_left_to_the_caller(
-    status: int, expected_error: type[AoeClientRateLimitError | AoeClientConnectionError]
+    status: int, expected_error: type[AoeClientRateLimitError | AoeClientServerError]
 ):
     # Given
     retry_after = LONGEST_RETRY_WAIT_SECONDS + 1
