@@ -1,21 +1,16 @@
 from datetime import datetime
 
-from custom_components.aoe2.models import MatchResult, PlayerData
+from custom_components.aoe2.models import Match, MatchPlayer, MatchResult, PlayerData
 
 type AttributeValue = str | int | float | datetime | list[str] | None
 type StateAttributes = dict[str, AttributeValue]
 
 
-def get_known_last_match_result(data: PlayerData) -> MatchResult | None:
-    result = data.get_last_match_result()
-    return None if result is MatchResult.UNKNOWN else result
+def get_known_result(player: MatchPlayer) -> MatchResult | None:
+    return None if player.result is MatchResult.UNKNOWN else player.result
 
 
-def get_last_match_details(data: PlayerData) -> StateAttributes:
-    match = data.get_last_finished_match()
-    if match is None:
-        return {}
-    player = data.get_own_player_in(match)
+def get_last_match_details(match: Match, player: MatchPlayer) -> StateAttributes:
     return {
         "leaderboard": match.leaderboard,
         "map": match.map_name,

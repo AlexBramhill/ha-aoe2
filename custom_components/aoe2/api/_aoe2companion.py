@@ -96,9 +96,9 @@ def get_matches_from(response: MatchesResponse) -> list[Match]:
 
 
 def _get_ratings_on_known_leaderboards(response: ProfileResponse) -> Iterator[Rating]:
-    """Unrecognised leaderboards are skipped: several would all collapse into OTHER."""
     for rating in response.leaderboards:
-        if (leaderboard := _get_leaderboard(rating.leaderboard_id)) is not Leaderboard.OTHER:
+        leaderboard = _get_leaderboard(rating.leaderboard_id)
+        if leaderboard is not Leaderboard.OTHER:
             yield _get_rating(leaderboard, rating)
 
 

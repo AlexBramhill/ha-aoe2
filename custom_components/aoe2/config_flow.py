@@ -33,7 +33,12 @@ from custom_components.aoe2.const import (
     MIN_IN_MATCH_UPDATE_MINUTES,
     MIN_UPDATE_MINUTES,
 )
-from custom_components.aoe2.ha import EntryData, EntryOptions, async_create_client
+from custom_components.aoe2.ha import (
+    EntryData,
+    EntryOptions,
+    async_create_client,
+    get_player_unique_id,
+)
 from custom_components.aoe2.models import Profile
 
 FORM_ERROR = "base"
@@ -109,7 +114,7 @@ class Aoe2ConfigFlow(ConfigFlow, domain=DOMAIN):
             return self._show_profile_form("reconfigure", client, dict(entry.data))
 
         profile_id = _get_profile_id(user_input)
-        is_new_player = str(profile_id) != entry.unique_id
+        is_new_player = get_player_unique_id(profile_id) != entry.unique_id
         if is_new_player:
             await self._abort_if_player_already_added(profile_id)
 
@@ -120,7 +125,7 @@ class Aoe2ConfigFlow(ConfigFlow, domain=DOMAIN):
                 return self._show_profile_form("reconfigure", client, user_input, errors)
 
     async def _abort_if_player_already_added(self, profile_id: int) -> None:
-        _ = await self.async_set_unique_id(str(profile_id))
+        _ = await self.async_set_unique_id(get_player_unique_id(profile_id))
         self._abort_if_unique_id_configured()
 
     def _create_player_entry(self, profile_id: int, player_name: str) -> ConfigFlowResult:
@@ -151,9 +156,9 @@ class Aoe2ConfigFlow(ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         return self.async_update_reload_and_abort(
             entry,
-            unique_id=str(profile_id),
+            unique_id=get_player_unique_id(profile_id),
             title=player_name,
-            data=EntryData.from_entry(entry).with_profile_id(profile_id).model_dump(mode="json"),
+            data_updates={CONF_PROFILE_ID: profile_id},
         )
 
 

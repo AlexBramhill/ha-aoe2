@@ -28,9 +28,6 @@ class EntryData(_Stored):
     def from_entry(cls, entry: ConfigEntry) -> Self:
         return cls.from_mapping(entry.data)
 
-    def with_profile_id(self, profile_id: int) -> Self:
-        return self.model_copy(update={"profile_id": profile_id})
-
 
 class EntryOptions(_Stored):
     update_minutes: int = MIN_UPDATE_MINUTES
