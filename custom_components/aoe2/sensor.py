@@ -19,11 +19,18 @@ from custom_components.aoe2.ha import (
     Aoe2Coordinator,
     Aoe2Entity,
     StateAttributes,
-    get_known_last_match_result,
+    get_known_result,
     get_last_match_details,
     get_percentage,
 )
-from custom_components.aoe2.models import Leaderboard, MatchResult, PlayerData, Rating
+from custom_components.aoe2.models import (
+    Leaderboard,
+    Match,
+    MatchPlayer,
+    MatchResult,
+    PlayerData,
+    Rating,
+)
 
 PARALLEL_UPDATES = 0
 
@@ -52,9 +59,14 @@ class Aoe2RatingSensorEntityDescription(SensorEntityDescription):
 
 
 @dataclass(frozen=True, kw_only=True)
+class Aoe2LastMatchSensorEntityDescription(SensorEntityDescription):
+    value_fn: Callable[[Match, MatchPlayer], SensorValue]
+    attributes_fn: Callable[[Match, MatchPlayer], StateAttributes] = lambda _match, _player: {}
+
+
+@dataclass(frozen=True, kw_only=True)
 class Aoe2PlayerSensorEntityDescription(SensorEntityDescription):
     value_fn: Callable[[PlayerData], SensorValue]
-    attributes_fn: Callable[[PlayerData], StateAttributes] | None = None
 
 
 RATING_SENSORS: tuple[Aoe2RatingSensorEntityDescription, ...] = (
@@ -108,33 +120,37 @@ RATING_SENSORS: tuple[Aoe2RatingSensorEntityDescription, ...] = (
 )
 
 
-PLAYER_SENSORS: tuple[Aoe2PlayerSensorEntityDescription, ...] = (
-    Aoe2PlayerSensorEntityDescription(
+LAST_MATCH_SENSORS: tuple[Aoe2LastMatchSensorEntityDescription, ...] = (
+    Aoe2LastMatchSensorEntityDescription(
         key="last_match_result",
         device_class=SensorDeviceClass.ENUM,
         options=[MatchResult.WIN, MatchResult.LOSS],
-        value_fn=get_known_last_match_result,
+        value_fn=lambda _match, player: get_known_result(player),
         attributes_fn=get_last_match_details,
     ),
-    Aoe2PlayerSensorEntityDescription(
+    Aoe2LastMatchSensorEntityDescription(
         key="last_match_rating_change",
-        value_fn=PlayerData.get_last_match_rating_change,
+        value_fn=lambda _match, player: player.rating_change,
     ),
-    Aoe2PlayerSensorEntityDescription(
+    Aoe2LastMatchSensorEntityDescription(
         key="last_played",
         device_class=SensorDeviceClass.TIMESTAMP,
-        value_fn=PlayerData.get_last_match_finished_at,
+        value_fn=lambda match, _player: match.finished,
     ),
-    Aoe2PlayerSensorEntityDescription(
+    Aoe2LastMatchSensorEntityDescription(
         key="last_match_map",
         entity_registry_enabled_default=False,
-        value_fn=PlayerData.get_last_match_map,
+        value_fn=lambda match, _player: match.map_name,
     ),
-    Aoe2PlayerSensorEntityDescription(
+    Aoe2LastMatchSensorEntityDescription(
         key="last_match_civ",
         entity_registry_enabled_default=False,
-        value_fn=PlayerData.get_last_match_civ,
+        value_fn=lambda _match, player: player.civ,
     ),
+)
+
+
+PLAYER_SENSORS: tuple[Aoe2PlayerSensorEntityDescription, ...] = (
     Aoe2PlayerSensorEntityDescription(
         key="recent_win_rate",
         native_unit_of_measurement=PERCENTAGE,
@@ -158,6 +174,7 @@ async def async_setup_entry(
     coordinator = entry.runtime_data
     async_add_entities(
         [
+            *(Aoe2LastMatchSensor(coordinator, description) for description in LAST_MATCH_SENSORS),
             *(Aoe2PlayerSensor(coordinator, description) for description in PLAYER_SENSORS),
             Aoe2LastUpdatedSensor(coordinator),
         ]
@@ -190,6 +207,33 @@ class Aoe2RatingSensor(Aoe2Entity, SensorEntity):
         return None if rating is None else self.entity_description.value_fn(rating)
 
 
+class Aoe2LastMatchSensor(Aoe2Entity, SensorEntity):
+    entity_description: Aoe2LastMatchSensorEntityDescription
+
+    def __init__(
+        self, coordinator: Aoe2Coordinator, description: Aoe2LastMatchSensorEntityDescription
+    ) -> None:
+        super().__init__(coordinator, description.key)
+        self.entity_description = description
+
+    @property
+    @override
+    def native_value(self) -> SensorValue:
+        last_match = self._get_last_match_and_player()
+        return None if last_match is None else self.entity_description.value_fn(*last_match)
+
+    @property
+    @override
+    def extra_state_attributes(self) -> StateAttributes:
+        last_match = self._get_last_match_and_player()
+        return {} if last_match is None else self.entity_description.attributes_fn(*last_match)
+
+    def _get_last_match_and_player(self) -> tuple[Match, MatchPlayer] | None:
+        data = self.coordinator.data
+        match = data.get_last_finished_match()
+        return None if match is None else (match, data.get_own_player_in(match))
+
+
 class Aoe2PlayerSensor(Aoe2Entity, SensorEntity):
     entity_description: Aoe2PlayerSensorEntityDescription
 
@@ -203,12 +247,6 @@ class Aoe2PlayerSensor(Aoe2Entity, SensorEntity):
     @override
     def native_value(self) -> SensorValue:
         return self.entity_description.value_fn(self.coordinator.data)
-
-    @property
-    @override
-    def extra_state_attributes(self) -> StateAttributes | None:
-        attributes_fn = self.entity_description.attributes_fn
-        return None if attributes_fn is None else attributes_fn(self.coordinator.data)
 
 
 class Aoe2LastUpdatedSensor(Aoe2Entity, SensorEntity):

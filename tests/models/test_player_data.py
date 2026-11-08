@@ -2,7 +2,7 @@ from datetime import timedelta
 
 import pytest
 
-from custom_components.aoe2.models import MatchResult, PlayerData
+from custom_components.aoe2.models import PlayerData
 from tests.builders import TYPICAL_START, MatchBuilder, ProfileBuilder, build_match_player
 from tests.integration import PROFILE_ID
 
@@ -28,7 +28,7 @@ def test_matches_are_sorted_newest_first():
     data = data_with(older, newer)
 
     # Then
-    assert [match.match_id for match in data.matches] == [2, 1]
+    assert [match.match_id for match in data.matches_newest_first] == [2, 1]
 
 
 def test_matches_the_player_did_not_play_in_are_rejected():
@@ -86,34 +86,24 @@ def test_recent_rating_change_sums_finished_matches():
     assert change == 10 - 14
 
 
-def test_last_match_result_is_from_newest_finished_match():
+def test_last_finished_match_is_the_newest_finished_match():
     # Given
     data = data_with(MatchBuilder().with_match_id(3).unfinished(), LOST_MATCH, WON_MATCH)
 
     # When
-    result = data.get_last_match_result()
+    match = data.get_last_finished_match()
 
     # Then
-    assert result is MatchResult.LOSS
+    assert match is not None
+    assert match.match_id == LOST_MATCH.build().match_id
 
 
-def test_last_match_result_is_unknown_without_finished_matches():
+def test_last_finished_match_is_none_without_finished_matches():
     # Given
     data = data_with(MatchBuilder().unfinished())
 
     # When
-    result = data.get_last_match_result()
+    match = data.get_last_finished_match()
 
     # Then
-    assert result is MatchResult.UNKNOWN
-
-
-def test_last_match_result_is_unknown_when_the_outcome_is_unknown():
-    # Given
-    data = data_with(MatchBuilder().with_player(build_match_player(PROFILE_ID, is_winner=None)))
-
-    # When
-    result = data.get_last_match_result()
-
-    # Then
-    assert result is MatchResult.UNKNOWN
+    assert match is None

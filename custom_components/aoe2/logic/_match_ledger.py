@@ -28,7 +28,7 @@ def get_newly_finished_matches(
     data: PlayerData, match_ledger: MatchLedger | None
 ) -> tuple[list[Match], MatchLedger]:
     profile_id = data.profile.profile_id
-    finished_matches_oldest_first = list(reversed(data.get_finished_matches()))
+    finished_matches_oldest_first = list(reversed(data.get_finished_matches_newest_first()))
 
     if match_ledger is None or match_ledger.profile_id != profile_id:
         return [], _get_starting_ledger(profile_id, finished_matches_oldest_first)

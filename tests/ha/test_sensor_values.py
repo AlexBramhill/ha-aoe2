@@ -1,6 +1,6 @@
 from custom_components.aoe2.ha._sensor_values import (
     get_current_match_details,
-    get_known_last_match_result,
+    get_known_result,
     get_last_match_details,
 )
 from custom_components.aoe2.models import Leaderboard, PlayerData
@@ -20,12 +20,12 @@ def data_with(*matches: MatchBuilder) -> PlayerData:
     return PlayerData(profile=PLAYER, unsorted_matches=[match.build() for match in matches])
 
 
-def test_last_match_result_hides_an_unknown_outcome():
+def test_known_result_hides_an_unknown_outcome():
     # Given
-    data = data_with(MatchBuilder().with_player(build_match_player(PROFILE_ID, is_winner=None)))
+    player = build_match_player(PROFILE_ID, is_winner=None)
 
     # When
-    result = get_known_last_match_result(data)
+    result = get_known_result(player)
 
     # Then
     assert result is None
@@ -66,8 +66,10 @@ def test_last_match_details_list_teammates_and_opponents():
         .with_player(build_match_player(4, name="Rival", team=2))
     )
 
+    match = team_game.build()
+
     # When
-    details = get_last_match_details(data_with(team_game))
+    details = get_last_match_details(match, match.get_player_with_id(PROFILE_ID))
 
     # Then
     assert details["teammates"] == ["Ally"]
