@@ -7,8 +7,8 @@ from custom_components.aoe2.ha._match_tracker import MatchTracker
 from custom_components.aoe2.ha._sensor_values import (
     StateAttributes,
     get_current_match_details,
+    get_known_last_match_result,
     get_last_match_details,
-    get_last_match_result,
     get_percentage,
 )
 from custom_components.aoe2.ha._setup import PLATFORMS, async_set_up_player
@@ -25,7 +25,7 @@ __all__ = [
     "async_create_client",
     "async_set_up_player",
     "get_current_match_details",
+    "get_known_last_match_result",
     "get_last_match_details",
-    "get_last_match_result",
     "get_percentage",
 ]

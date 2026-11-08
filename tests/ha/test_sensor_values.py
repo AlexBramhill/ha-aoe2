@@ -1,7 +1,7 @@
 from custom_components.aoe2.ha._sensor_values import (
     get_current_match_details,
+    get_known_last_match_result,
     get_last_match_details,
-    get_last_match_result,
 )
 from custom_components.aoe2.models import Leaderboard, PlayerData
 from tests.builders import TYPICAL_START, MatchBuilder, ProfileBuilder, build_match_player
@@ -25,7 +25,7 @@ def test_last_match_result_hides_an_unknown_outcome():
     data = data_with(MatchBuilder().with_player(build_match_player(PROFILE_ID, is_winner=None)))
 
     # When
-    result = get_last_match_result(data)
+    result = get_known_last_match_result(data)
 
     # Then
     assert result is None

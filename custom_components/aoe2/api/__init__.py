@@ -11,7 +11,8 @@ from custom_components.aoe2.api._errors import (
     AoeClientNotFoundError,
     AoeClientRateLimitError,
     AoeClientResponseError,
-    AoeClientRetryError,
+    AoeClientRetryableError,
+    AoeClientServerError,
 )
 from custom_components.aoe2.api._http import (
     BACKGROUND_REQUESTS,
@@ -45,7 +46,8 @@ __all__ = [
     "AoeClientNotFoundError",
     "AoeClientRateLimitError",
     "AoeClientResponseError",
-    "AoeClientRetryError",
+    "AoeClientRetryableError",
+    "AoeClientServerError",
     "ClientName",
     "RequestPolicy",
     "create_client",

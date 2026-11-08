@@ -13,7 +13,8 @@ from custom_components.aoe2.api._errors import (
     AoeClientNotFoundError,
     AoeClientRateLimitError,
     AoeClientResponseError,
-    AoeClientRetryError,
+    AoeClientRetryableError,
+    AoeClientServerError,
 )
 
 FIRST_RETRY_DELAY_SECONDS = 1.0
@@ -44,7 +45,7 @@ async def get_response[Response: BaseModel](
     request_timeout = aiohttp.ClientTimeout(total=policy.timeout_seconds)
     body = await with_exponential_backoff(
         lambda: _get_response_body(session, url, params, user_agent, request_timeout),
-        retry_on=AoeClientRetryError,
+        retry_on=AoeClientRetryableError,
         max_retries=policy.max_retries,
         first_delay_seconds=FIRST_RETRY_DELAY_SECONDS,
         get_requested_delay=lambda error: error.retry_after,
@@ -61,7 +62,7 @@ async def _get_response_body(
     request_timeout: aiohttp.ClientTimeout,
 ) -> str:
     async with (
-        _connection_error_handler(url),
+        _translate_connection_errors(url),
         session.get(
             url, params=params, headers={"User-Agent": user_agent}, timeout=request_timeout
         ) as response,
@@ -80,7 +81,7 @@ def _get_validated_response[Response: BaseModel](
 
 
 @asynccontextmanager
-async def _connection_error_handler(url: str) -> AsyncGenerator[None]:
+async def _translate_connection_errors(url: str) -> AsyncGenerator[None]:
     try:
         yield
     except (aiohttp.ClientError, TimeoutError) as error:
@@ -97,9 +98,9 @@ def raise_for_status(response: aiohttp.ClientResponse) -> None:
         case HTTPStatus.TOO_MANY_REQUESTS:
             raise AoeClientRateLimitError(f"{url} rate limited", _get_retry_after(response))
         case HTTPStatus.SERVICE_UNAVAILABLE:
-            raise AoeClientConnectionError(f"{url} is unavailable", _get_retry_after(response))
+            raise AoeClientServerError(f"{url} is unavailable", _get_retry_after(response))
         case status if status >= HTTPStatus.INTERNAL_SERVER_ERROR:
-            raise AoeClientConnectionError(f"{url} returned HTTP {status}")
+            raise AoeClientServerError(f"{url} returned HTTP {status}")
         case status:
             raise AoeClientResponseError(f"{url} returned HTTP {status}")
 

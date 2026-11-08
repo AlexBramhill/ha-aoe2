@@ -31,5 +31,5 @@ class Profile:
     country: str | None
     ratings: tuple[Rating, ...]
 
-    def rating_for(self, leaderboard: Leaderboard) -> Rating | None:
+    def get_rating_for(self, leaderboard: Leaderboard) -> Rating | None:
         return next((rating for rating in self.ratings if rating.leaderboard == leaderboard), None)

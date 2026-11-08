@@ -19,8 +19,8 @@ from custom_components.aoe2.ha import (
     Aoe2Coordinator,
     Aoe2Entity,
     StateAttributes,
+    get_known_last_match_result,
     get_last_match_details,
-    get_last_match_result,
     get_percentage,
 )
 from custom_components.aoe2.models import Leaderboard, MatchResult, PlayerData, Rating
@@ -113,39 +113,39 @@ PLAYER_SENSORS: tuple[Aoe2PlayerSensorEntityDescription, ...] = (
         key="last_match_result",
         device_class=SensorDeviceClass.ENUM,
         options=[MatchResult.WIN, MatchResult.LOSS],
-        value_fn=get_last_match_result,
+        value_fn=get_known_last_match_result,
         attributes_fn=get_last_match_details,
     ),
     Aoe2PlayerSensorEntityDescription(
         key="last_match_rating_change",
-        value_fn=PlayerData.last_match_rating_change,
+        value_fn=PlayerData.get_last_match_rating_change,
     ),
     Aoe2PlayerSensorEntityDescription(
         key="last_played",
         device_class=SensorDeviceClass.TIMESTAMP,
-        value_fn=PlayerData.last_match_finished_at,
+        value_fn=PlayerData.get_last_match_finished_at,
     ),
     Aoe2PlayerSensorEntityDescription(
         key="last_match_map",
         entity_registry_enabled_default=False,
-        value_fn=PlayerData.last_match_map,
+        value_fn=PlayerData.get_last_match_map,
     ),
     Aoe2PlayerSensorEntityDescription(
         key="last_match_civ",
         entity_registry_enabled_default=False,
-        value_fn=PlayerData.last_match_civ,
+        value_fn=PlayerData.get_last_match_civ,
     ),
     Aoe2PlayerSensorEntityDescription(
         key="recent_win_rate",
         native_unit_of_measurement=PERCENTAGE,
         suggested_display_precision=0,
         entity_registry_enabled_default=False,
-        value_fn=lambda data: get_percentage(data.recent_win_rate()),
+        value_fn=lambda data: get_percentage(data.get_recent_win_rate()),
     ),
     Aoe2PlayerSensorEntityDescription(
         key="recent_rating_change",
         entity_registry_enabled_default=False,
-        value_fn=PlayerData.recent_rating_change,
+        value_fn=PlayerData.get_recent_rating_change,
     ),
 )
 
@@ -186,7 +186,7 @@ class Aoe2RatingSensor(Aoe2Entity, SensorEntity):
     @property
     @override
     def native_value(self) -> SensorValue:
-        rating = self.coordinator.data.profile.rating_for(self._leaderboard)
+        rating = self.coordinator.data.profile.get_rating_for(self._leaderboard)
         return None if rating is None else self.entity_description.value_fn(rating)
 
 
@@ -243,8 +243,7 @@ class RatingSensorsPerLeaderboard:
         return [
             rating.leaderboard
             for rating in self._coordinator.data.profile.ratings
-            if rating.leaderboard in LEADERBOARD_NAMES
-            and rating.leaderboard not in self._leaderboards_with_sensors
+            if rating.leaderboard not in self._leaderboards_with_sensors
         ]
 
     def _get_sensors_for(self, leaderboards: list[Leaderboard]) -> list[Aoe2RatingSensor]:
