@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.5.1](https://github.com/AlexBramhill/ha-aoe2/compare/v0.5.0...v0.5.1) (2026-11-08)
+
+
+### Bug Fixes
+
+* move to pydantic ([98e7a0d](https://github.com/AlexBramhill/ha-aoe2/commit/98e7a0d4c0b42e9e70a236235f86bda2218b55f5))
+* move to pydantic ([e7d7ee1](https://github.com/AlexBramhill/ha-aoe2/commit/e7d7ee19203dbe0686e788ac8efac1dea35cc93a))
+* move to pydantic ([44dd68e](https://github.com/AlexBramhill/ha-aoe2/commit/44dd68e40a12ad5096b836dd7d67e2ec8dbaf3b6))
+* throw if matches do not contain player ([f05d35d](https://github.com/AlexBramhill/ha-aoe2/commit/f05d35d6e03b7ae1fc29fd9b2fa39f0bdcef795e))
+
 ## [0.5.0](https://github.com/AlexBramhill/ha-aoe2/compare/v0.4.0...v0.5.0) (2026-10-29)
 
 
